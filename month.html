@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Calendar</title>
+        <!-- <link type="text/css" rel="stylesheet" href="month.css"> -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/month.css') }}">
+        <script type="text/javascript" src="month.js"></script>
+    </head>
+    <body>
+        <div id="calendar-container">
+            <div id="calendar-header">
+                <span id="calendar-month-year"></span>
+            </div>
+            <div id="calendar-dates">
+            </div>
+        </div>
+    </body>
+</html>

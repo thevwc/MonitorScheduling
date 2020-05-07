@@ -1,0 +1,156 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block styles %}
+    {{super()}}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+
+{% block content %}
+
+    <title>Document</title>
+</head>
+<body>
+    <div class="parent">
+        <div class="hdg">
+            <h2>MONITOR SCHEDULING</h2>  
+        </div>
+        <div class="filterSection">
+            <form class = "filterItems "></form>
+                <label> Year - </label>
+                <select id="yearToDisplay" name="yearList" style="height: 25px;font-size: 1em;">
+                    <option id='lastYear' value=""></option>
+                    <option id='thisYear' value="" selected></option>
+                    <option id='nextYear' value=""></option>
+                </select>
+                <label>     Location - </label>
+                <select id="shopToDisplay" name="shopList" style="height: 25px;font-size: 1em;">
+                    <option id='shop1' value="RA">Rolling Acres</option>
+                    <option id='shop2' value="BW">Brownwood</option>
+                    <option id='bothShops' value="BOTH">Both Shops</option>
+                </select>
+                <!-- <label>     Duty - </label>
+                <select id="dutyToDisplay" name="dutyList" style="height: 25px; font-size:1em;">
+                    <option id='smDuty' value="SM">Shop Monitor Only</option>
+                    <option id='tcDuty' value="TC">Tool Crib Only</option>
+                    <option id='anyDuty'value="EITHER">Both</option>
+                </select> -->
+                
+                <input id="refreshCalendarBtn" class="btn btn-primary" type="submit" value="Refresh Calendar">  
+                <!-- <input id="resetCalendarFiltersBtn" class="btn btn-primary" type="submit" value="Reset Calendar Filters">   -->
+                
+                <button id="settingsIcon" style="font-size:24px"><i class="fas fa-cog" data-toggle='modal' data-target='#settingsModal'></i></button>
+                <button id="settingsBtn" style="display:none" type='button' class = 'btn btn-primary' data-toggle = 'modal' data-target = '#settingsModal'>
+                    SETTINGS  
+                </button>
+            </form>
+        </div>
+        
+        <!-- Calendar Section DIY calendar -->
+        <div id="calendar-container">
+            
+        </div>
+
+        <!-- MEMBER NAME SECTION -->
+        <div id="memberName">
+            John Q Smith
+        </div>
+
+        <!-- MEMBER SCHEDULE -->
+        <div id="memberSchedule">
+            <h3 style=text-align:center>>Member's Schedule</h3>
+            <div>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Inventore error dolor magnam repudiandae eos amet harum, nihil similique minus quibusdam.</div>
+        </div>
+
+        <!-- MEMBER NOTES -->
+        <div id="memberNotes">
+            <h3>Notes</h3>
+        </div>
+
+        <!-- FIRST DAY SELECTED -->
+        <div id="day1">
+            <p>
+                <span>AM Shop Monitor</span>
+                <input id="day1AMsm1" type="text" value="" placeholder="member name">
+            </p>
+            <p>AM Shop Monitor</p>
+            <p>AM Tool Crib</p>
+            <p></p>
+            <p>PM Shop Monitor</p>
+            <p>PM Shop Monitor</p>
+            <p>PM Tool Crib</p>
+        </div>
+
+        <!-- SECOND DAY SELECTED -->
+        <div id="day2">
+            <p>AM Shop Monitor</p>
+            <p>AM Shop Monitor</p>
+            <p>AM Tool Crib</p>
+            <p></p>
+            <p>PM Shop Monitor</p>
+            <p>PM Shop Monitor</p>
+            <p>PM Tool Crib</p>
+        </div>
+        
+        <!-- TRANSACTION LOG -->
+        <div id="transactionLog">
+            <p>... transaction details ...</p>
+        </div>
+
+        <!-- MONITOR NOTES -->
+        <div id="monitorNotes">
+            <p>... monitor notes ... </p>
+        </div>
+    </div>  <!-- END OF WRAPPER -->
+    
+
+    <!-- MODAL FORM FOR APPLICATION START UP SETTINGS -->
+    <div id="settingsModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class='modal-title'>  
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <br>
+                        <h4>The Villages Woodworkers Club</h4>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <h5 style="text-decoration: underline;">START UP SETTINGS</h5>
+                    <form action="">
+                        <p style='text-align: left'>
+                            <label>Year to display -</label>
+                            <input id='yearDefault' type="text" style="width:50px; color:blue;font-weight: bold; " placeholder = '20xx'>
+                        </p>
+                        
+                        <p style='text-align: left'>
+                            <label>Location - </label> 
+                            <select id="shopDefault" name="shopDefault" style="height: 25px;font-size: 1em;">
+                                <option id='selectAshop' value="">Select a location ...</option>
+                                <option id='shop1' value="RA">Rolling Acres</option>
+                                <option id='shop2' value="BW">Brownwood</option>
+                            </select>
+                        </p>
+                        <!-- <a href="" class="modalBtn">Submit</a> -->
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> 
+                </div> 
+            </div>
+        </div>
+        <!-- <div class="closeModal">+</div> -->
+        <!--<img src="vwcIcon.png" alt="";> -->
+        
+    </div>
+
+</body>
+{% endblock %}
+
+{% block scripts %}
+    {{super()}}
+    <script src="{{ url_for('static', filename='js/index.js') }}"> </script>
+{% endblock %}

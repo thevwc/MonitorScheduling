@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/month.css') }}">  -->
+    
+    <!--<script src="https://kit.fontawesome.com/e9d1c5b4e2.js" crossorigin="anonymous"></script> -->
+    <!-- <script defer src="https://use.fontawesome.com/releases/v5.0.6/js.all.js"></script>  -->
+    <title>Document</title>
+</head>
+<body>
+    <div class="parent">
+        <div class="hdg">
+            <h2>MONITOR SCHEDULING</h2>
+        </div>
+        <div class="filterSection">
+            <!-- <form class = "filterItems btn-toolbar" action = "/refreshCalendar" method = "POST"> -->
+            <form class = "filterItems btn-toolbar" onsubmit="refreshCalendarRtn()">
+                <label> Year - </label>
+                <select id="yearToDisplay" name="yearList" style="height: 25px;font-size: 1em;">
+                    <option id='lastYear' value="1919">1819</option>
+                    <option id='thisYear' value="1920" selected>1820</option>
+                    <option id='nextYear' value="1921">1821</option>
+                </select>
+                <label>     Location - </label>
+                <select id="shop" name="shopList" style="height: 25px;font-size: 1em;">
+                    <option value="RA">Rolling Acres</option>
+                    <option value="BW">Brownwood</option>
+                    <option value="BOTH">Both Shops</option>
+                </select>
+                <label>     Duty - </label>
+                <select id="duty" name="dutyList" style="height: 25px; font-size:1em;">
+                    <option value="SM">Shop Monitor</option>
+                    <option value="TC">Tool Crib</option>
+                    <option value="EITHER">Either</option>
+                </select>
+                <input id="dateToDisplay" placeholder="mm/dd/yyyy" type="text">
+                <input id="refreshCalendar" class="btn btn-primary" type="submit" value="Refresh Calendar" style="height: 25px; font-size:1em">
+                
+            </form>
+            <button id='testBtnID1' onclick='testBtnRtnInternal()' class="btn btn-secondary">TEST (Internal)</button>
+            <button id='testBtnID2' onclick='testBtnRtnExternal()' class="btn btn-secondary">TEST (External)</button>
+            <button id='testBtnID4' onclick='markSundays()' class="btn btn-secondary">Mark Sundays</button>
+            <button id='testBtnID3' class="btn btn-secondary">TEST (ID)</button>
+            <button class="btn btn-info" onclick="refreshCalendar2()">refresh2</button>
+        </div>
+        
+        <!-- Calendar Section - js-year-calendar -->
+        <!-- <div class="calendarSection">
+            <div id="calendar" data-provide="calendar"></div>
+        </div>  -->
+
+        <!-- Calendar Section DIY calendar -->
+        <!-- <div id='calendar-section'></div> -->
+        <div id="calendar-container">
+            <!-- <div id="calendar-header">
+                <span id="calendar-month-year"></span>
+            </div>
+            <div id="calendar-dates">
+            </div> -->
+        </div>
+
+
+        <div id="memberName">
+            John Q Smith
+        </div>
+        <div id="memberSchedule">
+            <h3 style=text-align:center>>Member's Schedule</h3>
+            <div>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Inventore error dolor magnam repudiandae eos amet harum, nihil similique minus quibusdam.</div>
+        </div>
+        <div id="memberNotes">
+            <h3>Notes</h3>
+        </div>
+        <div id="day1">
+            <p>
+                <span>AM Shop Monitor</span>
+                <input id="day1AMsm1" type="text" value="" placeholder="member name">
+            </p>
+            <p>AM Shop Monitor</p>
+            <p>AM Tool Crib</p>
+            <p></p>
+            <p>PM Shop Monitor</p>
+            <p>PM Shop Monitor</p>
+            <p>PM Tool Crib</p>
+        </div>
+        <div id="day2">
+            <p>AM Shop Monitor</p>
+            <p>AM Shop Monitor</p>
+            <p>AM Tool Crib</p>
+            <p></p>
+            <p>PM Shop Monitor</p>
+            <p>PM Shop Monitor</p>
+            <p>PM Tool Crib</p>
+        </div>
+        
+        <div id="transactionLog">
+            <p>... transaction details ...</p>
+        </div>
+
+        <div id="monitorNotes">
+            <p>... monitor notes ... </p>
+        </div>
+    </div>  <!--  END OF WRAPPER -->
+</body>
+<!-- <script src="https://unpkg.com/js-year-calendar@latest/dist/js-year-calendar.min.js"></script> -->
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+<script>
+    function refreshCalendar() {
+        alert('refreshCalendar internal')
+    }
+    
+    // function refreshCalendar2() {
+    //     for(var d=1; d<=30; d++){
+    //         // build id for a day cell
+    //         dayNumber = d.tostring()
+    //         if (dayNumber.length == 1)
+    //             dayNumber = '0' + dayNumber  
+    //         dayID = 'x202004' + dayNumber
+    //         alert('Day=' + dayID)
+    //         document.getElementById(dayID).style.backgroundColor = "blue";
+    //         document.getElementById(dayID).style.color = "white";
+    //     }
+    // }
+    // $("#testBtnRtnInternal").click(function() {
+    //     var d = 'x20200115'
+    //     document.getElementById(d).style.backgroundColor = "green";        
+    // })
+
+    // function testBtn() {
+    //     var d = 'x20200420'
+    //     document.getElementById(d).style.backgroundColor = "lightblue";    
+    // }
+</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<!-- <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.js') }}">\x3C/script>')</script> -->
+
+
+<!-- <link rel="stylesheet" type="text/css" href="https://unpkg.com/js-year-calendar@latest/dist/js-year-calendar.min.css" /> -->
+<!--<div data-provide="calendar"></div>-->
+</html>

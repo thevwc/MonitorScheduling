@@ -1,0 +1,94 @@
+2020-04-12 09:28:37,897 INFO: Check In startup [in /Users/richardhartley/Projects/FlaskJSyearCalendar/app/__init__.py:29]
+2020-04-12 09:28:42,332 ERROR: Exception on / [GET] [in /Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py:1891]
+Traceback (most recent call last):
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1820, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/_compat.py", line 39, in reraise
+    raise value
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1935, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/app/routes.py", line 218, in workersInShop
+    return render_template("workersInShop.html",shopChoice=shopChoice,inShop=inShop,orderBy=orderBy,filterOption=filterOption,requestMethod='GET')
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/templating.py", line 138, in render_template
+    ctx.app.jinja_env.get_or_select_template(template_name_or_list),
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/jinja2/environment.py", line 930, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/jinja2/environment.py", line 883, in get_template
+    return self._load_template(name, self.make_globals(globals))
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/jinja2/environment.py", line 857, in _load_template
+    template = self.loader.load(self, name, globals)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/jinja2/loaders.py", line 117, in load
+    source, filename, uptodate = self.get_source(environment, name)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/templating.py", line 60, in get_source
+    return self._get_source_fast(environment, template)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/templating.py", line 89, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: workersInShop.html
+2020-04-12 09:28:42,726 ERROR: Exception on /favicon.ico [GET] [in /Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py:1891]
+Traceback (most recent call last):
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1949, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1925, in dispatch_request
+    self.raise_routing_exception(req)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1907, in raise_routing_exception
+    raise request.routing_exception
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/ctx.py", line 350, in match_request
+    result = self.url_adapter.match(return_rule=True)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/werkzeug/routing.py", line 1945, in match
+    raise NotFound()
+werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1951, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1815, in handle_user_exception
+    return self.handle_http_exception(e)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1743, in handle_http_exception
+    return handler(e)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/app/errors.py", line 8, in not_found_error
+    return render_template('404.html'), 404
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/templating.py", line 138, in render_template
+    ctx.app.jinja_env.get_or_select_template(template_name_or_list),
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/jinja2/environment.py", line 930, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/jinja2/environment.py", line 883, in get_template
+    return self._load_template(name, self.make_globals(globals))
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/jinja2/environment.py", line 857, in _load_template
+    template = self.loader.load(self, name, globals)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/jinja2/loaders.py", line 117, in load
+    source, filename, uptodate = self.get_source(environment, name)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/templating.py", line 60, in get_source
+    return self._get_source_fast(environment, template)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/templating.py", line 89, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: 404.html
+2020-04-22 09:58:23,093 INFO: Check In startup [in /Users/richardhartley/Projects/FlaskJSyearCalendar/app/__init__.py:29]
+2020-04-22 09:58:41,304 ERROR: Exception on /refreshCalendar [POST] [in /Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py:1891]
+Traceback (most recent call last):
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 2446, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1952, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 1967, in finalize_request
+    response = self.make_response(rv)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/flask/app.py", line 2108, in make_response
+    rv = self.response_class(rv, status=status, headers=headers)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/werkzeug/wrappers/base_response.py", line 187, in __init__
+    self.headers = Headers(headers)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/werkzeug/datastructures.py", line 958, in __init__
+    self.extend(defaults)
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/werkzeug/datastructures.py", line 1101, in extend
+    for key, value in iter_multi_items(args[0]):
+  File "/Users/richardhartley/Projects/FlaskJSyearCalendar/venv/lib/python3.7/site-packages/werkzeug/datastructures.py", line 54, in iter_multi_items
+    for item in mapping:
+TypeError: 'NotFound' object is not iterable

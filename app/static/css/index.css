@@ -1,0 +1,379 @@
+:root {
+    --main-bg-color: navy;
+    --main-txt-color: white;  
+    --main-padding: 15px;  
+    --calendar-background: lightgray;
+    --calendar-text:blue;
+  }
+  
+
+
+
+.parent {
+    display: grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:repeat(auto, minmax(50px auto)); 
+    gap:.5em;
+    grid-template-areas: "hdgArea    hdgArea"
+                         "filterArea nameArea"
+                         "calArea    scheduleArea"
+                         "calArea    scheduleArea"
+                         "calArea    memberNoteArea"
+                         ".......    day1Area"
+                         ".......    day2Area"
+                         "logArea    monitorNoteArea";
+    background-color:lightgray;
+}
+                        
+.hdg {
+    grid-area:hdgArea;
+    height:50px;
+    padding-top: 0px;
+    padding-bottom: 20px;
+    /* grid-column: 1 /-1;
+    grid-row: 1;    */
+    align-items:center;
+    justify-content:center; 
+    text-align: center;
+    background-color:var(--main-bg-color);
+    color: var(--main-txt-color);
+    
+    /* margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px; */
+}
+/*
+.hdg h1 {
+    align-items:center;
+}
+*/
+
+.filterSection {
+    grid-area:filterArea;
+    height:75px;
+    padding-top:20px;
+    padding-bottom: 0px;
+    /* margin-top:0px;
+    margin-bottom:20px; */
+    /* flex-direction: column;*/
+    justify-content:center;
+    align-items:center; 
+    text-align: center;
+    /* width:100%; */
+    /*align-self:center; */
+    /* grid-column: 1/ -1;
+    grid-row: 2; 
+    height: 150px; */
+    /* vertical-align:middle; */
+    /*align-items:center;*/
+    /* justify-content: center; */
+    /*text-align:center;*/
+    background-color: var(--main-bg-color);
+    color: var(--main-txt-color);
+    /*margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px;*/
+}
+    
+.filters form {
+    margin-left: 20px;
+    padding-left: 20px;
+    align-items:center;
+    align-content: center;
+}
+
+select {
+    text-size-adjust:100 px;
+    margin-right:20px;
+    color:blue;
+    /* padding-right: 20px;
+    color:red; */
+}
+
+/* .calendarSection {
+    grid-area:calArea;
+    background-color:beige;
+    color:blue;
+} */
+#calendar-container{
+    grid-area:calArea;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    /*grid-template-columns: repeat(3 1fr);
+    grid-template-rows:repeat(4 1fr);
+    grid-template-areas: "monthArea monthArea monthArea"
+                         "monthArea monthArea monthArea"
+                         "monthArea monthArea monthArea"
+                         "monthArea monthArea monthArea"; */
+                              
+    background-color: var(--calendar-background);  
+}
+
+.calendarMonth {
+    /* grid-area: monthArea; */
+    padding: 15px;
+    margin: 10px;
+    width: 170px;
+    height: 200px;
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: Arial;
+    background-image: linear-gradient(#fff, #d3d3d3); 
+    /* color: var(--calendar-text); */
+} 
+
+.calendar-container div {
+    background-color: crimson;
+}
+
+.monthYearHdg {
+    background-color: navy;
+    color:white;
+}
+#memberName {
+    grid-area:nameArea;
+    text-align:center;
+    border: chartreuse solid 3px;
+    /* grid-column: 2/3;
+    grid-row: 3; */
+    /*width: 100%;
+    margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px;*/
+    /* justify-content:center; */
+    background-color: brown;
+    color:white;
+}
+
+
+.memberSchedule {
+    border: chartreuse solid 3px;
+    grid-area: scheduleArea;
+    background-color: tomato;
+    color:white;
+    /* grid-column: 2/3;
+    grid-row: 4/5;  */
+    /*width: 100%;
+    margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px;*/
+    
+}
+
+.memberNotes {
+    grid-area:memberNoteArea;
+    /* grid-column: 2/3;
+    grid-row: 6; */
+    /* width: 100%;
+    margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px; */
+    background-color: teal;
+}
+
+.day1 {
+    grid-area:day1Area;
+    background-color: skyblue;
+    /* grid-column: 2/3;
+    grid-row: 4 / 8;  */
+    /*width: 100%;
+    margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px; 
+    background-color: turquoise;*/
+}
+.day2 {
+    grid-area:day2Area;
+    /* grid-column: 2/3;
+    grid-row: 9 / 13; */
+    width: 100%;
+    margin-left:0px;
+    margin-right:0px;
+    padding-left:0px;
+    padding-right:0px;
+    background-color: seagreen;
+}
+
+.transactionLog {
+     grid-area:logArea;
+     background-color:rosybrown
+     /* grid-column: 1/4; */
+} 
+
+.monitorNotes {
+    grid-area:monitorNoteArea;
+    background-color: sienna;
+}
+
+/* .bg-modal {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    position: absolute;
+    top:0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+} */
+
+.modal-header {
+    margin-top: 0px;
+    padding-top: 0px;
+}
+
+.modal-header button {
+    float: right;
+}
+
+.modal-title {
+    width:100%;
+}
+
+.modal-content {
+    width:500px;
+    height: 300px;
+    background-color:lightgray;
+    border-radius: 4px;
+    text-align: center;
+    margin:0px;
+    padding: 0px;
+    /* background-color: cadetblue; */
+}
+
+.modal-content form {
+    margin-left: 100px;
+}
+.modal-content select {
+    /* width: 75%; */
+    display: inline-block;
+    /* margin: 15px auto; */
+    position: relative;
+    cursor: pointer;
+    /* background-color: aqua; */
+}
+
+.modal-footer {
+    margin:10px;
+    padding:0px;
+}
+/* .close {
+    position: absolute;
+    top:0;
+    right: 14px;
+    font-size: 42px;
+    transform: rotate(45deg); 
+}
+*/
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 42px;
+    font-weight: bold;
+  }
+  
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+/* $icon_size: 1em;
+
+.gear {
+    display: inline-block;
+    position: relative;
+    margin: $icon_size/5;
+    width: $icon_size;
+    height: $icon_size;
+    background: white;
+    border-radius: 50%;
+    border: $icon_size/3.5 solid gray;
+    box-swizing: border-box;
+
+} */
+
+/* .btn-primary {
+    background-color: green;
+    color:white;
+} */
+/* 
+@media only screen and (max-width: 768px) {
+.parent {
+    display: grid;
+    grid-template-columns:100%;
+    grid-template-rows:repeat(auto,10); 
+    gap:.25em;
+    grid-template-areas: "hdgArea"
+                         "filterArea"
+                         "calArea"
+                         "nameArea"
+                         "scheduleArea"
+                         "memberNoteArea"
+                         "day1Area"
+                         "day2Area"
+                         "logArea"
+                         "monitorNoteArea"
+        } 
+
+} 
+
+#calendar-container{
+    grid-area:calArea;
+    display: grid;
+    /* padding: 10px;
+    width: 210px;
+    height: 240px;
+    text-align: center;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: Arial;
+    background-image: linear-gradient(#fff, #d3d3d3);
+    
+    background-color:beige;
+    color:blue; 
+}
+
+/* #calendar-container>div{
+    padding: 0;
+    margin-bottom: 10px;
+}
+
+#calendar-month-year{
+    margin: 5px;
+}
+
+#calendar-dates>table>tr>td{
+    padding: 5px;
+} 
+
+.calendarMonth {
+    grid-column: 1fr 1fr 1fr;
+    grid-row: auto;
+    padding: 10px;
+    width: 120px;
+    height: 120px;
+    text-align: center;
+    border: 1px solid black;
+    border-radius: 10px;
+    font-size: 12px;
+    font-family: Arial;
+    background-image: linear-gradient(#fff, #d3d3d3); 
+    color:red;
+} 
+
+.calendar-dates>table>tr>td{
+    padding:5px;
+} */
