@@ -178,36 +178,73 @@ function enableRefreshBtn() {
 
 
 function dayClicked(clicked_id) {
-    document.getElementById(clicked_id).style.backgroundColor = colors.bg_Filled;
-    document.getElementById(clicked_id).style.color = colors.fg_Filled;
+    // send POST request with year, shop, and duty
+    //alert('dayClicked entered ...')
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/getDayAssignments"); 
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onreadystatechange = function() {
+        //console.log('onreadystatechange')
+        if (this.readyState == 4 && this.status == 200) {
+            // PROCESS RESPONSE FROM REQUEST
+            sched = JSON.parse(this.response)
+            buildDayTable(sched)
+            // cnt = sched[0].length + 1
+            // msg = ''
+            // for ( var y=1; y<cnt; y++ ) {
+            //     DateScheduled = sched[y][0]
+            //     AMPM = sched[y][1]
+            //     Duty = sched[y][2]
+            //     Name = sched[y][3]
+            //     VillageID = sched[y][4]
+            //     msg += (Name + ' ' + VillageID + '  ' + AMPM + ' ' + Duty) + '\r\n'
+            // }
+            // alert(msg)
+        }
+    }  // END OF xhttp
+    // SEND REQUEST
+    //alert('shopFilter- ' + shopFilter)
+    if (shopFilter == 'BOTH') {
+        alert("Please change to a specific shop location.")
+        return
+    }
+
+    if (shopFilter == 'RA') {    
+        shopNumber = '1'
+    }
+    else {
+        shopNumber = '2'
+    }
+    //alert('... sending request ...')
+    var data = {shopNumber:'1',dayID:clicked_id}; //send date selected to server;
+    //console.log('... before send ...')
+    xhttp.send(JSON.stringify(data));
+    //alert('... after send ...')
+         
 }
 
 function refreshCalendarRtn() {
     yearSelected = document.getElementById("yearToDisplay")
     shopSelected = document.getElementById("shopToDisplay")
     // dutySelected = document.getElementById("dutyToDisplay")
-
     yearFilter = yearSelected.value
     shopFilter = shopSelected.value
     // dutyFilter = dutySelected.value
-
-    
-    
     buildYear(yearFilter);
     populateCalendar(yearFilter,shopFilter)  //,dutyFilter)
     document.getElementById("refreshCalendarBtn").disabled = true;
 }
 
 
-function resetCalendarFilters() {
-    yearFilter = startUpYear
-    shopFilter = clientLocation
-    // dutyFilter = "BOTH"
+// function resetCalendarFilters() {
+//     yearFilter = startUpYear
+//     shopFilter = clientLocation
+//     // dutyFilter = "BOTH"
 
-    setupYearFilter(startUpYear)
-    setShopFilter(clientLocation)
-    // setDutyFilter("BOTH")
-}
+//     setupYearFilter(startUpYear)
+//     setShopFilter(clientLocation)
+//     // setDutyFilter("BOTH")
+// }
 
 // ----------------------------------------------------------------
 // CALENDAR DEFINITION CODE
@@ -365,31 +402,19 @@ function buildMonth(yr,mnth) {
     var days = new Date(year, month+1, 0).getDate();    //30
     var monthAbbr = month_name[month].substring(0,3).toLowerCase()
     var monthYearPrefix = monthAbbr + year.toString()
+
     //Tue Sep 30 2014 ...
     // create div for xxx-calendar-month-year
     // JAN-calendar-month-year, FEB-calendar-month-year, etc
-    //var divCalContainerID = document.getElementById('calendar-container');
     var monthYearHdgID = monthYearPrefix + '-calendar-month-year';
-
-    // var newCalendarHeading = document.createElement('div');
-    // newCalendarHeading.classList.add('monthHeading')
-    // newCalendarHeading.innerHTML = '... month name ...'
-    // document.getElementById('calendar-container').appendChild(newCalendarHeading);
-
-
     var newMonthYearHdgDIV = document.createElement('div');
     newMonthYearHdgDIV.id = monthYearHdgID;
     newMonthYearHdgDIV.classList.add('calendarMonth')
     newMonthYearHdgDIV.innerHTML = "<div class='monthYearHdg'>" + month_name[month]+" "+year + "</div>";
-    //newMonthYearHdgDIV.innerHTML = month_name[month]+" "+year;
     monthYearHdg = month_name[month]+" "+year;
     document.getElementById('calendar-container').appendChild(newMonthYearHdgDIV);
-    //document.getElementsByClassName('calendarMonth').backgroundColor = "FE020A"
-    
     var calendar = get_calendar(day_no, days,month+1,year,monthYearHdg);
     document.getElementById(monthYearHdgID).appendChild(calendar);
-
-    //document.getElementById('jan2020-calendar-month-year').backgroundColor="FE020A"
 }
 
 // POPULATE CALENDAR
@@ -406,114 +431,74 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
             //alert('Received response ...')
             //console.log('... step through array ...')
             for ( var y=0; y<367; y++ ) {
-                // if (sched[y][0] != 0) {
-                    //console.log(sched[y][0],sched[y][1],sched[y][2],sched[y][3],sched[y][4],sched[y][5],sched[y][6],sched[y][7])
-                    DateScheduled = sched[y][0]
-                    status = sched[y][1]
-                    dayNumber = sched[y][2]
-                    SM_ASGND = sched[y][3]
-                    TC_ASGND = sched[y][4]
-                    SM_AM_REQD = sched[y][5]
-                    SM_PM_REQD = sched[y][6]
-                    TC_AM_REQD = sched[y][7]
-                    TC_PM_REQD = sched[y][8]
-                    //console.log(DateScheduled, status)
-                    // BUILD DAY ID
-                    var dayID = "x" + DateScheduled
-                    SM_TO_FILL = (SM_AM_REQD + SM_PM_REQD) - SM_ASGND
-                    TC_TO_FILL = (TC_AM_REQD + TC_PM_REQD) - TC_ASGND 
-                    //console.log('Date       Status    SM_AM_REQD    SM_PM_REQD    SM_ASGND    SM_TO_FILL ....')
-                    //console.log('Status-' + DateScheduled + '    ' + status + '   ' + SM_AM_REQD.toString() + '   ' + SM_AM_REQD.toString()
-                    //+ '    ' + SM_ASGND.toString() + '   ' + + SM_TO_FILL.toString()  + '   ' + TC_AM_REQD.toString()
-                    //+ '    ' + TC_PM_REQD.toString() + '   ' + TC_ASGND.toString() + '   ' + TC_TO_FILL.toString())
-                    switch (true) {
-                        case DateScheduled == 0:
-                            break 
-                        case status == 'CLOSED':
-                            document.getElementById(dayID).style.backgroundColor = colors.bg_Closed;
-                            document.getElementById(dayID).style.color = colors.fg_Closed;
-                            break
-                        
-                        // CHECK FOR ASSIGNMENTS COMPLETED
-                        case (SM_TO_FILL == 0  && TC_TO_FILL == 0):
-                            document.getElementById(dayID).style.backgroundColor = colors.bg_Filled;
-                            document.getElementById(dayID).style.color = colors.fg_Filled;
-                            break
-
-                        // ONLY SHOP MONITORS NEEDED?
-                        case (SM_TO_FILL > 0 && TC_TO_FILL == 0):
-                            document.getElementById(dayID).style.backgroundColor = colors.bg_NeedSM;
-                            document.getElementById(dayID).style.color = colors.fg_NeedSM;
-                            break
-
-                        // ONLY TOOL CRIB NEEDED?
-                        case (TC_TO_FILL > 0 && SM_TO_FILL == 0 ):
-                            document.getElementById(dayID).style.backgroundColor = colors.bg_NeedTC;
-                            document.getElementById(dayID).style.color = colors.fg_NeedTC;      
-                            break
-
-                        // BOTH SHOP MONITORS AND TOOL CRIB ARE NEEDED?
-                        case (SM_TO_FILL > 0 && TC_TO_FILL > 0):
-                            document.getElementById(dayID).style.backgroundColor = colors.bg_NeedBoth;
-                            document.getElementById(dayID).style.color = colors.fg_NeedBoth;    
-                            break
-
-                        // DO WE HAVE MORE SHOP MONITORS ASSIGNED THAN ARE REQUIRED?    
-                        case (SM_TO_FILL < 0 ):
-                            document.getElementById(dayID).style.backgroundColor = colors.bg_ToManySM;
-                            document.getElementById(dayID).style.color = colors.fg_ToManySM;    
-                            break
-
-                        // DO WE HAVE MORE TOOL CRIB MONITORS ASSIGNED THAN ARE REQUIRED?    
-                        case (TC_TO_FILL < 0 ):
-                            document.getElementById(dayID).style.backgroundColor = colors.bg_ToManyTC;
-                            document.getElementById(dayID).style.color = colors.fg_ToManyTC;    
-                            break
-                        // ERROR?
-                        default:
-                            alert("Error: " + dayID + ' ' + SM_TO_FILL.toString() + ' ' + TC_TO_FILL.toString())
-                    
-                    }  // END OF SWITCH
-
-                    // if (status == 'CLOSED') {
-                    //     document.getElementById(dayID).style.backgroundColor = colors.bg_Closed;
-                    //     document.getElementById(dayID).style.color = colors.fg_Closed;
-                    // }
-
-                    // if (SM_TO_FILL == 0  & TC_TO_FILL == 0) {
-                    //     document.getElementById(dayID).style.backgroundColor = colors.bg_Filled;
-                    //     document.getElementById(dayID).style.color = colors.fg_Filled;
-                    // }
-                    // else if (SM_TO_FILL != 0 & TC_TO_FILL == 0) {
-                    //         document.getElementById(dayID).style.backgroundColor = colors.bg_NeedSM;
-                    //         document.getElementById(dayID).style.color = colors.fg_NeedSM;
-                    // }
-                    // else if (TC_TO_FILL != 0 & SM_TO_FILL == 0 ) {
-                    //             document.getElementById(dayID).style.backgroundColor = colors.bg_NeedTC;
-                    //             document.getElementById(dayID).style.color = colors.fg_NeedTC;      
-                    // }
-                    // else if (SM_TO_FILL > 0 & TC_TO_FILL > 0) {
-                    //     document.getElementById(dayID).style.backgroundColor = colors.bg_NeedBoth;
-                    //     document.getElementById(dayID).style.color = colors.fg_NeedBoth;    
-                    // }
-                    // else {
-                    //     alert(dayID + ' ' + str(SM_TO_FILL) + ' ' + str(TC_TO_FILL))
-                    // }
-                // }   // END IF SCHED ..
-                // else {
-                //     document.getElementById(dayID).style.backgroundColor = colors.bg_Sunday
-                //     document.getElementById(dayID).style.color = colors.fg_Sunday;    
+                DateScheduled = sched[y][0]
+                status = sched[y][1]
+                dayNumber = sched[y][2]
+                SM_ASGND = sched[y][3]
+                TC_ASGND = sched[y][4]
+                SM_AM_REQD = sched[y][5]
+                SM_PM_REQD = sched[y][6]
+                TC_AM_REQD = sched[y][7]
+                TC_PM_REQD = sched[y][8]
                 
-                //} // END OF IF
+                // BUILD DAY ID
+                var dayID = "x" + DateScheduled
+                SM_TO_FILL = (SM_AM_REQD + SM_PM_REQD) - SM_ASGND
+                TC_TO_FILL = (TC_AM_REQD + TC_PM_REQD) - TC_ASGND 
+                
+                switch (true) {
+                    case DateScheduled == 0:
+                        break 
+                    case status == 'CLOSED':
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_Closed;
+                        document.getElementById(dayID).style.color = colors.fg_Closed;
+                        break
+                    
+                    // CHECK FOR ASSIGNMENTS COMPLETED
+                    case (SM_TO_FILL == 0  && TC_TO_FILL == 0):
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_Filled;
+                        document.getElementById(dayID).style.color = colors.fg_Filled;
+                        break
+
+                    // ONLY SHOP MONITORS NEEDED?
+                    case (SM_TO_FILL > 0 && TC_TO_FILL == 0):
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_NeedSM;
+                        document.getElementById(dayID).style.color = colors.fg_NeedSM;
+                        break
+
+                    // ONLY TOOL CRIB NEEDED?
+                    case (TC_TO_FILL > 0 && SM_TO_FILL == 0 ):
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_NeedTC;
+                        document.getElementById(dayID).style.color = colors.fg_NeedTC;      
+                        break
+
+                    // BOTH SHOP MONITORS AND TOOL CRIB ARE NEEDED?
+                    case (SM_TO_FILL > 0 && TC_TO_FILL > 0):
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_NeedBoth;
+                        document.getElementById(dayID).style.color = colors.fg_NeedBoth;    
+                        break
+
+                    // DO WE HAVE MORE SHOP MONITORS ASSIGNED THAN ARE REQUIRED?    
+                    case (SM_TO_FILL < 0 ):
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_ToManySM;
+                        document.getElementById(dayID).style.color = colors.fg_ToManySM;    
+                        break
+
+                    // DO WE HAVE MORE TOOL CRIB MONITORS ASSIGNED THAN ARE REQUIRED?    
+                    case (TC_TO_FILL < 0 ):
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_ToManyTC;
+                        document.getElementById(dayID).style.color = colors.fg_ToManyTC;    
+                        break
+                    // ERROR?
+                    default:
+                        alert("Error: " + dayID + ' ' + SM_TO_FILL.toString() + ' ' + TC_TO_FILL.toString())
+                
+                }  // END OF SWITCH
             }  // END FOR LOOP
         }   // END IF READYSTATE ...
     }   // END xhttp FUNCTION
     var data = {year:yearValue,shop: shopValue}; //,duty: dutyValue};
-    xhttp.send(JSON.stringify(data));
-    // return object or array or json with set of date records including RA/SM needed, RA/TC needed, BW/SM needed, BW/TC needed
-    // on response build calendar, mark Sundays, mark Closed days, mark needs ...
-    
-    
+    xhttp.send(JSON.stringify(data)); 
 }
 
 
@@ -561,7 +546,7 @@ $('#settingsModal').on('hide.bs.modal', function () {
 
 // Assign the modal button and form to variables
 var modal = document.getElementById("settingsModalID")
-var modalBtn = document.getElementById("settingsModalBtn")
+//var modalBtn = document.getElementById("settingsModalBtn")
 
 // When the user clicks on the X symbol or 'CLOSE', close the modal form
 closeClass = document.getElementsByClassName("closeModal")
@@ -576,4 +561,21 @@ window.onclick = function(event) {
     }
 }
 
-
+function buildDayTable(sched) {
+    // if swap-in-progress ... check for day2
+    cnt = sched[0].length + 1
+    //console.log('Length- ' + cnt.toString())
+    //alert('Received response ...')
+    // INSERT DATE INTO DAY 1 HEADING
+    document.getElementById('day1Date').innerHTML = sched[1][0]
+    msg = ''
+    for ( var y=1; y<cnt; y++ ) {
+        DateScheduled = sched[y][0]
+        AMPM = sched[y][1]
+        Duty = sched[y][2]
+        Name = sched[y][3]
+        VillageID = sched[y][4]
+        msg += (Name + ' ' + VillageID + '  ' + AMPM + ' ' + Duty) + '\r\n'
+    }
+    alert(msg)
+}

@@ -377,3 +377,14 @@ select {
 .calendar-dates>table>tr>td{
     padding:5px;
 } */
+.dayHeader {
+    display: grid;
+    grid-template-columns:1fr 3fr 1fr 1fr;
+    grid-template-rows:repeat(auto, minmax(50px auto));
+    border: 1px solid black;
+    border-radius: 10px;
+    font-size: 24px;
+    align-items:center;
+    justify-content:center; 
+    text-align: center;
+}

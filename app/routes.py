@@ -149,7 +149,52 @@ def refreshCalendar():
     print('refresh calendar routine')
     return ('refreshed by refreshCalendar endpoint')
 
-#app.route('/')
-@app.route('/testCalendar')
-def testCalendar():
-    return render_template("testCalendar.html")
+
+@app.route('/getDayAssignments', methods=['GET','POST'])
+def getDayAssignments():
+    # POST REQUEST
+    if request.method != 'POST':
+        return "ERROR - Not a POST request."
+    if request.get_json() == None:
+        return "ERROR - Missing schedule date."
+    
+    #print(request.get_json())
+    parameters = request.get_json()
+    if parameters == None:
+        return "ERROR - Missing parameter."
+
+    
+    # RETRIEVE DATA FROM tblMonitor_Schedule
+    shopNumber = parameters['shopNumber']
+    dayID = parameters['dayID']
+    if (dayID == None):
+        return "ERROR - Missing parameter."
+
+    # PARSE dayID TO GET DATE scheduleDate
+    monthOfDate = dayID[5:7]
+    dayOfDate = dayID[-2:]
+    yearOfDate = dayID[1:5]
+    scheduleDate = monthOfDate + '-' + dayOfDate + '-' + yearOfDate 
+    print ('scheduleDate - ' + scheduleDate)
+
+    # DECLARE ARRAY AND SET TO ZERO
+    rows = 12
+    cols = 5 # Date_Scheduled, AM_PM, Member name, Village ID
+    schedArray = [[0 for x in range(cols)] for y in range(rows)]
+            
+    sqlSelect = "SELECT tblMonitor_Schedule.Member_ID, Date_Scheduled, AM_PM, Duty, Last_Name, First_Name FROM tblMonitor_Schedule "
+    sqlSelect += " JOIN tblMember_Data ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
+    sqlSelect += "WHERE Shop_Number = " + shopNumber + " and Date_Scheduled = '" + scheduleDate + "'"
+    print(sqlSelect)
+    schedule = db.engine.execute(sqlSelect)
+    position = 0
+    for s in schedule:
+        print(s.Date_Scheduled, s.AM_PM, s.Duty, s.Last_Name, s.First_Name, s.Member_ID)
+        position += 1
+        schedArray[position][0] = s.Date_Scheduled.strftime("%B %-d, %Y")
+        schedArray[position][1] = s.AM_PM
+        schedArray[position][2] = s.Duty
+        schedArray[position][3] = s.Last_Name + ", " + s.First_Name
+        schedArray[position][4] = s.Member_ID
+    
+    return jsonify(schedArray)
