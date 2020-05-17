@@ -15,120 +15,173 @@
         <div class="hdg">
             <h2>MONITOR SCHEDULING</h2>  
         </div>
-        <div class="filterSection">
-            <form class = "filterItems "></form>
-                <label> Year - </label>
-                <select id="yearToDisplay" name="yearList" style="height: 25px;font-size: 1em;">
-                    <option id='lastYear' value=""></option>
-                    <option id='thisYear' value="" selected></option>
-                    <option id='nextYear' value=""></option>
-                </select>
-                <label>     Location - </label>
-                <select id="shopToDisplay" name="shopList" style="height: 25px;font-size: 1em;">
-                    <option id='shop1' value="RA">Rolling Acres</option>
-                    <option id='shop2' value="BW">Brownwood</option>
-                    <option id='bothShops' value="BOTH">Both Shops</option>
-                </select>
-                <!-- <label>     Duty - </label>
-                <select id="dutyToDisplay" name="dutyList" style="height: 25px; font-size:1em;">
-                    <option id='smDuty' value="SM">Shop Monitor Only</option>
-                    <option id='tcDuty' value="TC">Tool Crib Only</option>
-                    <option id='anyDuty'value="EITHER">Both</option>
-                </select> -->
-                
-                <input id="refreshCalendarBtn" class="btn btn-primary" type="submit" value="Refresh Calendar">  
-                <!-- <input id="resetCalendarFiltersBtn" class="btn btn-primary" type="submit" value="Reset Calendar Filters">   -->
-                
-                <button id="settingsIcon" style="font-size:24px"><i class="fas fa-cog" data-toggle='modal' data-target='#settingsModal'></i></button>
-                <button id="settingsBtn" style="display:none" type='button' class = 'btn btn-primary' data-toggle = 'modal' data-target = '#settingsModal'>
-                    SETTINGS  
-                </button>
-            </form>
-        </div>
-        
-        <!-- Calendar Section DIY calendar -->
-        <div id="calendar-container">
+        <div class="parent1">
             
-        </div>
-
-        <!-- MEMBER NAME SECTION -->
-        <div id="memberName">
-            John Q Smith
-        </div>
-
-        <!-- MEMBER SCHEDULE -->
-        <div id="memberSchedule">
-            <h3 style=text-align:center>>Member's Schedule</h3>
-            <div>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Inventore error dolor magnam repudiandae eos amet harum, nihil similique minus quibusdam.</div>
-        </div>
-
-        <!-- MEMBER NOTES -->
-        <div id="memberNotes">
-            <h3>Notes</h3>
-        </div>
-
-        <!-- FIRST DAY SELECTED -->
-        <div id="day1-container">
-            <div class='dayHeader'>
-                <span id='dayNumber'>Day 1</span>
-                <span id='day1Date' style='text-align: center;'>08/17/2020</span>
-                <button id='day1Print' class='btn btn-primary'>PRINT</button>
-                <button id='day1Clear' class='btn btn-secondary'>CLEAR</button>
+            <div class="filterSection">
+                <form class = "filterItems "></form>
+                    <label> Year - </label>
+                    <select id="yearToDisplay" name="yearList" style="height: 25px;font-size: 1em;">
+                        <option id='lastYear' value=""></option>
+                        <option id='thisYear' value="" selected></option>
+                        <option id='nextYear' value=""></option>
+                    </select>
+                    <label>     Location - </label>
+                    <select id="shopToDisplay" name="shopList" style="height: 25px;font-size: 1em;">
+                        <option id='shop1' value="RA">Rolling Acres</option>
+                        <option id='shop2' value="BW">Brownwood</option>
+                        <option id='bothShops' value="BOTH">Both Shops</option>
+                    </select>
+                    
+                    <input id="refreshCalendarBtn" class="btn btn-primary btn-sm" type="submit" value="Refresh Calendar">  
+                    <!-- <input id="resetCalendarFiltersBtn" class="btn btn-primary" type="submit" value="Reset Calendar Filters">   -->
+                    
+                    <button id="settingsIcon"><i class="fas fa-bars" data-toggle='modal' data-target='#settingsModal'></i></button>
+                    <button id="settingsBtn" style="display:none" type='button' class = 'btn btn-primary' data-toggle = 'modal' data-target = '#settingsModal'>
+                        SETTINGS  
+                    </button>
+                </form>
             </div>
-            <table id='day1AM'>
-                <tr>
-                    <td>AM</td>
-                    <td>SHOP MONITOR</td>
-                    <td>Ron Dulban (478236)</td>
-                    <td><button class='day1DEL'>DEL</button></td>
-                </tr>
-                <tr>
-                    <td>AM</td>
-                    <td>SHOP MONITOR</td>
-                    <td>Ron Dulban (478236)</td>
-                    <td><button class='day1DEL'>DEL</button></td>
-                </tr>
-                <tr>
-                    <td>AM</td>
-                    <td>SHOP MONITOR</td>
-                    <td>Ron Dulban (478236)</td>
-                    <td><button class='day1DEL'>DEL</button></td>
-                </tr>
-            </table>
-            <table id='day1PM'>
-                <tr>
-                    <td>PM</td>
-                    <td>SHOP MONITOR</td>
-                    <td>Ron Dulban (478236)</td>
-                    <td><button class='day1DEL'>DEL</button></td>
-                </tr>
-                <tr>
-                    <td>PM</td>
-                    <td>SHOP MONITOR</td>
-                    <td>Ron Dulban (478236)</td>
-                    <td><button class='day1DEL'>DEL</button></td>
-                </tr>
-                <tr>
-                    <td>PM</td>
-                    <td>SHOP MONITOR</td>
-                    <td>Ron Dulban (478236)</td>
-                    <td><button class='day1DEL'>DEL</button></td>
-                </tr>
-            </table>
-              
-        <!-- SECOND DAY SELECTED -->
-        
-        
-        <!-- TRANSACTION LOG -->
-        <div id="transactionLog">
-            <p>... transaction details ...</p>
-        </div>
+            
+            <!-- Calendar Section DIY calendar -->
+            <div id="calendar-container">
+                
+            </div>
+             <!-- TRANSACTION LOG -->
+             <div id="transactionLog">
+                <p>... transaction details ...</p>
+            </div>
+            
+        </div>  <!-- END OF PARENT1 WRAPPER -->
 
-        <!-- MONITOR NOTES -->
-        <div id="monitorNotes">
-            <p>... monitor notes ... </p>
-        </div>
-    </div>  <!-- END OF WRAPPER -->
+
+        <!-- BEGIN PARENT2 (COLUMN 2) WRAPPER -->
+        <div class="parent2">
+
+            <!-- MEMBER NAME SECTION -->
+            <div id="memberNameSection">
+                <div id="memberNameHdg">   
+                    <span style="text-align: center;">{{displayName}}</span><br>
+                </div>
+                <div id = "memberID">
+                    <span style = "display:none;">{{memberID}}</span>
+                </div>
+
+                <div id="memberOptions">
+                    <select id="selectpicker" style="margin-top:10px" class='selectpicker' title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
+                        {% for nme in nameList %}
+                            <option  class="optName" value='{{nme}}'</option>{{nme}}</option>
+                        {% endfor %}
+                    </select>
+                    <!-- <button type='button' class = 'btn btn-info btn-sm' data-toggle = 'modal' data-target = '#memberLookUpModal'>Find Member</button>  -->
+                    <label style="margin-left:20px;margin-top:10px" for="lastMonitorTraining">Last Monitor Training:</label>
+                    <input id="lastMonitorTraining" type="text" style="width:80px;margin-top:10px" value="">
+                    <button id="printMemberSchedule" style="margin-top:3px;margin-left:10px" class="btn btn-primary btn-sm">PRINT SCHEDULE</button>
+                    <button id="emailMemberSchedule" style="margin-top:3px;margin-left:10px" class="btn btn-primary btn-sm">EMAIL SCHEDULE</button>
+                </div>
+            </div>
+
+
+            <!-- MEMBER SCHEDULE -->
+            <div id="memberSchedule-container">
+                <div id='schedHdg1' class='memberHeader'>
+                    <span>Location</span>
+                    <span>Date</span>
+                    <span>Duty</span>
+                    <span>AM/PM</span>
+                    <span>No Show</span>
+                </div>    
+            </div>
+            
+            <!-- First DAY SELECTED -->
+            <div id="day1-container">
+                <div class='dayHeader'>
+                    <span id='dayNumber'>Day 1</span>
+                    <span id='day1Date' style='text-align: center;'>08/27/2020</span>
+                    <button id='day1Print' class='btn btn-primary btn-sm'>PRINT</button>
+                    <button id='day1Clear' class='btn btn-secondary btn-sm'>CLEAR</button>
+                </div>
+
+                <div class='dayDetail'> 
+                    <span class='shift'>AM</span>
+                    <span class='duty'>Tool Crib</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+                <div class='dayDetail'> 
+                    <span class='shift'>PM</span>
+                    <span class='duty'>Shop Monitor</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+                <div class='dayDetail'> 
+                    <span class='shift'>PM</span>
+                    <span class='duty'>Shop Monitor</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+                <div class='dayDetail'> 
+                    <span class='shift'>PM</span>
+                    <span class='duty'>Tool Crib</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+             </div> <!-- END OF DAY1--> 
+
+            <!-- SECOND DAY SELECTED -->
+            <div id="day2-container">
+                <div class='dayHeader'>
+                    <span id='dayNumber'>Day 2</span>
+                    <span id='day1Date' style='text-align: center;'>08/27/2020</span>
+                    <button id='day2Print' class='btn btn-primary btn-sm'>PRINT</button>
+                    <button id='day2Clear' class='btn btn-secondary btn-sm'>CLEAR</button>
+                </div>
+
+                <div class='dayDetail'> 
+                    <span class='shift'>AM</span>
+                    <span class='duty'>Shop Monitor</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-outline-secondary btn-sm fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+                <div class='dayDetail'> 
+                    <span class='shift'>AM</span>
+                    <span class='duty'>Shop Monitor</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+                <div class='dayDetail'> 
+                    <span class='shift'>AM</span>
+                    <span class='duty'>Tool Crib</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+                <div class='dayDetail'> 
+                    <span class='shift'>PM</span>
+                    <span class='duty'>Shop Monitor</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+                <div class='dayDetail'> 
+                    <span class='shift'>PM</span>
+                    <span class='duty'>Shop Monitor</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+                <div class='dayDetail'> 
+                    <span class='shift'>PM</span>
+                    <span class='duty'>Tool Crib</span>
+                    <span class='memberName'>Last, first (123456)</span>
+                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
+                </div>
+            
+               
+
+                <!-- MONITOR NOTES -->
+                <div id="monitorNotes">
+                    <p>... monitor notes ... </p>
+                </div>
+            </div>  <!-- END OF DAY2 -->
+        </div> <!-- END OF PARENT2 WRAPPER -->
+    </div>  <!-- END OF PARENT WRAPPER -->
     
 
     <!-- MODAL FORM FOR APPLICATION START UP SETTINGS -->
@@ -171,6 +224,45 @@
         </div>
         <!-- <div class="closeModal">+</div> -->
         <!--<img src="vwcIcon.png" alt="";> -->
+        
+    </div>
+ <!-- MODAL FORM FOR MEMBER LOOKUP -->
+    <div id="memberLookUpModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class='modal-title'>  
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <br>
+                        <h4>The Villages Woodworkers Club</h4>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <h5 style="text-decoration: underline;">FIND MEMBER RECORD</h5>
+                    <form action="">
+                        <p style='text-align: left'>
+                            <label>Village ID -</label>
+                            <input id='searchID' type="text" style="width:50px; color:blue;font-weight: bold; " placeholder = '20xx'>
+                        </p>
+                        
+                        <p style='text-align: left'>
+                            <label>Name - </label> 
+                            <!-- <select id="shopDefault" name="shopDefault" style="height: 25px;font-size: 1em;">
+                                <option id='selectAshop' value="">Select a location ...</option>
+                                <option id='shop1' value="RA">Rolling Acres</option>
+                                <option id='shop2' value="BW">Brownwood</option>
+                            </select> -->
+                        </p>
+                        
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> 
+                </div> 
+            </div>
+        </div>
         
     </div>
 

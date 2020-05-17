@@ -33,16 +33,17 @@ var clientLocation = localStorage.getItem('clientLocation')
 var todaysDate = new Date();
 var currentYear = todaysDate.getFullYear()
 var firstTimeThrough = localStorage.getItem('firstTimeSwitch')
-
+var currentMemberID = ''
+var shopNames = ['Rolling Acres', 'Brownwood']
+//var nameList = []
 
 // DEFINE EVENT LISTENERS
 document.getElementById("yearToDisplay").addEventListener("change", yearChanged);
 document.getElementById("shopToDisplay").addEventListener("change", shopChanged);
-// document.getElementById("dutyToDisplay").addEventListener("change", dutyChanged);
 document.getElementById("refreshCalendarBtn").addEventListener("click",refreshCalendarRtn)
-// document.getElementById("resetCalendarFiltersBtn").addEventListener("click",resetCalendarFilters)
+document.getElementById("selectpicker").addEventListener("change",memberSelectedRtn)
 window.addEventListener('unload', function(event) {
-    console.log('Removing firstTimeSwitch from localStorage.');
+    //console.log('Removing firstTimeSwitch from localStorage.');
     localStorage.removeItem('firstTimeSwitch');
 });
 
@@ -71,6 +72,26 @@ if (firstTimeThrough == null) {
     }
 
     setShopFilter(clientLocation)
+
+    // WAS A MEMBER ID INCLUDED IN THE URL?
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    if (urlParams.has('id')) {
+        currentMemberID = urlParams.get('id')
+        populateMemberSchedule(currentMemberID)
+        //alert('currentMemberID -' + currentMemberID)
+    }
+    else {
+        currentMemberID=''
+        document.getElementById('memberNameHdg').innerHTML = ' '  
+        // let elements = document.getElementsByClassName('optName');
+        // for (let elem of elements) {
+        //     listText = elem.innerHTML
+        //     if (listText.includes(currentMemberID)) {
+        //         document.getElementById('memberNameHdg').innerHTML = elem.innerHTML
+    }
+    
+
     //setDutyFilter("BOTH")
     //  END OF FIRST TIME ROUTINE
 }
@@ -92,6 +113,7 @@ buildYear(yearFilter);
 
 // POPULATE CALENDAR USING STARTUP PARAMETERS
 populateCalendar(yearFilter,shopFilter) //,dutyFilter)
+//populateNameList()
 
 
 // ------------------------------------------------------------------------------------------------------
@@ -233,6 +255,7 @@ function refreshCalendarRtn() {
     buildYear(yearFilter);
     populateCalendar(yearFilter,shopFilter)  //,dutyFilter)
     document.getElementById("refreshCalendarBtn").disabled = true;
+    //populateNameList();
 }
 
 
@@ -445,15 +468,40 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
                 var dayID = "x" + DateScheduled
                 SM_TO_FILL = (SM_AM_REQD + SM_PM_REQD) - SM_ASGND
                 TC_TO_FILL = (TC_AM_REQD + TC_PM_REQD) - TC_ASGND 
+                currentDate = new Date
+                //alert('DateScheduled-' + DateScheduled.toString)
+                //alert(typeof(DateScheduled))
+                if (DateScheduled != 0) {
+                    mo=DateScheduled.slice(4,6)
+                    da=DateScheduled.slice(6,8)
+                    yr=DateScheduled.slice(0,4)
+                    mmddyy=mo + '-' + da + '-' + yr
+                    yymmdd=(yr + '/' + mo + '/' + da)
+                    //alert(yymmdd)
+                    dateSched = new Date(yymmdd)
+                    //alert('dateSched-' + dateSched.toString())
+                }
+                else {
+                    dateSched = currentDate
+                }
+
+                //alert('current date -' + currentDate.toString())
                 
+
                 switch (true) {
                     case DateScheduled == 0:
                         break 
-                    case status == 'CLOSED':
+
+                    case (status == 'CLOSED'):
                         document.getElementById(dayID).style.backgroundColor = colors.bg_Closed;
                         document.getElementById(dayID).style.color = colors.fg_Closed;
                         break
                     
+                    case (dateSched < currentDate):
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_PastDate;
+                        document.getElementById(dayID).style.color = colors.fg_Past;
+                        break
+
                     // CHECK FOR ASSIGNMENTS COMPLETED
                     case (SM_TO_FILL == 0  && TC_TO_FILL == 0):
                         document.getElementById(dayID).style.backgroundColor = colors.bg_Filled;
@@ -501,6 +549,44 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
     xhttp.send(JSON.stringify(data)); 
 }
 
+function populateNameList() {
+    console.log('{{nameList}}')
+    var nameLst = '{{nameList | tojson}}';
+
+    //var nameLst = {{ nameList | safe }};
+    console.log(nameLst)
+    nameArray = JSON.parse('{{nameList}}')
+    console.log(nameArray)
+    // alert({{nameList}})
+    for ( var i=0; i < nameArray.length -1; i++ ) {
+        alert(nameArray(i))
+    }
+}
+
+
+ // SEARCH FOR A MATCHING NAME
+  $(document).on('keyup','#myInput', function (e) {
+    // Declare variables
+    var input, filter, i, txtValue;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    // select = document.getElementsByClassName("selectNames")
+    
+    optionArray = select.getElementsByClassName("optName")
+    
+    // Loop through all option rows, and hide those who don't match the search query
+    for (i = 0; i < optionArray.length; i++) {
+        txtValue = option(i).textContent
+    //   option = option[i].getElementsByTagName("td")[0];
+    //   if (td) {
+        // txtValue = td.textContent || td.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          optionArray[i].style.display = "";
+        } else {
+          optionArray[i].style.display = "none";
+        }
+      }
+  })
 
 // DEFINE MODAL EVENT LISTENERS
 $('#settingsModal').on('show.bs.modal', function () {  
@@ -579,3 +665,162 @@ function buildDayTable(sched) {
     }
     alert(msg)
 }
+
+// $("#findMember").click(function() {
+//     // toggle
+//     $('.selectpicker').selectpicker('toggle');
+
+//     // select by value
+//     $('.selectpicker').selectpicker('val', 'Test');
+//     $('.remove-example').selectpicker('refresh');
+  
+//     // change highlight
+//     $('.dropdown-menu li').removeClass('active')
+//   }); 
+
+// function showFindMemberBtn() {
+//      document.getElementById('selectPicker').style=display;
+//  }
+// $('#selectpicker').on('changed.bs.select', function (e) {
+//     alert(this.value)
+//   });
+
+function memberSelectedRtn() {
+    selectedMember = this.value
+    document.getElementById('memberNameHdg').innerHTML = selectedMember
+    lastEight = selectedMember.slice(-8)
+    currentMemberID= lastEight.slice(1,7)
+    populateMemberSchedule(currentMemberID)
+}
+  
+function populateMemberSchedule(memberID) {
+    //alert("Prepare monitor schedule for member with ID '" + memberID + "'; also retrieve last training date")
+    // ajax request for last training date and monitor schedule for current year forward
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/getMemberSchedule"); 
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onreadystatechange = function() {
+        //console.log('onreadystatechange')
+        if (this.readyState == 4 && this.status == 200) {
+            // PROCESS RESPONSE
+            sched = JSON.parse(this.response)
+            numberOfElements = sched.length 
+            //alert('Number - '+numberOfElements.toString)
+
+            // IDENTIFY MEMBER SCHEDULE AS PARENT NODE
+            var mbrSchedule = document.getElementById("memberSchedule-container")
+            
+            //  REMOVE CURRENT MEMBER SCHEDULE, IF ANY
+            //var schedDtl1 = document.getElementByID('schedDtl1')
+            if (schedDtl1) {
+                schedDtl1.remove()
+            }
+
+            
+            
+            for ( var y=0; y<numberOfElements; y++ ) {
+                console.log('y=' + y.toString)
+                if (sched[y][0] == 0) {
+                    break 
+                }
+                // IF FIRST RECORD INSERT DISPLAY NAME AND TRAINING DATE
+                if (y == 1) {
+                    document.getElementById('memberNameHdg').innerHTML = displayName
+                    document.getElementById('lastMonitorTraining').value = trainingDate
+                }
+                // BUILD MEMBERS SCHEDULE
+                memberIDfromArray = sched[y][0]
+                console.log('ID= ' + memberIDfromArray)
+                shopNumber = sched[y][1]
+                displayName = sched[y][2]
+                trainingDate = sched[y][3]
+                dateScheduled = sched[y][4]
+                dateScheduledFormatted = sched[y][5]
+                shift = sched[y][6]
+                duty = sched[y][7]
+                noShow = sched[y][8]
+
+                console.log(displayName, trainingDate, dateScheduled,shift,duty,noShow)
+                //console.log('Location - ' + shopNumber.toString())
+                locationName = shopNames[shopNumber - 1]
+                //alert('Location - ' + locationName)
+
+                // CREATE NEW schedDtl1 AS CHILD OF memberSchedule (new row)
+                var schedDtl1 = document.createElement("schedDtl1")
+                schedDtl1.id='schedDtl1'
+                schedDtl1.classList.add('memberDetail')  
+                
+                //  date testing
+                if (dateScheduled != 0) {
+                    mo=dateScheduled.slice(4,6)
+                    da=dateScheduled.slice(6,8)
+                    yr=dateScheduled.slice(0,4)
+                    mmddyy=mo + '-' + da + '-' + yr
+                    yymmdd=(yr + '/' + mo + '/' + da)
+                    //alert(yymmdd)
+                    dateSched = new Date(yymmdd)
+                }
+                todaysDate = new Date()
+                //dtSched = Date(dateScheduled)
+                if (dateSched > todaysDate) {
+                    schedDtl1.style.color="Red"   
+                }
+                else {
+                schedDtl1.style.color="Green"
+                }
+                //  date testing
+
+                mbrSchedule.appendChild(schedDtl1)
+
+                var spanLocation = document.createElement("span")
+                spanLocation.classList.add("memberSchedule")
+                spanLocation.innerHTML = locationName
+                schedDtl1.appendChild(spanLocation)
+            
+                var spanDateScheduled = document.createElement("span")
+                spanDateScheduled.classList.add("memberSchedule")
+                spanDateScheduled.innerHTML = dateScheduledFormatted
+                schedDtl1.appendChild(spanDateScheduled)
+            
+                
+                var spanShift = document.createElement("span")
+                spanShift.classList.add("memberSchedule")
+                spanShift.innerHTML = shift
+                schedDtl1.appendChild(spanShift)
+
+                var spanDuty = document.createElement("span")
+                spanDuty.classList.add("memberSchedule")
+                spanDuty.innerHTML = duty
+                schedDtl1.appendChild(spanDuty)
+
+                var spanNoShow = document.createElement("span")
+                spanNoShow.classList.add("memberSchedule")
+                spanNoShow.innerHTML = noShow
+                schedDtl1.appendChild(spanNoShow)
+
+                
+                
+
+                //  CREATE MEMBER SCHEDULE BEGINNING AT ELEMENT ....
+                ////////////////////////
+                // <div class=sLocDArea>Rolling Acres</div>
+                // <div class=sDateDArea>Sat 9/5/20</div>
+                // <div class=sDutyDArea>Shop Monitor</div>
+                // <div class=sAMPMDArea>PM</div>
+                // <div class=sNoShowDArea> </div>
+                ////////////////////
+                //document.getElementById('day1Date').innerHTML = sched[1][0]
+                // APPEND ELEMENT ...
+                // var td = document.createElement('td');
+                // td.innerHTML = "SMTWTFS"[c];
+                // tr.appendChild(td);
+                //msg += (memberID,displayName,trainingDate,"\r\n", dateScheduled,AMPM,duty,noShow, '\r\n')
+            }
+            // END OF FOR LOOP  
+            //alert(msg)
+
+            }  // END OF READY STATE TEST
+    }   // END IF READYSTATE ...
+    var data = {memberID:memberID}; //send memberID selected to server;
+    xhttp.send(JSON.stringify(data)); 
+}   // END xhttp FUNCTION

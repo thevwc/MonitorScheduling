@@ -6,90 +6,79 @@
     --calendar-text:blue;
   }
   
-
-
-
+                        
+  
 .parent {
     display: grid;
     grid-template-columns:1fr 1fr;
-    grid-template-rows:repeat(auto, minmax(50px auto)); 
-    gap:.5em;
-    grid-template-areas: "hdgArea    hdgArea"
-                         "filterArea nameArea"
-                         "calArea    scheduleArea"
-                         "calArea    scheduleArea"
-                         "calArea    memberNoteArea"
-                         ".......    day1Area"
-                         ".......    day2Area"
-                         "logArea    monitorNoteArea";
-    background-color:lightgray;
+    grid-template-rows:repeat(auto, minmax(50px auto));
+    grid-template-areas: "hdgArea      hdgArea"
+                         "parent1Area  parent2Area";
+    background-color:lightgray;                   
 }
-                        
 .hdg {
-    grid-area:hdgArea;
-    height:50px;
+    grid-area: hdgArea; 
+    height:40px;
     padding-top: 0px;
     padding-bottom: 20px;
+    margin-bottom: 10px;
     /* grid-column: 1 /-1;
     grid-row: 1;    */
     align-items:center;
     justify-content:center; 
     text-align: center;
-    background-color:var(--main-bg-color);
+    background-color:navy;
     color: var(--main-txt-color);
-    
-    /* margin-left:0px;
-    margin-right:0px;
-    padding-left:0px;
-    padding-right:0px; */
+    border-bottom:white 3px;
 }
+
 /*
 .hdg h1 {
     align-items:center;
 }
 */
 
+.parent1 {
+    display: grid;
+    grid-area: parent1Area;
+    grid-template-columns:1fr 1fr 1fr 1fr;
+    grid-template-rows:repeat(auto, minmax(50px auto)); 
+    gap:.5em;
+    grid-template-areas: "filterArea filterArea filterArea filterArea"
+                         "calArea    calArea    calArea    calArea"
+                         "calArea    calArea    calArea    calArea"
+                         "calArea    calArea    calArea    calArea"
+                         "logArea    logArea    logArea    logArea";
+    padding-right: 10px;
+    padding-left: 10px;
+    border-left: white 2px;
+}
+
+
 .filterSection {
     grid-area:filterArea;
     height:75px;
     padding-top:20px;
     padding-bottom: 0px;
-    /* margin-top:0px;
-    margin-bottom:20px; */
-    /* flex-direction: column;*/
+    margin:0px;
     justify-content:center;
     align-items:center; 
     text-align: center;
-    /* width:100%; */
-    /*align-self:center; */
-    /* grid-column: 1/ -1;
-    grid-row: 2; 
-    height: 150px; */
-    /* vertical-align:middle; */
-    /*align-items:center;*/
-    /* justify-content: center; */
-    /*text-align:center;*/
+    width:100%;
     background-color: var(--main-bg-color);
     color: var(--main-txt-color);
-    /*margin-left:0px;
-    margin-right:0px;
-    padding-left:0px;
-    padding-right:0px;*/
-}
-    
-.filters form {
-    margin-left: 20px;
-    padding-left: 20px;
-    align-items:center;
-    align-content: center;
 }
 
+#settingsIcon {
+    margin-top:3px;
+    margin-left: 30px;
+    height: 30px;
+    font-size:18px;
+}
 select {
     text-size-adjust:100 px;
     margin-right:20px;
     color:blue;
-    /* padding-right: 20px;
-    color:red; */
 }
 
 /* .calendarSection {
@@ -126,49 +115,166 @@ select {
     background-image: linear-gradient(#fff, #d3d3d3); 
     /* color: var(--calendar-text); */
 } 
-
-.calendar-container div {
-    background-color: crimson;
+#myInput {
+    background-color: white;
+    color:blue;
 }
+/* .calendar-container div {
+    background-color: crimson;
+} */
 
 .monthYearHdg {
     background-color: navy;
     color:white;
 }
-#memberName {
+
+#transactionLog {
+    grid-area:logArea;
+    background-color:slategrey;
+    color:white;
+    border: 1px solid black;
+    border-radius: 10px;
+
+} 
+
+
+/* COLUMN 2 (PARENT2 */
+.parent2 {
+    display: grid;
+    grid-area: parent2Area;
+    grid-template-columns:1fr;
+    grid-template-rows:repeat(auto, minmax(20px auto)); 
+    gap:.5em;
+    grid-template-areas: "nameArea"
+                         "scheduleArea"
+                         "memberNoteArea"
+                         "day1Area"
+                         "day2Area"
+                         "monitorNoteArea";
+    background-color:lightslategray;
+}
+#memberNameSection {
     grid-area:nameArea;
-    text-align:center;
-    border: chartreuse solid 3px;
-    /* grid-column: 2/3;
-    grid-row: 3; */
-    /*width: 100%;
-    margin-left:0px;
-    margin-right:0px;
-    padding-left:0px;
-    padding-right:0px;*/
-    /* justify-content:center; */
-    background-color: brown;
-    color:white;
 }
 
+#memberNameHdg {
+    text-align: center;
+    background-color: white;
+    color:navy;
+    font-size: 18px;
+}
 
-.memberSchedule {
-    border: chartreuse solid 3px;
+#memberID {
+    display:none;
+}
+#memberOptions {
+    text-align: center;
+    align-content: center;
+    justify-content: center;
+    padding:0px;
+    background-color: navy;
+    color:white;
+    height:60px;
+    border:white 1px;
+    margin-top:10px;
+}
+
+#memberSchedule {
+    display:grid;
     grid-area: scheduleArea;
-    background-color: tomato;
-    color:white;
-    /* grid-column: 2/3;
-    grid-row: 4/5;  */
-    /*width: 100%;
-    margin-left:0px;
-    margin-right:0px;
-    padding-left:0px;
-    padding-right:0px;*/
-    
+    /* grid-template-columns:2fr 2fr 2fr 1fr 1fr; */
+    /* grid-template-rows:repeat(auto, minmax(20px auto));  */
+    /* gap:.5em; */
+    /* grid-template-areas: "sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea"
+                         "sLocHArea  sLocHArea  sLocHArea  sDateHArea sDateHArea sDutyHArea sDutyHArea sAMPMHArea sNoShowHArea"
+                         "sLocDArea  sLocDArea  sLocDArea  sDateDArea sDateDArea sDutyDArea sDutyDArea sAMPMDArea sNoShowDArea";
+                          */
+    background-color:lightslategray;
+    border: black solid 3px;
 }
 
-.memberNotes {
+.memberHeader {
+    display: grid;
+    grid-template-columns:2fr 2fr 2fr 1fr 1fr;
+    grid-template-rows:repeat(auto, minmax(40px auto));
+    border: 1px solid black;
+    border-radius: 10px;
+    font-size: 18px;
+    align-items:center;
+    justify-content:center; 
+    text-align: center;
+    background-color: blue;
+    color:white;
+}
+
+.memberDetail {
+    display: grid;
+    grid-template-columns:2fr 2fr 2fr 1fr 1fr;
+    grid-template-rows:repeat(auto, minmax(20px auto));
+    background-color:white;
+    color:blue;
+    font-size: 14px;
+    align-items:center;
+    justify-content:center; 
+    text-align: center;
+}
+
+
+#sTitleArea {
+    text-align:center;
+    background-color: lightgray;
+    color:blue;
+}
+
+#sLocHArea {
+    background-color: navy;
+    color: white;
+}
+#sDateHArea {
+    background-color: navy;
+    color: white;
+}
+
+#sDutyHArea {
+    background-color: navy;
+    color: white;
+}
+#sAMPMHArea {
+    background-color: navy;
+    color: white;
+}
+#sNoShowHArea {
+    background-color: navy;
+    color:white;
+}
+#sLocDArea #sDateDArea #sDutyDArea #sAMPMDArea #sNoShowDArea {
+    border:navy 2px;
+}
+#sLocDArea {
+    background-color: white;
+    color: navy;
+}
+#sDateDArea {
+    background-color: white;
+    color: navy;
+}
+
+#sDutyDArea {
+    background-color: white;
+    color: navy;
+}
+#sAMPMDArea {
+    background-color: white;
+    color: navy;
+}
+#sNoShowDArea {
+    background-color: white;
+    color:navy
+}
+
+#memberNotes {
     grid-area:memberNoteArea;
+    border:black 1px;
     /* grid-column: 2/3;
     grid-row: 6; */
     /* width: 100%;
@@ -203,11 +309,37 @@ select {
     background-color: seagreen;
 }
 
-.transactionLog {
-     grid-area:logArea;
-     background-color:rosybrown
-     /* grid-column: 1/4; */
-} 
+.dayHeader {
+    display: grid;
+    grid-template-columns:1fr 3fr 1fr 1fr;
+    grid-template-rows:repeat(auto, minmax(40px auto));
+    border: 1px solid black;
+    border-radius: 10px;
+    font-size: 18px;
+    align-items:center;
+    justify-content:center; 
+    text-align: center;
+}
+.dayDetail {
+    display: grid;
+    grid-template-columns:1fr 2fr 5fr 1fr;
+    grid-template-rows:repeat(auto, minmax(20px auto));
+    background-color:lightgray;
+    color:black;
+    font-size: 14px;
+    align-items:center;
+    justify-content:center; 
+    text-align: left;
+}
+
+
+.memberName {
+    background-color: white;
+    color:green;
+    border: .5px solid black;
+}
+
+
 
 .monitorNotes {
     grid-area:monitorNoteArea;
@@ -323,7 +455,6 @@ select {
                          "memberNoteArea"
                          "day1Area"
                          "day2Area"
-                         "logArea"
                          "monitorNoteArea"
         } 
 
@@ -377,14 +508,38 @@ select {
 .calendar-dates>table>tr>td{
     padding:5px;
 } */
-.dayHeader {
+
+.shift {
+    /* margin-left: 20px; */
+    padding-left: 5px;
+    padding-bottom: 5px;
+}
+
+#findMember {
+    background-color: lime;
+    width: 200px;
+} 
+
+#selectpicker {
+    width:200px;
+    height:40px;
+
+}
+/* .bootstrap-select > .dropdown-toggle.bs-placeholder:active {
+    background: #FFF;
+    color: #000;
+    border-color: #999;
+  } */
+
+
+/* .memberSchedule {
     display: grid;
-    grid-template-columns:1fr 3fr 1fr 1fr;
-    grid-template-rows:repeat(auto, minmax(50px auto));
-    border: 1px solid black;
-    border-radius: 10px;
-    font-size: 24px;
+    grid-template-columns:2fr 2fr 2fr 1fr 1fr;
+    grid-template-rows:repeat(auto, minmax(20px auto));
+    background-color:white;
+    color:blue;
+    font-size: 14px;
     align-items:center;
     justify-content:center; 
-    text-align: center;
-}
+    text-align: left;
+} */

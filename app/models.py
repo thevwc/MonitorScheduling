@@ -50,7 +50,8 @@ class Member(db.Model):
     Dues_Paid=db.Column(db.Boolean)
     NonMember_Volunteer=db.Column(db.Boolean)
     Restricted_From_Shop = db.Column(db.Boolean)
-	
+    Last_Monitor_Training = db.Column(db.DateTime)
+
     fullName = column_property(First_Name + " " + Last_Name)
     # Relationships
     #activities = db.relationship('MemberActivity', backref='member')
@@ -74,13 +75,27 @@ class MemberActivity(db.Model):
     Shop_Number = db.Column(db.Integer)
     Door_Used = db.Column(db.String(5))
 
-    
+class MonitorSchedule(db.Model):
+    __tablename__ = 'tblMonitor_Schedule'
+    __table_args__ = {"schema": "dbo"}
+    ID = db.Column(db.Integer)
+    Member_ID = db.Column(db.String(6), primary_key=True)
+    Date_Scheduled = db.Column(db.DateTime, primary_key=True)
+    AM_PM = db.Column(db.String(2), primary_key=True)
+    Shop_Number = db.Column(db.Integer, primary_key=True)
+    Monitor_Notes = db.Column(db.String(255))
+    Duty = db.Column(db.String(20))
+    No_Show = db.Column(db.Boolean)
+    Optional = db.Column(db.Boolean)
 
-# class MemberSchema(ma.ModelSchema):
-#     class Meta:
-#         model = Member
-
-# class MemberActivitySchema(ma.ModelSchema):
-#     class Meta:
-#         model = MemberActivity
-
+class ShopDates(db.Model):
+    __tablename__ = 'tblShop_Dates'
+    __table_args__ = {"schema": "dbo"}
+    Shop_Number = db.Column(db.Integer, primary_key=True)
+    MM_DD_YYYY = db.Column(db.DateTime, primary_key=True)
+    Status  = db.Column(db.String(10))
+    Reason = db.Column(db.String(255))
+    SM_AM_REQD = db.Column(db.Integer)
+    SM_PM_REQD = db.Column(db.Integer)
+    TC_AM_REQD = db.Column(db.Integer)
+    TC_PM_REQD = db.Column(db.Integer)
