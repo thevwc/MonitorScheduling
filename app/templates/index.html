@@ -62,28 +62,29 @@
                 <div id="memberNameHdg">   
                     <span style="text-align: center;">{{displayName}}</span><br>
                 </div>
-                <div id = "memberID">
+                <!-- <div id = "memberID">
                     <span style = "display:none;">{{memberID}}</span>
-                </div>
+                </div> -->
 
                 <div id="memberOptions">
-                    <select id="selectpicker" style="margin-top:10px" class='selectpicker' title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
+                    <select id="selectpicker" class='selectpicker' title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
                         {% for nme in nameList %}
                             <option  class="optName" value='{{nme}}'</option>{{nme}}</option>
                         {% endfor %}
-                    </select>
-                    <!-- <button type='button' class = 'btn btn-info btn-sm' data-toggle = 'modal' data-target = '#memberLookUpModal'>Find Member</button>  -->
-                    <label style="margin-left:20px;margin-top:10px" for="lastMonitorTraining">Last Monitor Training:</label>
-                    <input id="lastMonitorTraining" type="text" style="width:80px;margin-top:10px" value="">
-                    <button id="printMemberSchedule" style="margin-top:3px;margin-left:10px" class="btn btn-primary btn-sm">PRINT SCHEDULE</button>
-                    <button id="emailMemberSchedule" style="margin-top:3px;margin-left:10px" class="btn btn-primary btn-sm">EMAIL SCHEDULE</button>
+                    </select><br><br>
+                </div>
+                <div>
+                    <label style="margin-left:60px; color:white"for="lastMonitorTraining">Last Monitor Training:</label>
+                    <input id="lastMonitorTraining" type="text" style="width:90px;text-align: center" value="">
+                    <button id="printMemberSchedule" style="margin-left:30px;width:60px" class="btn btn-primary btn-sm">PRINT</button>
+                    <button id="emailMemberSchedule" style="margin-left:10px;width: 60px" class="btn btn-primary btn-sm">EMAIL</button>
                 </div>
             </div>
 
 
             <!-- MEMBER SCHEDULE -->
             <div id="memberSchedule-container">
-                <div id='schedHdg1' class='memberHeader'>
+                <div id='schedHdg1' class='memberScheduleHeader'>
                     <span>Location</span>
                     <span>Date</span>
                     <span>Duty</span>
@@ -91,95 +92,36 @@
                     <span>No Show</span>
                 </div>    
             </div>
-            
+            <!-- MEMBER NOTES -->
+            <div id="memberNotes">
+                <p>... member notes ... </p>
+            </div>
+
             <!-- First DAY SELECTED -->
             <div id="day1-container">
                 <div class='dayHeader'>
-                    <span id='dayNumber'>Day 1</span>
-                    <span id='day1Date' style='text-align: center;'>08/27/2020</span>
-                    <button id='day1Print' class='btn btn-primary btn-sm'>PRINT</button>
-                    <button id='day1Clear' class='btn btn-secondary btn-sm'>CLEAR</button>
+                    <span id='day1Date'></span>
+                    <span id='day1Location'></span>
+                    <button id='day1Print' class='btn btn-primary btn-sm' onclick='printDay1()'>PRINT</button>
+                    <button id='day1Clear' class='btn btn-secondary btn-sm' onclick ="clearDay1()">CLEAR</button>
                 </div>
-
-                <div class='dayDetail'> 
-                    <span class='shift'>AM</span>
-                    <span class='duty'>Tool Crib</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-                <div class='dayDetail'> 
-                    <span class='shift'>PM</span>
-                    <span class='duty'>Shop Monitor</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-                <div class='dayDetail'> 
-                    <span class='shift'>PM</span>
-                    <span class='duty'>Shop Monitor</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-                <div class='dayDetail'> 
-                    <span class='shift'>PM</span>
-                    <span class='duty'>Tool Crib</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-             </div> <!-- END OF DAY1--> 
+                <div id="dayDetail1"></div>
+            </div> <!-- END OF DAY1--> 
 
             <!-- SECOND DAY SELECTED -->
             <div id="day2-container">
                 <div class='dayHeader'>
-                    <span id='dayNumber'>Day 2</span>
-                    <span id='day1Date' style='text-align: center;'>08/27/2020</span>
-                    <button id='day2Print' class='btn btn-primary btn-sm'>PRINT</button>
-                    <button id='day2Clear' class='btn btn-secondary btn-sm'>CLEAR</button>
+                    <span id='day2Date'></span>
+                    <span id='day2Location'></span>
+                    <button id='day2Print' class='btn btn-primary btn-sm' onclick='printDay2()'>PRINT</button>
+                    <button id='day2Clear' class='btn btn-secondary btn-sm' onclick='clearDay2()'>CLEAR</button>
                 </div>
-
-                <div class='dayDetail'> 
-                    <span class='shift'>AM</span>
-                    <span class='duty'>Shop Monitor</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-outline-secondary btn-sm fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-                <div class='dayDetail'> 
-                    <span class='shift'>AM</span>
-                    <span class='duty'>Shop Monitor</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-                <div class='dayDetail'> 
-                    <span class='shift'>AM</span>
-                    <span class='duty'>Tool Crib</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-                <div class='dayDetail'> 
-                    <span class='shift'>PM</span>
-                    <span class='duty'>Shop Monitor</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-                <div class='dayDetail'> 
-                    <span class='shift'>PM</span>
-                    <span class='duty'>Shop Monitor</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-                <div class='dayDetail'> 
-                    <span class='shift'>PM</span>
-                    <span class='duty'>Tool Crib</span>
-                    <span class='memberName'>Last, first (123456)</span>
-                    <button class='DeleteBtn btn btn-secondary fa fa-trash-o'> <i class='fa fa-trash'></i>  DEL</button>
-                </div>
-            
-               
-
-                <!-- MONITOR NOTES -->
-                <div id="monitorNotes">
-                    <p>... monitor notes ... </p>
-                </div>
+                <div id='dayDetail2'></div>
             </div>  <!-- END OF DAY2 -->
+            <!-- MONITOR NOTES -->
+            <div id="monitorNotes">
+                <p>... monitor notes ... </p>
+            </div>
         </div> <!-- END OF PARENT2 WRAPPER -->
     </div>  <!-- END OF PARENT WRAPPER -->
     

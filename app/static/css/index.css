@@ -10,8 +10,8 @@
   
 .parent {
     display: grid;
-    grid-template-columns:1fr 1fr;
-    grid-template-rows:repeat(auto, minmax(50px auto));
+    grid-template-columns:1.10fr .90fr;
+    grid-template-rows:repeat(auto, minmax(20px auto));
     grid-template-areas: "hdgArea      hdgArea"
                          "parent1Area  parent2Area";
     background-color:lightgray;                   
@@ -22,8 +22,6 @@
     padding-top: 0px;
     padding-bottom: 20px;
     margin-bottom: 10px;
-    /* grid-column: 1 /-1;
-    grid-row: 1;    */
     align-items:center;
     justify-content:center; 
     text-align: center;
@@ -143,26 +141,50 @@ select {
     display: grid;
     grid-area: parent2Area;
     grid-template-columns:1fr;
-    grid-template-rows:repeat(auto, minmax(20px auto)); 
-    gap:.5em;
+    grid-template-rows:80px minmax(100px auto) 50px 1fr 1fr 50px;
+    /* grid-template-rows:repeat(auto, minmax(20px auto));  */
+    grid-area: 0.5em;
     grid-template-areas: "nameArea"
                          "scheduleArea"
                          "memberNoteArea"
                          "day1Area"
                          "day2Area"
-                         "monitorNoteArea";
-    background-color:lightslategray;
+                         "monitorNoteArea"; 
+    background-color:white;
+    padding-left: 20px;
+    padding-right: 20px;
 }
+
 #memberNameSection {
     grid-area:nameArea;
-}
+    width:100%;
+    /* text-align: center;
+    align-content: center;
+    justify-content: center; */
+    background-color:navy;
+    border:black solid 2px;
+    border-radius: 10px;
+    padding:0px;
+    margin:0px;
+
+}  
 
 #memberNameHdg {
     text-align: center;
     background-color: white;
     color:navy;
     font-size: 18px;
+    padding:0px;
+    margin:0px;
+    border:white solid 1px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
+.memberName {
+    background-color: white;
+    color:navy;
+    border: navy solid 1px;
+} 
 
 #memberID {
     display:none;
@@ -172,54 +194,65 @@ select {
     align-content: center;
     justify-content: center;
     padding:0px;
-    background-color: navy;
+    background-color:navy;
     color:white;
-    height:60px;
-    border:white 1px;
     margin-top:10px;
 }
 
-#memberSchedule {
-    display:grid;
+
+#memberSchedule-container {
     grid-area: scheduleArea;
-    /* grid-template-columns:2fr 2fr 2fr 1fr 1fr; */
-    /* grid-template-rows:repeat(auto, minmax(20px auto));  */
-    /* gap:.5em; */
-    /* grid-template-areas: "sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea sTitleArea"
-                         "sLocHArea  sLocHArea  sLocHArea  sDateHArea sDateHArea sDutyHArea sDutyHArea sAMPMHArea sNoShowHArea"
-                         "sLocDArea  sLocDArea  sLocDArea  sDateDArea sDateDArea sDutyDArea sDutyDArea sAMPMDArea sNoShowDArea";
-                          */
-    background-color:lightslategray;
-    border: black solid 3px;
+    padding:0px;
+    margin:0px;
+    height:auto;
+    background-color:white;
+    border:navy solid 1px;
+    border-radius: 10px;
 }
 
-.memberHeader {
+
+.memberScheduleHeader {
     display: grid;
-    grid-template-columns:2fr 2fr 2fr 1fr 1fr;
+    grid-template-columns:2fr 2fr 1fr 2fr 1fr;
     grid-template-rows:repeat(auto, minmax(40px auto));
-    border: 1px solid black;
-    border-radius: 10px;
-    font-size: 18px;
+    font-size: 16px;
     align-items:center;
     justify-content:center; 
     text-align: center;
-    background-color: blue;
+    background-color: navy;
+    border:white solid 1px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     color:white;
+    padding:0px;
+    margin-left:0px;
+    margin-right:0px;
+    margin-top:0px;
+    margin-bottom: 0px;
 }
 
-.memberDetail {
+.memberScheduleDetail {
     display: grid;
-    grid-template-columns:2fr 2fr 2fr 1fr 1fr;
+    grid-template-columns:2fr 2fr 1fr 2fr 1fr;
     grid-template-rows:repeat(auto, minmax(20px auto));
     background-color:white;
-    color:blue;
     font-size: 14px;
     align-items:center;
     justify-content:center; 
-    text-align: center;
+    text-align: center; 
+    padding:0;
+    margin-left:0px;
+    margin-right: 0px;
+    margin-top:0px;
+    margin-bottom: 0px;
+    border:navy solid 1px;
+    border-radius: red solid 1px;
+}  
+
+.memberScheduleRow {
+    font-size:14px;
 }
-
-
+/* 
 #sTitleArea {
     text-align:center;
     background-color: lightgray;
@@ -270,80 +303,91 @@ select {
 #sNoShowDArea {
     background-color: white;
     color:navy
-}
+} */
 
 #memberNotes {
     grid-area:memberNoteArea;
-    border:black 1px;
-    /* grid-column: 2/3;
-    grid-row: 6; */
-    /* width: 100%;
-    margin-left:0px;
-    margin-right:0px;
-    padding-left:0px;
-    padding-right:0px; */
-    background-color: teal;
+    background-color: grey;
+    color:white;
+    text-align: center;
+    padding:20px;
+    margin:10px;
+    border:black solid 1px;
+    border-radius: 10px;
 }
 
-.day1 {
+#day1-container {
     grid-area:day1Area;
-    background-color: skyblue;
-    /* grid-column: 2/3;
-    grid-row: 4 / 8;  */
-    /*width: 100%;
-    margin-left:0px;
-    margin-right:0px;
-    padding-left:0px;
-    padding-right:0px; 
-    background-color: turquoise;*/
-}
-.day2 {
-    grid-area:day2Area;
-    /* grid-column: 2/3;
-    grid-row: 9 / 13; */
+    background-color: beige;
     width: 100%;
-    margin-left:0px;
-    margin-right:0px;
-    padding-left:0px;
-    padding-right:0px;
-    background-color: seagreen;
+    border:1px solid black;
+    border-radius: 10px;
+    margin:10px;
+}
+#day2-container {
+    grid-area:day2Area;
+    width: 100%;
+    background-color: bisque;
+    border:1px solid black;
+    border-radius: 10px;
+    margin:10px;
 }
 
 .dayHeader {
     display: grid;
-    grid-template-columns:1fr 3fr 1fr 1fr;
+    grid-template-columns:1fr 2fr .5fr .5fr;
     grid-template-rows:repeat(auto, minmax(40px auto));
     border: 1px solid black;
-    border-radius: 10px;
+    /* border-radius: 10px; */
     font-size: 18px;
     align-items:center;
     justify-content:center; 
-    text-align: center;
+    text-align: left;
+    color:navy;
+    margin:0px;
+    padding:0px;
+}
+
+/* .dayHeader button {
+    width:60px;
+} */
+
+#day1Print, #day1Clear, #day2Print, #day2Clear {
+    width: 60px;
+    margin-right:5px;
 }
 .dayDetail {
     display: grid;
-    grid-template-columns:1fr 2fr 5fr 1fr;
+    grid-template-columns:.5fr 1fr 2fr 1fr .1fr;
     grid-template-rows:repeat(auto, minmax(20px auto));
-    background-color:lightgray;
-    color:black;
+    background-color:linen;
+    color:blue;
     font-size: 14px;
     align-items:center;
-    justify-content:center; 
+    justify-content:center;
+    height: 30px; 
     text-align: left;
+    padding:0px;
+    margin-top:10px;
+    margin-bottom:0px;
+    margin-left:60px;
+    margin-right:0px;
 }
 
-
-.memberName {
-    background-color: white;
-    color:green;
-    border: .5px solid black;
-}
+/* .delbtn {
+    width:15px;
+    
+} */
 
 
-
-.monitorNotes {
+#monitorNotes {
     grid-area:monitorNoteArea;
-    background-color: sienna;
+    background-color: gray;
+    color:white;
+    text-align: center;
+    border:black solid 1px;
+    border-radius: 10px;
+    margin:10px;
 }
 
 /* .bg-modal {
@@ -511,10 +555,14 @@ select {
 
 .shift {
     /* margin-left: 20px; */
-    padding-left: 5px;
-    padding-bottom: 5px;
+    padding-left: 0px;
+    padding-bottom: 0px;
 }
 
+.nameID {
+    color:green;
+    border:black 1px;
+}
 #findMember {
     background-color: lime;
     width: 200px;
@@ -532,14 +580,3 @@ select {
   } */
 
 
-/* .memberSchedule {
-    display: grid;
-    grid-template-columns:2fr 2fr 2fr 1fr 1fr;
-    grid-template-rows:repeat(auto, minmax(20px auto));
-    background-color:white;
-    color:blue;
-    font-size: 14px;
-    align-items:center;
-    justify-content:center; 
-    text-align: left;
-} */

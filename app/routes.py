@@ -10,6 +10,7 @@ from sqlalchemy import func, case, desc, extract, select, update
 from sqlalchemy.exc import SQLAlchemyError
 import datetime
 from datetime import date, timedelta
+from datetime import datetime
 
 @app.route('/')
 @app.route('/index', methods=['GET','POST'])
@@ -49,16 +50,16 @@ def index():
             SQLselect += " FROM tblMonitor_Schedule "
             #SQLselect += " WHERE DatePart(year,[Date_Scheduled]) = '" + str(yearFilter) + "'"
         
-            print('1. ' + SQLselect)
+            #print('1. ' + SQLselect)
 
             # ADD WHERE CLAUSE
             SQLselect += whereClause
-            print('2. ' + SQLselect)
+            #print('2. ' + SQLselect)
 
             # ADD GROUP BY CLAUSE
             SQLselect += " GROUP BY [Date_Scheduled] ORDER BY [Date_Scheduled]"
             
-            print('3. ' + SQLselect)
+            #print('3. ' + SQLselect)
 
             # EXECUTE QUERY
             dataSet = db.engine.execute(SQLselect)
@@ -164,41 +165,69 @@ def getDayAssignments():
         return "ERROR - Missing parameter."
 
     
-    # RETRIEVE DATA FROM tblMonitor_Schedule
+    # RETRIEVE PARAMETERS FROM REQUEST
     shopNumber = parameters['shopNumber']
+    if (shopNumber == None):
+        return "ERROR - Missing shopNumber parameter."
+
     dayID = parameters['dayID']
     if (dayID == None):
-        return "ERROR - Missing parameter."
+        return "ERROR - Missing dayID parameter."
 
     # PARSE dayID TO GET DATE scheduleDate
     monthOfDate = dayID[5:7]
     dayOfDate = dayID[-2:]
     yearOfDate = dayID[1:5]
     scheduleDate = monthOfDate + '-' + dayOfDate + '-' + yearOfDate 
+    print(scheduleDate)
+    schedDateToDisplay = datetime.strptime(scheduleDate,'%m-%d-%Y')
+
+    #schedDateToDisplay = (yearOfDate + '-' + monthOfDate + '-' + dayOfDate)
+    print (schedDateToDisplay)
+
     #print ('scheduleDate - ' + scheduleDate)
 
     # DECLARE ARRAY AND SET TO ZERO
-    rows = 12
-    cols = 5 # Date_Scheduled, AM_PM, Member name, Village ID
+    rows = 100
+    cols = 8 # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
-            
-    sqlSelect = "SELECT tblMonitor_Schedule.Member_ID, Date_Scheduled, AM_PM, Duty, Last_Name, First_Name FROM tblMonitor_Schedule "
+
+    # BUILD WHERE CLAUSE
+    if (shopNumber == '3'):
+        sqlWhereClause = "WHERE Date_Scheduled = '" + scheduleDate + "'"
+    else:
+        sqlWhereClause = "WHERE Shop_Number = " + shopNumber + " and Date_Scheduled = '" + scheduleDate + "'"
+
+    # BUILD ORDER BY CLAUSE
+    sqlOrderBy = " ORDER BY AM_PM, Duty, Last_Name"            
+    sqlSelect = "SELECT tblMonitor_Schedule.ID as RecordID, Shop_Number, tblMonitor_Schedule.Member_ID,"
+    sqlSelect += " DatePart(Y,[Date_Scheduled]) as dayNumber, Date_Scheduled, AM_PM, Duty, Last_Name, First_Name FROM tblMonitor_Schedule "
     sqlSelect += " JOIN tblMember_Data ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
-    sqlSelect += "WHERE Shop_Number = " + shopNumber + " and Date_Scheduled = '" + scheduleDate + "'"
-    #print(sqlSelect)
+    sqlSelect += sqlWhereClause
+    sqlSelect += sqlOrderBy 
+    
     schedule = db.engine.execute(sqlSelect)
     position = 0
+    if (schedule == None):
+        return 'NO DATA'
+
+    # STORE SHOP NUMBER AND DATE SCHEDULED IN POSITION 0
+    schedArray[0][0] = shopNumber
+    schedArray[0][1] = schedDateToDisplay.strftime("%B %-d, %Y")
+
+    # BUILD ARRAY WITH ONE ASSIGNMENT PER ROW (POSITION)
     for s in schedule:
-        print(s.Date_Scheduled, s.AM_PM, s.Duty, s.Last_Name, s.First_Name, s.Member_ID)
         position += 1
-        schedArray[position][0] = s.Date_Scheduled.strftime("%B %-d, %Y")
-        schedArray[position][1] = s.AM_PM
-        schedArray[position][2] = s.Duty
-        schedArray[position][3] = s.Last_Name + ", " + s.First_Name
-        schedArray[position][4] = s.Member_ID
+        schedArray[position][0] = s.Shop_Number
+        schedArray[position][1] = s.Date_Scheduled.strftime("%B %-d, %Y")
+        schedArray[position][2] = s.AM_PM
+        schedArray[position][3] = s.Duty
+        schedArray[position][4] = s.Last_Name + ", " + s.First_Name
+        schedArray[position][5] = s.Member_ID
+        schedArray[position][6] = s.RecordID
+        schedArray[position][7] = s.dayNumber
     
     return jsonify(schedArray)
-
 
 @app.route('/getMemberSchedule', methods=['GET','POST'])
 def getMemberSchedule():
@@ -207,8 +236,6 @@ def getMemberSchedule():
         return "ERROR - Not a POST request."
     if request.get_json() == None:
         return "ERROR - Missing member number."
-    
-    #print(request.get_json())
     parameters = request.get_json()
     if parameters == None:
         return "ERROR - Missing parameter."
@@ -217,38 +244,14 @@ def getMemberSchedule():
         return "ERROR - Missing parameter."
 
     # RETRIEVE MEMBER NAME AND LAST TRAINING DATE
-    #  Retrieve name
-    # memberData = db.session.query(Member).filter(Member.Member_ID==memberID)
-    # m = memberData.first()
-    # displayName = m.Last_Name + ', ' + m.First_Name + '  (' + m.Member_ID + ')'
-    # trainingDate = m.Last_Monitor_Training  #.strftime("%B %-d, %Y")
-
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
-    today = datetime.date.today()
-    currentYear = today.year
-    #print(type(currentYear))
-    #print('Current year - '+ str(currentYear))
-    # sqlSchedule = "SELECT tblMonitor_Schedule.Date_Scheduled, tblMonitor_Schedule.AM_PM, tblMonitor_Schedule.Shop_Number, "
-    # sqlSchedule += " tblMonitor_Schedule.Duty, tblMonitor_Schedule.No_Show "
-    # sqlSchedule += " FROM tblMonitor_Schedule "
-    # sqlSchedule += " LEFT JOIN tblShop_Names ON (tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number) "
-    #sqlSchedule += " WHERE tblMonitor_Schedule.Member_ID = '" + memberID + "';"    
-    #print (sqlSchedule)
-    #schedule = db.engine.execute(sqlSchedule)
+    Today = date.today()
+    currentYear = Today.year
     
     # DECLARE ARRAY AND SET TO ZERO 
     rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
     cols = 9 # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
-
-    #sArray = [[]]
-    #row = [0,0,0,0,0,0,0]
-    #row = [1,2,3,4,5,6]
-    #sArray.append(row)
-    #row = [2,3,4,5,6,7]
-    #sArray.append(row)
-    #print (sArray)
-    #print ('Length - ' + str(len(sArray)))
 
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "Last_Name + ', ' + First_Name + '  (' + tblMember_Data.Member_ID + ')' as displayName, "
@@ -256,41 +259,65 @@ def getMemberSchedule():
     sqlSelect += "FROM tblMember_Data "
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' ORDER BY Date_Scheduled desc"
-    #print(sqlSelect)
+    
     memberSchedule = db.engine.execute(sqlSelect)
     position = 0
     for ms in memberSchedule:
-        
-        # print(ms.memberID, ms.displayName,ms.Date_Scheduled, ms.AM_PM, ms.Duty, ms.No_Show)
-        #yearOfSchedule = ms.Date_Scheduled.year
-        #print (type(yearOfSchedule))
+        print('ID:' + ms.memberID,ms.displayName, ms.Date_Scheduled)
         schedArray[position][0] = ms.memberID
         schedArray[position][1] = ms.Shop_Number
         schedArray[position][2] = ms.displayName
         schedArray[position][3] = ms.trainingDate.strftime("%-m/%-d/%Y")
-        # row[0] = ms.memberID
-        # row[1] = ms.displayName
-        # row[2] = ms.trainingDate.strftime("%-m/%-d/%y")
+        
         if ms.Date_Scheduled != None:
             schedArray[position][4] = ms.Date_Scheduled.strftime("%Y%m%d")
             schedArray[position][5] = ms.Date_Scheduled.strftime("%a %-m/%-d/%y")
             schedArray[position][6] = ms.AM_PM
             schedArray[position][7] = ms.Duty
             schedArray[position][8] = ms.No_Show
-        #     row[3] = ms.Date_Scheduled.strftime("%a %-m/%-d/%y")
-        #     row[4] = ms.AM_PM
-        #     row[5] = ms.Duty
-        #     row[6] = ms.No_Show
-        # sArray.append(row)
-        # print (sArray[position])
-        # print (sArray)
-
-        # print(schedArray[position])
+        
         position += 1
-    print(schedArray[0])
-    print(schedArray[1])
-    print(schedArray[2])
-    print(schedArray[3])
-
+    
     return jsonify(schedArray)
+    
+
+@app.route('/deleteMonitorAssignment', methods=['GET','POST'])
+def deleteMonitorAssignment():
+    # POST REQUEST
+    if request.method != 'POST':
+        return "ERROR - Not a POST request."
+    if request.get_json() == None:
+        return "ERROR - Missing record ID."
+    parameters = request.get_json()
+    if parameters == None:
+        return "ERROR - Missing parameter."
+    recordID = parameters['recordID']
+    if (recordID == None):
+        return "ERROR - Missing parameter."
+
+    # BUILD SQL DELETE STATEMENT
+    # query = session.query(MonitorSchedule).filter(Mon)
+    # ms = db.session.query(Member).filter(Member.id==recordID)
+    # answer = ms.delete()
+
+    #r = MonitorSchedule.delete().where MonitorSchedule.id == recordID
+    # if answer.rowcount > 0:
+    #     print ('Success')
+    # else:
+    #     print ('Failed')
+
+    #db.session.query(MonitorSchedule).filter(MonitorSchedule.id==recordID).delete()
+    #db.session.commit
+    #recordID += 1
+    print(type(recordID))
+    
+    sqlDelete = "DELETE FROM tblMonitor_Schedule WHERE [ID] = " + str(recordID) 
+    result = db.session.execute(sqlDelete)
+    if (result.rowcount > 0):
+        print('Record # ' + recordID + ' was deleted.')
+    else:
+        print("Delete failed.")
+
+    return "Record ID " + recordID + " removed from tblMonitor_Schedule"
+    
     
