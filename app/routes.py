@@ -3,11 +3,12 @@
 from flask import session, render_template, flash, redirect, url_for, request, jsonify, json, make_response
 from flask_bootstrap import Bootstrap
 from werkzeug.urls import url_parse
-from app.models import ShopName, Member , MemberActivity
+from app.models import ShopName, Member , MemberActivity, MonitorSchedule, MonitorScheduleTransactions, MonitorWeekNotes
 from app import app
 from app import db
-from sqlalchemy import func, case, desc, extract, select, update
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func, case, desc, extract, select, update, text
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError, DBAPIError
+
 import datetime
 from datetime import date, timedelta
 from datetime import datetime
@@ -32,6 +33,7 @@ def index():
                 shopFilter = parameters['shop']
             else:
                 shopFilter = 'BOTH'
+                shopNumber = 0
 
             # build response object
             # BUILD WHERE CLAUSE
@@ -48,25 +50,19 @@ def index():
             SQLselect += " SUM(iif([Duty]='Tool Crib',1,0)) AS TC_ASGND, "
             SQLselect += " DATEPART(Y,[Date_Scheduled]) AS dayNumber "
             SQLselect += " FROM tblMonitor_Schedule "
-            #SQLselect += " WHERE DatePart(year,[Date_Scheduled]) = '" + str(yearFilter) + "'"
-        
-            #print('1. ' + SQLselect)
-
+            
             # ADD WHERE CLAUSE
             SQLselect += whereClause
-            #print('2. ' + SQLselect)
-
+           
             # ADD GROUP BY CLAUSE
             SQLselect += " GROUP BY [Date_Scheduled] ORDER BY [Date_Scheduled]"
-            
-            #print('3. ' + SQLselect)
 
             # EXECUTE QUERY
             dataSet = db.engine.execute(SQLselect)
 
             # DECLARE ARRAY FOR DATASET AND INITIALIZE TO ZEROES
             rows = 367
-            cols = 9 # Date_Scheduled, dayNumber, SM_ASGND, SM_REQD, TC_ASGND, TC_REQD
+            cols = 13 # Date_Scheduled, dayNumber, SM_ASGND, SM_REQD, TC_ASGND, TC_REQD
             requirements = [[0 for x in range(cols)] for y in range(rows)]
             
             # ADD tblMonitor_Schedule DATA TO 'requirements' ARRAY
@@ -78,22 +74,33 @@ def index():
                 requirements[d.dayNumber][4] = d.TC_ASGND
             
             # ADD tblShop_Dates DAILY REQUIREMENTS TO 'requirements' ARRAY
-            SQLselect2 = "SELECT [MM_DD_YYYY], [Status],"
+            if shopFilter == 'BOTH' or shopFilter == 'RA':
+                shopNumber = 1
+            else:
+                shopNumber = 2
+            # BOTH SHOPS ARE IN THE shopDates ARRAY
+            SQLselect2 = "SELECT [Shop_Number],[MM_DD_YYYY], [Status],"
             SQLselect2 += " SM_AM_REQD, SM_PM_REQD, TC_AM_REQD, TC_PM_REQD, "
             SQLselect2 += " DATEPART(Y,[MM_DD_YYYY]) AS dayNumber "
             SQLselect2 += " FROM tblShop_Dates  "
-            SQLselect2 += " WHERE DatePart(year,[MM_DD_YYYY]) = '" + yearFilter + "'"
-
+            SQLselect2 += " WHERE DatePart(year,[MM_DD_YYYY]) = '" + yearFilter + "'" 
+            
             shopDates = db.engine.execute(SQLselect2)
             for s in shopDates:
                 position = s.dayNumber
                 requirements[position][0] = s.MM_DD_YYYY.strftime("%Y%m%d")
                 requirements[position][1] = s.Status
-                requirements[position][5] = s.SM_AM_REQD
-                requirements[position][6] = s.SM_PM_REQD
-                requirements[position][7] = s.TC_AM_REQD
-                requirements[position][8] = s.TC_PM_REQD
-                      
+                if s.Shop_Number == 1:
+                    requirements[position][5] = s.SM_AM_REQD
+                    requirements[position][6] = s.SM_PM_REQD
+                    requirements[position][7] = s.TC_AM_REQD
+                    requirements[position][8] = s.TC_PM_REQD
+                else:
+                    requirements[position][9] = s.SM_AM_REQD
+                    requirements[position][10] = s.SM_PM_REQD
+                    requirements[position][11] = s.TC_AM_REQD
+                    requirements[position][12] = s.TC_PM_REQD
+
             return jsonify(requirements)          
         else:
             return 'No data available' 
@@ -107,7 +114,6 @@ def index():
     nameList = db.engine.execute(sqlSelect)
     position = 0
     for n in nameList:
-        #print(n.Last_Name)
         position += 1
         lastFirst = n.Last_Name + ', ' + n.First_Name + ' (' + n.Member_ID + ')'
         nameArray.append(lastFirst)
@@ -116,27 +122,27 @@ def index():
     ########################################
     # THE FOLLOWING WILL BE HANDLED IN A JAVASCRIPT ROUTINE
     # WAS MEMBER ID PASSED IN?
-    memberID = request.args.get('id','000000')
-    #memberID='672883'
-    if (memberID != '000000'):
-        #  Retrieve name
-        memberData = db.session.query(Member).filter(Member.Member_ID==memberID)
-        m = memberData.first()
-        displayName = m.Last_Name + ', ' + m.First_Name + '  (' + m.Member_ID + ')'
-        trainingDate = m.Last_Monitor_Training  #.strftime("%B %-d, %Y")
+    # memberID = request.args.get('id','000000')
+    # #memberID='672883'
+    # if (memberID != '000000'):
+    #     #  Retrieve name
+    #     memberData = db.session.query(Member).filter(Member.Member_ID==memberID)
+    #     m = memberData.first()
+    #     displayName = m.Last_Name + ', ' + m.First_Name + '  (' + m.Member_ID + ')'
+    #     trainingDate = m.Last_Monitor_Training  #.strftime("%B %-d, %Y")
 
-        #  Summarize all member's schedules by date for the current year
-        today = datetime.date.today()
-        currentYear = today.year
-        sqlSchedule = "SELECT tblMonitor_Schedule.Date_Scheduled, tblMonitor_Schedule.AM_PM, tblMonitor_Schedule.Shop_Number, "
-        sqlSchedule += " tblMonitor_Schedule.Duty, tblMonitor_Schedule.No_Show "
-        sqlSchedule += " FROM tblMonitor_Schedule "
-        sqlSchedule += " LEFT JOIN tblShop_Names ON (tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number) "
-        sqlSchedule += " WHERE tblMonitor_Schedule.Member_ID = '" + memberID + "';"    
-        #print (sqlSchedule)
-        schedule = db.engine.execute(sqlSchedule)
-        return render_template("index.html",nameList=nameArray,memberID=memberID,displayName=displayName,memberSchedule=schedule,trainingDate=trainingDate)
-    ####################################################
+    #     #  Summarize all member's schedules by date for the current year
+    #     today = datetime.date.today()
+    #     currentYear = today.year
+    #     sqlSchedule = "SELECT tblMonitor_Schedule.Date_Scheduled, tblMonitor_Schedule.AM_PM, tblMonitor_Schedule.Shop_Number, "
+    #     sqlSchedule += " tblMonitor_Schedule.Duty, tblMonitor_Schedule.No_Show "
+    #     sqlSchedule += " FROM tblMonitor_Schedule "
+    #     sqlSchedule += " LEFT JOIN tblShop_Names ON (tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number) "
+    #     sqlSchedule += " WHERE tblMonitor_Schedule.Member_ID = '" + memberID + "';"    
+    #     #print (sqlSchedule)
+    #     schedule = db.engine.execute(sqlSchedule)
+    #     return render_template("index.html",nameList=nameArray,memberID=memberID,displayName=displayName,memberSchedule=schedule,trainingDate=trainingDate)
+    # ####################################################
     return render_template("index.html",nameList=nameArray,memberID='000000',displayName='... member name ...')
    
     
@@ -226,6 +232,7 @@ def getDayAssignments():
         schedArray[position][5] = s.Member_ID
         schedArray[position][6] = s.RecordID
         schedArray[position][7] = s.dayNumber
+        #print(s.Member_ID, s.Last_Name)
     
     return jsonify(schedArray)
 
@@ -291,33 +298,130 @@ def deleteMonitorAssignment():
     parameters = request.get_json()
     if parameters == None:
         return "ERROR - Missing parameter."
+    
     recordID = parameters['recordID']
-    if (recordID == None):
-        return "ERROR - Missing parameter."
-
-    # BUILD SQL DELETE STATEMENT
-    # query = session.query(MonitorSchedule).filter(Mon)
-    # ms = db.session.query(Member).filter(Member.id==recordID)
-    # answer = ms.delete()
-
-    #r = MonitorSchedule.delete().where MonitorSchedule.id == recordID
-    # if answer.rowcount > 0:
-    #     print ('Success')
-    # else:
-    #     print ('Failed')
-
-    #db.session.query(MonitorSchedule).filter(MonitorSchedule.id==recordID).delete()
-    #db.session.commit
-    #recordID += 1
-    print(type(recordID))
+    if recordID == None:
+        return "ERROR - Missing recordID."
     
-    sqlDelete = "DELETE FROM tblMonitor_Schedule WHERE [ID] = " + str(recordID) 
-    result = db.session.execute(sqlDelete)
+    staffID = parameters['staffID']
+    if staffID == None: 
+        return "ERROR - Missing staffID."
+
+    
+
+    
+    # RETRIEVE RECORD TO BE DELETED
+    assignment = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID).first()
+    if assignment == None:
+        return "Record no longer exists."
+
+    memberID=assignment.Member_ID
+    dateScheduled=assignment.Date_Scheduled
+    ampm=assignment.AM_PM
+    duty=assignment.Duty
+    print('To be deleted -',memberID,ampm, duty)
+
+    # DELETE THE ASSIGNMENT VIA RAW SQL
+    sqlDelete = "DELETE FROM tblMonitor_Schedule WHERE ID = " + recordID
+    db.engine.execute(sqlDelete)
+
+    # the following does not work with autoincrement primary key 
+    #..............................
+    # try:
+    #     db.session.delete(assignment)
+    #     db.session.commit
+    # except (SQLAlchemyError, DBAPIError) as e:
+    #     print (e)
+    
+    
+    # cannot use the following because of an autoincrement primary key
+    # CREATE RECORD FOR tblMonitor_Schedule_Transactions
+    # newTransaction = MonitorScheduleTransactions (
+    #     Transaction_Date = date.today(),
+    #     Staff_ID = staffID,
+    #     Member_ID = memberID,
+    #     Transaction_Type = "DELETE",
+    #     Date_Scheduled = dateScheduled,
+    #     AM_PM = ampm,
+    #     Duty = duty
+    # )
+    # try:
+    #     print("Add transaction record -",Transaction_Type, staffID,memberID,ampm,duty)
+    #     db.session.add(newTransaction)
+    #     db.session.commit
+    # except SQLAlchemyError as e:
+    #     print (e)
+    #     db.session.rollback()
+    #     return 'DELETE Transaction record could not be added.'
+    # except DBAPIError as e:
+    #     print(e)
+    #     db.session.rollback()
+    #     return 'DELETE Transaction record could not be added.'
+
+    return "The assignment has been removed from the database."
+    
+    
+@app.route('/addMonitorAssignment', methods=['GET','POST'])
+def addMonitorAssignment():
+    # POST REQUEST
+    if request.method != 'POST':
+        return "ERROR - Not a POST request."
+    if request.get_json() == None:
+        return "ERROR - Missing record ID."
+    parameters = request.get_json()
+    if parameters == None:
+        return "ERROR - Missing all parameters."
+    memberID = parameters['memberID']
+    if (memberID == None):
+        return "ERROR - Missing member ID parameter."
+    schedDate = parameters['schedDate']
+    if (schedDate == None):
+        return "ERROR - Missing schedDate parameter."
+    Shift = parameters['Shift']
+    if (Shift == None):
+        return "ERROR - Missing shift parameter."
+    shopNumber = parameters['shopNumber']
+    if (shopNumber == None):
+        return "ERROR - Missing shopNumber parameter."
+    Duty = parameters['Duty']
+    if (Duty == None):
+        return "ERROR - Missing Duty parameter."
+ 
+
+    #  DOES MEMBER HAVE ANOTHER ASSIGNMENT AT ANOTHER LOCATION FOR THIS TIME
+    assignmentExists = MonitorSchedule.query.filter_by(Member_ID=memberID,
+        Date_Scheduled = schedDate,
+        AM_PM = Shift,
+        Duty = Duty).first()
+    if assignmentExists:
+        return 'This member has another assignment at this time.'
+
+    #  the following code would not work with an autoincrement field in the table
+    #   ADD VIA SQLALCHEMY
+    # a = MonitorSchedule(Member_ID=memberID,
+    #     Date_Scheduled = schedDate,
+    #     AM_PM = Shift,
+    #     Shop_Number = shopNumber,
+    #     Duty = Duty
+    #     )
+    # try:
+    #     db.session.add(a)
+    #     db.session.commit()
+    # except (SQLAlchemyError, DBAPIError) as e:
+    #     print (e)
+    #     return 'An error occurred ...'
+    # return 'Assignment added.'
+
+    #  ADD VIA RAW SQL
+    sqlInsert = "INSERT INTO tblMonitor_Schedule (Member_ID, Date_Scheduled, AM_PM, Shop_Number,Duty)"
+    sqlInsert += " VALUES ('" + memberID + "', '" + schedDate + "', '" + Shift + "'"
+    sqlInsert += ", " + shopNumber + ", '" + Duty + "')"
+    #print (sqlInsert)
+
+    result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
     if (result.rowcount > 0):
-        print('Record # ' + recordID + ' was deleted.')
+        return "Assignment added to tblMonitor_Schedule"
     else:
-        print("Delete failed.")
+        return "Assignment could NOT be completed."
 
-    return "Record ID " + recordID + " removed from tblMonitor_Schedule"
-    
     

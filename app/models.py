@@ -30,7 +30,7 @@ from app import app
 class Member(db.Model):
     __tablename__ = 'tblMember_Data'
     __table_args__ = {"schema": "dbo"}
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     Member_ID = db.Column(db.String(6),
          index=True,
          unique=True)
@@ -78,7 +78,7 @@ class MemberActivity(db.Model):
 class MonitorSchedule(db.Model):
     __tablename__ = 'tblMonitor_Schedule'
     __table_args__ = {"schema": "dbo"}
-    ID = db.Column(db.Integer)
+    ID = db.Column(db.Integer,autoincrement=True)
     Member_ID = db.Column(db.String(6), primary_key=True)
     Date_Scheduled = db.Column(db.DateTime, primary_key=True)
     AM_PM = db.Column(db.String(2), primary_key=True)
@@ -87,6 +87,30 @@ class MonitorSchedule(db.Model):
     Duty = db.Column(db.String(20))
     No_Show = db.Column(db.Boolean)
     Optional = db.Column(db.Boolean)
+
+class MonitorScheduleTransactions(db.Model):
+    __tablename__ = 'tblMonitor_Scheduled_Transactions'
+    __table_args__ = {"schema": "dbo"}
+    ID = db.Column(db.Integer,primary_key=True, autoincrement=True)
+    Transaction_Date = db.Column(db.DateTime)
+    Week_Number = db.Column(db.Integer)
+    Staff_ID = db.Column(db.String(6))
+    Member_ID = db.Column(db.String(6))
+    Transaction_Type = db.Column(db.String(10))
+    Date_Scheduled = db.Column(db.DateTime)
+    AM_PM = db.Column(db.String(2))
+    Duty = db.Column(db.String(20))
+    
+class MonitorWeekNotes(db.Model):
+    __tablename__ = 'monitor_week_notes'
+    __table_args__ = {"schema":"dbo"}
+    ID = db.Column(db.Integer, primary_key=True)
+    Shop_Number = db.Column(db.Integer)
+    WeekOf = db.Column(db.DateTime)
+    Author_ID = db.Column(db.String(6))
+    Date_Of_Change = db.Column(db.DateTime)
+    Schedule_Note = db.Column(db.String(255))
+
 
 class ShopDates(db.Model):
     __tablename__ = 'tblShop_Dates'

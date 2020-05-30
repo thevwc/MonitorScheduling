@@ -141,7 +141,8 @@ select {
     display: grid;
     grid-area: parent2Area;
     grid-template-columns:1fr;
-    grid-template-rows:80px minmax(100px auto) 50px 1fr 1fr 50px;
+    grid-template-rows: 1fr 1fr 1fr 2fr 1fr auto;
+    /* grid-template-rows:30px minmax(100px auto) 10px 1fr 1fr 50px; */
     /* grid-template-rows:repeat(auto, minmax(20px auto));  */
     grid-area: 0.5em;
     grid-template-areas: "nameArea"
@@ -156,11 +157,12 @@ select {
 }
 
 #memberNameSection {
+    height:125px;
     grid-area:nameArea;
     width:100%;
-    /* text-align: center;
+    text-align: center;
     align-content: center;
-    justify-content: center; */
+    justify-content: center; 
     background-color:navy;
     border:black solid 2px;
     border-radius: 10px;
@@ -191,6 +193,7 @@ select {
 }
 #memberOptions {
     text-align: center;
+    height: 40px;
     align-content: center;
     justify-content: center;
     padding:0px;
@@ -231,7 +234,7 @@ select {
     margin-bottom: 0px;
 }
 
-.memberScheduleDetail {
+.memberScheduleRow {
     display: grid;
     grid-template-columns:2fr 2fr 1fr 2fr 1fr;
     grid-template-rows:repeat(auto, minmax(20px auto));
@@ -249,9 +252,9 @@ select {
     border-radius: red solid 1px;
 }  
 
-.memberScheduleRow {
+/* .memberScheduleRow {
     font-size:14px;
-}
+} */
 /* 
 #sTitleArea {
     text-align:center;
@@ -307,13 +310,17 @@ select {
 
 #memberNotes {
     grid-area:memberNoteArea;
+    height:40px;
+    width:100%;
     background-color: grey;
     color:white;
     text-align: center;
-    padding:20px;
-    margin:10px;
+    justify-content: center;
+    align-content: center;
+    padding:10px;
+    margin:0px;
     border:black solid 1px;
-    border-radius: 10px;
+    border-radius: 5px;
 }
 
 #day1-container {
@@ -322,7 +329,8 @@ select {
     width: 100%;
     border:1px solid black;
     border-radius: 10px;
-    margin:10px;
+    margin:0px;
+    padding:10px;
 }
 #day2-container {
     grid-area:day2Area;
@@ -330,7 +338,8 @@ select {
     background-color: bisque;
     border:1px solid black;
     border-radius: 10px;
-    margin:10px;
+    margin:0px;
+    padding:10px;
 }
 
 .dayHeader {
@@ -381,13 +390,17 @@ select {
 
 
 #monitorNotes {
+    height:40px;
+    width:100%;
     grid-area:monitorNoteArea;
     background-color: gray;
     color:white;
     text-align: center;
+    align-content: center;
     border:black solid 1px;
     border-radius: 10px;
-    margin:10px;
+    margin:0px;
+    padding:10px;
 }
 
 /* .bg-modal {

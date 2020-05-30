@@ -36,6 +36,7 @@ var firstTimeThrough = localStorage.getItem('firstTimeSwitch')
 var currentMemberID = ''
 var shopNames = ['Rolling Acres', 'Brownwood']
 var shopData = []
+var staffID = '111111'
 
 //var nameList = []
 
@@ -56,6 +57,13 @@ window.addEventListener('unload', function(event) {
 if (firstTimeThrough == null) {
     localStorage.setItem('firstTimeSwitch',false)
 
+    if (!localStorage.getItem('staffID')) {
+        localStorage.setItem('staffID','111111')
+    }
+    else {
+        staffID = localStorage.getItem('staffID')
+    }
+    
     // IF clientLocation OR startUpYear IS NOT FOUND IN LOCAL STORAGE
     // THEN PROMPT WITH MODAL FORM FOR LOCATION AND YEAR
     if (!clientLocation || !startUpYear) {
@@ -191,20 +199,24 @@ function dayClicked(clicked_id) {
         if (this.readyState == 4 && this.status == 200) {
             // PROCESS RESPONSE FROM REQUEST
             sched = JSON.parse(this.response)
-
+            yyyymmdd = clicked_id.slice(1,9)
+            dayNumber = sched[1][7]
             // IF THE CURRENT SHOP LOCATION IS SET TO 'BOTH' THEN BUILD A DAY SCHEDULE FOR EACH LOCATION
             if (shopFilter == 'BOTH') {
                 scheduleNumber = 1
-                alert('Build schedule 1')
-                buildDayTable(scheduleNumber,1,sched)
+                buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber)
                 scheduleNumber = 2
-                alert('Build schedule 2')
-                buildDayTable(scheduleNumber,2,sched)
+                buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber)
             }
-            else {
-                scheduleNumber = 1
-                buildDayTable(scheduleNumber,shopNumber,sched)
-            }
+            else if (shopFilter == 'RA'){
+                    scheduleNumber = 1
+                    buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber)
+                }
+                else {
+                    scheduleNumber = 2
+                    buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber)
+                }
+        
             
         }
     }  // END OF xhttp
@@ -433,15 +445,30 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
                 dayNumber = sched[y][2]
                 SM_ASGND = sched[y][3]
                 TC_ASGND = sched[y][4]
-                SM_AM_REQD = sched[y][5]
-                SM_PM_REQD = sched[y][6]
-                TC_AM_REQD = sched[y][7]
-                TC_PM_REQD = sched[y][8]
-                
+                SM_AM_REQD1 = sched[y][5]
+                SM_PM_REQD1 = sched[y][6]
+                TC_AM_REQD1 = sched[y][7]
+                TC_PM_REQD1 = sched[y][8]
+                SM_AM_REQD2 = sched[y][9]
+                SM_PM_REQD2 = sched[y][10]
+                TC_AM_REQD2 = sched[y][11]
+                TC_PM_REQD2 = sched[y][12]
+
                 // BUILD DAY ID
                 var dayID = "x" + DateScheduled
-                SM_TO_FILL = (SM_AM_REQD + SM_PM_REQD) - SM_ASGND
-                TC_TO_FILL = (TC_AM_REQD + TC_PM_REQD) - TC_ASGND 
+                if (shopValue == 'RA'){
+                    SM_TO_FILL = (SM_AM_REQD1 + SM_PM_REQD1) - SM_ASGND
+                    TC_TO_FILL = (TC_AM_REQD1 + TC_PM_REQD1) - TC_ASGND 
+                }
+                else if (shopValue == 'BW'){
+                        SM_TO_FILL = (SM_AM_REQD2 + SM_PM_REQD2) - SM_ASGND
+                        TC_TO_FILL = (TC_AM_REQD2 + TC_PM_REQD2) - TC_ASGND 
+                    }
+                    else {
+                        SM_TO_FILL = (SM_AM_REQD1 + SM_PM_REQD1 + SM_AM_REQD2 + SM_PM_REQD2) - SM_ASGND
+                        TC_TO_FILL = (TC_AM_REQD1 + TC_PM_REQD1 + TC_AM_REQD2 + TC_PM_REQD2) - TC_ASGND
+                    }
+
                 currentDate = new Date
                 if (DateScheduled != 0) {
                     mo=DateScheduled.slice(4,6)
@@ -516,17 +543,17 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
     xhttp.send(JSON.stringify(data)); 
 }
 
-function populateNameList() {
-    console.log('{{nameList}}')
-    var nameLst = '{{nameList | tojson}}';
+// function populateNameList() {
+//     console.log('{{nameList}}')
+//     var nameLst = '{{nameList | tojson}}';
 
-    //var nameLst = {{ nameList | safe }};
-    console.log(nameLst)
-    nameArray = JSON.parse('{{nameList}}')
-    for ( var i=0; i < nameArray.length -1; i++ ) {
-        alert(nameArray(i))
-    }
-}
+//     //var nameLst = {{ nameList | safe }};
+//     console.log(nameLst)
+//     nameArray = JSON.parse('{{nameList}}')
+//     for ( var i=0; i < nameArray.length -1; i++ ) {
+//         alert(nameArray(i))
+//     }
+// }
 
 
  // SEARCH FOR A MATCHING NAME
@@ -612,7 +639,7 @@ window.onclick = function(event) {
     }
 }
 
-function buildDayTable(scheduleNumber, shopNumberToDisplay,sched) {
+function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNumber) {
     
     // if swap-in-progress ... check for day2
     cnt = sched[0].length + 1
@@ -623,31 +650,45 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched) {
         document.getElementById('day1Date').innerHTML = sched[0][1]
         day1Title = "Monitors at " + shopNames[shopNumberToDisplay-1]
         document.getElementById('day1Location').innerHTML = day1Title
-        //parentNode = document.getElementById('day1-container')
-        //  REMOVE CURRENT DAY 1 ASSIGNMENTS
-
-        dayDetail1 = document.getElementById('dayDetail1')
-        while (dayDetail1.firstChild) {
-            dayDetail1.removeChild(dayDetail1.lastChild);
-        }
-    //if (dayDetail1) {
-        //    dayDetail1.remove()
-        //}
+        // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
+        document.getElementById('day1yyyymmdd').value = yyyymmdd
+        // STORE SHOP LOCATION AS A NUMBER IN A HIDDEN INPUT ELEMENT
+        document.getElementById('day1shopNumber').value = shopNumberToDisplay
+        //  SET day1Detail to detailParent
+        detailParent = document.getElementById('day1Detail')
+        //  GET staffing requirements for shop 1
+        console.log('dayNumber=' + dayNumber.toString())
+        console.log('shopData=' + shopData[dayNumber][5])
+        SM_AM_REQD = shopData[dayNumber][5]
+        SM_PM_REQD = shopData[dayNumber][6]
+        TC_AM_REQD = shopData[dayNumber][7]
+        TC_PM_REQD = shopData[dayNumber][8]
     }
     else if (scheduleNumber == 2) {
         document.getElementById('day2Date').innerHTML = sched[1][1] 
         day2Title = "Monitors at " + shopNames[shopNumberToDisplay-1]
-        document.getElementById('day1Location').innerHTML = day2Title
-        parentNode = document.getElementById('day2-container')
-        //  REMOVE CURRENT DAY 1 ASSIGNMENTS
-        dayDetail2 = document.getElementById('dayDetail1')
-        if (dayDetail2) {
-            dayDetail2.remove()
-        }
+        document.getElementById('day2Location').innerHTML = day2Title
+        // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
+        document.getElementById('day2yyyymmdd').value = yyyymmdd
+        // STORE SHOP LOCATION AS A NUMBER IN A HIDDEN INPUT ELEMENT
+        document.getElementById('day2shopNumber').value = shopNumberToDisplay
+        //  SET day2Detail to detailParent
+        detailParent = document.getElementById('day2Detail')
+        //  GET staffing requirements for shop 2
+        SM_AM_REQD = shopData[dayNumber][9]
+        SM_PM_REQD = shopData[dayNumber][10]
+        TC_AM_REQD = shopData[dayNumber][11]
+        TC_PM_REQD = shopData[dayNumber][12]
+        //alert(SM_AM_REQD)
     }
+    // REMOVE CURRENT DAY ASSIGNMENTS FOR SELECTED SCHEDULE DAY
+    while (detailParent.firstChild) {
+        detailParent.removeChild(detailParent.lastChild);
+    }
+
     //  AM SHOP MONITORS - LIST THOSE ASSIGNED ----------------------------------------------------
     numberLoaded = 0
-    for ( var y=1; y<cnt; y++ ) {
+    for ( var y=0; y<cnt; y++ ) {
         ShopNumber = sched[y][0]
         if (ShopNumber != shopNumberToDisplay) {
             continue
@@ -658,31 +699,31 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched) {
         Name = sched[y][4]
         VillageID = sched[y][5]
         RecordID = sched[y][6]
-        DayNumber = sched[y][7]
-
+        dayNumber = sched[y][7]
+        
         if (Shift == 'AM' && Duty == 'Shop Monitor') {
-            createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,DayNumber)
+            createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,dayNumber)
             numberLoaded += 1
+            
         }
     }
 
     // AM SHOP MONITORS - CREATE RECORDS OF SHIFTS TO FILL
-    SM_AM_REQD = shopData[DayNumber][5]
+
+    //  SM_AM_REQD = shopData[dayNumber][5]
     SM_AM_TO_FILL = SM_AM_REQD - numberLoaded
     for ( var y=0; y<SM_AM_TO_FILL; y++ ) {
-        createScheduleDetail(scheduleNumber,shopNumberToDisplay,DateScheduled,'AM','Shop Monitor',' ',' ',0,DayNumber)
+        createScheduleDetail(scheduleNumber,shopNumberToDisplay,DateScheduled,'AM','Shop Monitor',' ',' ',0,dayNumber)
     }
     //  END OF SHOP MONITORS AM
 
     //  AM TOOL CRIB - LIST THOSE ASSIGNED ----------------------------------------------------
     numberLoaded = 0
-    for ( var y=1; y<cnt; y++ ) {
+    for ( var y=0; y<cnt; y++ ) {
+        
         ShopNumber = sched[y][0]
         if (ShopNumber != shopNumberToDisplay) {
             continue
-        }
-        if (typeof(sched[y][1] == 'undefined')){
-            break
         }
         DateScheduled = sched[y][1]
         Shift = sched[y][2]
@@ -690,19 +731,20 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched) {
         Name = sched[y][4]
         VillageID = sched[y][5]
         RecordID = sched[y][6]
-        DayNumber = sched[y][7]
-
+        dayNumber = sched[y][7]
+        console.log('AM Tool Crib ',Name,Shift, Duty)
         if (Shift == 'AM' && Duty == 'Tool Crib') {
-            createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,DayNumber)
+            console.log(Name)
+            createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,dayNumber)
             numberLoaded += 1
         }
     }
 
     // AM TOOL CRIB - CREATE RECORDS OF SHIFTS TO FILL
-    TC_AM_REQD = shopData[DayNumber][6]
+    //     TC_AM_REQD = shopData[dayNumber][6]
     TC_AM_TO_FILL = TC_AM_REQD - numberLoaded
     for ( var y=0; y<TC_AM_TO_FILL; y++ ) {
-        createScheduleDetail(scheduleNumber,shopNumberToDisplay,DateScheduled,'AM','Tool Crib',' ',' ',0,DayNumber)
+        createScheduleDetail(scheduleNumber,shopNumberToDisplay,DateScheduled,'AM','Tool Crib',' ',' ',0,dayNumber)
     }
     // END OF TOOL CRIB AM
 
@@ -719,19 +761,19 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched) {
         Name = sched[y][4]
         VillageID = sched[y][5]
         RecordID = sched[y][6]
-        DayNumber = sched[y][7]
-
+        dayNumber = sched[y][7]
+        console.log(Shift,Duty,Name)
         if (Shift == 'PM' && Duty == 'Shop Monitor') {
-            createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,DayNumber)
+            createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,dayNumber)
             numberLoaded += 1
         }
     }
 
     // PM SHOP MONITORS - CREATE RECORDS OF SHIFTS TO FILL
-    SM_PM_REQD = shopData[DayNumber][7]
+    //     SM_PM_REQD = shopData[dayNumber][7]
     SM_PM_TO_FILL = SM_PM_REQD - numberLoaded
     for ( var y=0; y<SM_PM_TO_FILL; y++ ) {
-        createScheduleDetail(scheduleNumber,shopNumberToDisplay,DateScheduled,'PM','Shop Monitor',' ',' ',0,DayNumber)
+        createScheduleDetail(scheduleNumber,shopNumberToDisplay,DateScheduled,'PM','Shop Monitor',' ',' ',0,dayNumber)
     }
     //  END OF SHOP MONITORS PM
 
@@ -748,71 +790,105 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched) {
         Name = sched[y][4]
         VillageID = sched[y][5]
         RecordID = sched[y][6]
-        DayNumber = sched[y][7]
+        dayNumber = sched[y][7]
 
         if (Shift == 'PM' && Duty == 'Tool Crib') {
-            createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,DayNumber)
+            createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,dayNumber)
             numberLoaded += 1
         }
     }
 
     // PM TOOL CRIB - CREATE RECORDS OF SHIFTS TO FILL
-    TC_PM_REQD = shopData[DayNumber][8]
+    
+    //      TC_PM_REQD = shopData[dayNumber][8]
     TC_PM_TO_FILL = TC_PM_REQD - numberLoaded
     for ( var y=0; y<TC_PM_TO_FILL; y++ ) {
-        createScheduleDetail(scheduleNumber,shopNumberToDisplay,DateScheduled,'PM','Tool Crib',' ',' ',0,DayNumber)
+        createScheduleDetail(scheduleNumber,shopNumberToDisplay,DateScheduled,'PM','Tool Crib',' ',' ',0,dayNumber)
     }
     // END OF TOOL CRIB PM
     
 }
 
-function createScheduleDetail (scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,DayNumber,rowNumber) {
-    //console.log(DateScheduled, VillageID)
-    // CREATE NEW schedDtl1 AS CHILD OF memberSchedule (new row)
-    var dayDetail = document.createElement("div")
-    dayDetail.classList.add('dayDetail') 
+function createScheduleDetail (scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,dayNumber) {
+    //  .........  put sample finished HTML here
+    //  <div ID='day1row01'> 
+    //      <span id='day1row01shift'>AM</span>
+    //      <span id='day1row01location'>Rolling Acres</span>
+    //      <input id='day1row01name'>Smith, John</input>
+
+    
+    // DETERMINE HOW MANY CHILD RECORDS EXIST
+    
+    // ESTABLISH EITHER day1Detail or day2Detail as detailParent
     if (scheduleNumber == 1) {
-        parentNode = document.getElementById('dayDetail1')
-        //dayDetail.id = 'dayDetail1'
+        detailParent = document.getElementById('day1Detail')
+        rowCount = detailParent.childElementCount
+        rowCount += 1
+        if (rowCount < 10) {
+            idPrefix = 'day1row0' + rowCount.toString()
+        }
+        else {
+            idPrefix = 'day1row' + rowCount.toString()
+        }
     }
     else {
-        parentNode = document.getElementById('dayDetail2')
-        //dayDetail.id = 'dayDetail2'
+        detailParent = document.getElementById('day2Detail')
+        rowCount = detailParent.childElementCount
+        rowCount += 1
+        if (rowCount < 10) {
+            idPrefix = 'day2row0' + rowCount.toString()
+        }
+        else {
+            idPrefix = 'day2row' + rowCount.toString()
+        }
     }
-    parentNode.appendChild(dayDetail) 
     
+
+    //  EACH ELEMENT WILL HAVE A UNIQUE ID CONSISTING OF THE DAY, ROW AND ELEMENT USE
+    //  FOR EXAMPLE day1row01shift, day1row01duty, day1row02shift, etc.
+
+    // CREATE CHILD ROWS OF DETAILn (new DIV row)
+    var dayDetail = document.createElement("div")
+    dayDetail.id=idPrefix
+    dayDetail.classList.add('dayDetail') 
+    detailParent.appendChild(dayDetail) 
+
     var spanShift = document.createElement("span")
+    spanShift.id=idPrefix + 'shift'
     spanShift.classList.add("shift")
     spanShift.innerHTML = Shift
     dayDetail.appendChild(spanShift)
 
     var spanDuty = document.createElement("span")
+    spanDuty.id=idPrefix + 'duty'
     spanDuty.classList.add("duty")
     spanDuty.innerHTML = Duty
     dayDetail.appendChild(spanDuty)
 
     var inputName = document.createElement("input")
+    inputName.id=idPrefix + 'name'
     inputName.classList.add("nameID")
-    // inputName.id=(ShopNumber + Shift + + rowNumber + DateScheduled )
     inputName.style.border='1px solid black'
     inputName.type="text"
     if (Name != ' ') {
         inputName.value = Name + '  (' + VillageID + ')'
         inputName.onclick = function() {
-            assignedShiftClicked(this.value);
+            assignedShiftClicked(this.id);
         }
     }
     else 
     {
         inputName.value = ' '
         inputName.onclick = function() {
-            unAssignedShiftClicked(this.id);
+            unAssignedShiftClicked(this.id,scheduleNumber);
         }
     }
-
+    var c = detailParent.childElementCount;
+    
     dayDetail.appendChild(inputName)
 
     var btnDelete = document.createElement("button")
+    btnDelete.id=idPrefix + 'delete'
     btnDelete.classList.add("delBtn")
     btnDelete.classList.add("btn")
     btnDelete.classList.add("btn-outline-secondary")
@@ -823,15 +899,17 @@ function createScheduleDetail (scheduleNumber,ShopNumber,DateScheduled,Shift,Dut
     btnDelete.style.width='40px'
     btnDelete.style.marginLeft='40px'
     btnDelete.onclick = function() {
-        delAssignment(this.nextSibling.value)
+        delAssignment(this.id)
     }
     dayDetail.appendChild(btnDelete)
 
     var inputRecordID = document.createElement("input")
+    inputRecordID.id=idPrefix + 'recordID'
     inputRecordID.classList.add("recordID")
     inputRecordID.type="hidden"
     inputRecordID.value = RecordID
     dayDetail.appendChild(inputRecordID)
+
 }
 
 function memberSelectedRtn() {
@@ -854,19 +932,19 @@ function populateMemberSchedule(memberID) {
             sched = JSON.parse(this.response)
             numberOfElements = sched.length // Array is fixed at 100
             
-            // IDENTIFY MEMBER SCHEDULE AS PARENT NODE
-            var mbrSchedule = document.getElementById("memberSchedule-container")
-            
-            //  REMOVE CURRENT MEMBER SCHEDULE, IF ANY
-            var schedDtl1 = document.getElementById('schedDtl1')
-            if (schedDtl1) {
-                schedDtl1.remove()
+            // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
+            memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
+
+            // REMOVE CHILD RECORDS OF memberScheduleDetailID
+            while (memberScheduleDetailID.firstChild) {
+                memberScheduleDetailID.removeChild(memberScheduleDetailID.lastChild);
             }
    
-            // STEP THROUGH ARRAY PASSED IN FROM SERVER
+            // STEP THROUGH ARRAY PASSED IN FROM SERVER AND BUILD MEMBERS SCHEDULE
+            // IF THE ASSIGNMENT DATE IS PRIOR TO TODAY, MAKE FONT GREEN, OTHERWISE RED
             for ( var y=0; y<numberOfElements; y++ ) {
                 // IS THE ARRAY EMPTY?
-                console.log('y=' + y.toString)
+                //console.log('y=' + y.toString)
                 if (sched[y][0] == 0) {
                     break 
                 }
@@ -892,11 +970,13 @@ function populateMemberSchedule(memberID) {
                 noShow = sched[y][8]
                 locationName = shopNames[shopNumber - 1]
                 
-                // CREATE NEW schedDtl1 AS CHILD OF memberSchedule (new row)
-                var schedDtl1 = document.createElement("div")
-                schedDtl1.id='schedDtl1'
-                schedDtl1.classList.add('memberScheduleDetail')  
+                // CREATE NEW day1shift AS CHILD OF memberSchedule (new row)
+                var mbrRowDiv = document.createElement("div")
+                //day1shift.id='day1shift'
+                mbrRowDiv.classList.add('memberScheduleRow')  
                 
+                // PARENT NODE IS memberScheduleDetailID
+
                 //  BUILD VALID DATE BY ASSEMBLING COMPONENTS FROM dateScheduled
                 if (dateScheduled != 0) {
                     mo=dateScheduled.slice(4,6)
@@ -908,39 +988,39 @@ function populateMemberSchedule(memberID) {
                 }
                 todaysDate = new Date()
                 if (dateSched > todaysDate) {
-                    schedDtl1.style.color="Red"   
+                    mbrRowDiv.style.color="Red"   
                 }
                 else {
-                schedDtl1.style.color="Green"
+                mbrRowDiv.style.color="Green"
                 }
+                memberScheduleDetailID.appendChild(mbrRowDiv)
 
-                mbrSchedule.appendChild(schedDtl1)
-
+                //  THE FOLLOWING ELEMENTS ARE TO BE CHILDREN OF mbrRowDiv NOT memberSheduleDetailID
                 var spanLocation = document.createElement("span")
-                spanLocation.classList.add("memberScheduleRow")
+                spanLocation.classList.add("memberScheduleCol")
                 spanLocation.innerHTML = locationName
-                schedDtl1.appendChild(spanLocation)
+                mbrRowDiv.appendChild(spanLocation)
             
                 var spanDateScheduled = document.createElement("span")
-                spanDateScheduled.classList.add("memberScheduleRow")
+                spanDateScheduled.classList.add("memberScheduleCol")
                 spanDateScheduled.innerHTML = dateScheduledFormatted
-                schedDtl1.appendChild(spanDateScheduled)
+                mbrRowDiv.appendChild(spanDateScheduled)
             
                 
                 var spanShift = document.createElement("span")
-                spanShift.classList.add("memberScheduleRow")
+                spanShift.classList.add("memberScheduleCol")
                 spanShift.innerHTML = shift
-                schedDtl1.appendChild(spanShift)
+                mbrRowDiv.appendChild(spanShift)
 
                 var spanDuty = document.createElement("span")
-                spanDuty.classList.add("memberScheduleRow")
+                spanDuty.classList.add("memberScheduleCol")
                 spanDuty.innerHTML = duty
-                schedDtl1.appendChild(spanDuty)
+                mbrRowDiv.appendChild(spanDuty)
 
                 var spanNoShow = document.createElement("span")
-                spanNoShow.classList.add("memberScheduleRow")
+                spanNoShow.classList.add("memberScheduleCol")
                 spanNoShow.innerHTML = noShow
-                schedDtl1.appendChild(spanNoShow)
+                mbrRowDiv.appendChild(spanNoShow)
             }  // END OF FOR LOOP  
         }  // END OF READY STATE TEST
     }   // END IF READYSTATE ...
@@ -948,10 +1028,39 @@ function populateMemberSchedule(memberID) {
     xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
 
+
+
 // USER CLICKED ON A BLANK, IE, UNASSIGNED SHIFT SLOT
 // ADD A RECORD TO THE TABLE tblMonitor_Schedule
-function unAssignedShiftClicked(id) {
-    alert('An unassigned shift was clicked - ' + id)
+
+function unAssignedShiftClicked(id,scheduleNumber) {
+    // HAS A MEMBER BEEN SELECTED?
+    if (currentMemberID == '') {
+        alert('You must have a member selected.')
+        return
+    }
+    idPrefix = id.slice(0,9)
+    
+    // GET THE SHIFT AND DUTY FROM PREVIOUS SIBLING ELEMENTS IN THE ROW
+    dutyID = idPrefix + 'duty'
+    Duty = document.getElementById(dutyID).innerHTML
+    //dutyElement=document.getElementById(id).previousSibling
+
+    shiftID = idPrefix + 'shift'
+    Shift = document.getElementById(shiftID).innerHTML
+
+    // GET THE SHOPNUMBER, LOCATION, FROM day1header ....
+    if (scheduleNumber == 1) {
+        shopNumber=document.getElementById('day1shopNumber').value
+        dateScheduled=document.getElementById('day1yyyymmdd').value
+    }
+    else
+    {
+        shopNumber=document.getElementById('day2shopNumber').value
+        dateScheduled=document.getElementById('day2yyyymmdd').value
+    }
+
+    addAssignment(currentMemberID,dateScheduled,Shift,shopNumber,Duty)
 }
 
 // USER CLICKED ON A NAME DISPLAYED IN EITHER THE SCHEDULE 1 OR 2 AREA
@@ -961,7 +1070,7 @@ function assignedShiftClicked(nameValue) {
 }
 
 // DELETE AN AN ASSIGNMENT BY RECORD ID
-function delAssignment(recordID) {
+function delAssignment(id) {
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/deleteMonitorAssignment"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
@@ -969,18 +1078,42 @@ function delAssignment(recordID) {
         if (this.readyState == 4 && this.status == 200) {
             // PROCESS RESPONSE
             msg = this.response
-            //msg = JSON.parse(this.response)
             alert(msg)
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
-    var data = {memberID:memberID};
-    var data = {recordID:recordID}; //send tblMonitor_Schedule record ID to server;
+    
+    // SEND WEEK#, STAFF ID, MEMBER ID, DATE SCHEDULED, AMPM, DUTY, AND RECORD ID
+    idPrefix = id.slice(0,9)
+    recordID = document.getElementById(idPrefix+"recordID").value
+    var data = {recordID:recordID,staffID:staffID};
+    xhttp.send(JSON.stringify(data)); 
+}   // END xhttp FUNCTION
+
+
+// ADD A NEW ASSIGNMENT 
+function addAssignment(memberID,DateScheduled,Shift,shopNumbner,Duty) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/addMonitorAssignment"); 
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // PROCESS RESPONSE
+            msg = this.response
+            alert(msg)
+        }  // END OF READY STATE TEST
+    }  // END OF ONREADYSTATECHANGE
+
+    // SEND PARAMETERS FOR ADDING AN ASSIGNMENT
+    schedDate = document.getElementById('day1yyyymmdd').value
+    var data = {memberID:memberID,schedDate:schedDate,Shift:Shift,shopNumber:shopNumber,Duty:Duty}
 xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
 
+
+
 function clearDay1() {
-    if (dayDetail1) {
-        dayDetail1.remove()
+    while (day1Detail.firstChild) {
+        day1Detail.removeChild(day1Detail.lastChild);
     }
     day1Date = document.getElementById('day1Date')
     day1Date.innerHTML=''
@@ -988,8 +1121,8 @@ function clearDay1() {
 }
 
 function clearDay2() {
-    if (dayDetail2) {
-        dayDetail2.remove()
+    while (day2Detail.firstChild) {
+        day2Detail.removeChild(day2Detail.lastChild);
     }
     day2Date = document.getElementById('day2Date')
     day2Date.innerHTML=''

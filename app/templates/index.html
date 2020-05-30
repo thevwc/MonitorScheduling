@@ -62,9 +62,9 @@
                 <div id="memberNameHdg">   
                     <span style="text-align: center;">{{displayName}}</span><br>
                 </div>
-                <!-- <div id = "memberID">
+                <div id = "memberID">
                     <span style = "display:none;">{{memberID}}</span>
-                </div> -->
+                </div>
 
                 <div id="memberOptions">
                     <select id="selectpicker" class='selectpicker' title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
@@ -90,7 +90,8 @@
                     <span>Duty</span>
                     <span>AM/PM</span>
                     <span>No Show</span>
-                </div>    
+                </div>
+                <div id='memberScheduleDetailID' class='memberScheduleDetail'></div>    
             </div>
             <!-- MEMBER NOTES -->
             <div id="memberNotes">
@@ -104,8 +105,10 @@
                     <span id='day1Location'></span>
                     <button id='day1Print' class='btn btn-primary btn-sm' onclick='printDay1()'>PRINT</button>
                     <button id='day1Clear' class='btn btn-secondary btn-sm' onclick ="clearDay1()">CLEAR</button>
+                    <input id='day1yyyymmdd' type='hidden' value = ''>
+                    <input id='day1shopNumber' type='hidden' value = ''>
                 </div>
-                <div id="dayDetail1"></div>
+                <div id="day1Detail"></div>
             </div> <!-- END OF DAY1--> 
 
             <!-- SECOND DAY SELECTED -->
@@ -115,8 +118,10 @@
                     <span id='day2Location'></span>
                     <button id='day2Print' class='btn btn-primary btn-sm' onclick='printDay2()'>PRINT</button>
                     <button id='day2Clear' class='btn btn-secondary btn-sm' onclick='clearDay2()'>CLEAR</button>
+                    <input id='day2yyyymmdd' type='hidden' value = ''>
+                    <input id='day2shopNumber' type='hidden' value = ''>
                 </div>
-                <div id='dayDetail2'></div>
+                <div id='day2Detail'></div>
             </div>  <!-- END OF DAY2 -->
             <!-- MONITOR NOTES -->
             <div id="monitorNotes">
