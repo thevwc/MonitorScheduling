@@ -173,8 +173,8 @@
         <!--<img src="vwcIcon.png" alt="";> -->
         
     </div>
- <!-- MODAL FORM FOR MEMBER LOOKUP -->
-    <div id="memberLookUpModal" class="modal fade" tabindex="-1" role="dialog">
+ <!-- MODAL FORM FOR CONFIRMATIONS-->
+    <div id="confirmAction" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -187,26 +187,13 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <h5 style="text-decoration: underline;">FIND MEMBER RECORD</h5>
-                    <form action="">
-                        <p style='text-align: left'>
-                            <label>Village ID -</label>
-                            <input id='searchID' type="text" style="width:50px; color:blue;font-weight: bold; " placeholder = '20xx'>
-                        </p>
-                        
-                        <p style='text-align: left'>
-                            <label>Name - </label> 
-                            <!-- <select id="shopDefault" name="shopDefault" style="height: 25px;font-size: 1em;">
-                                <option id='selectAshop' value="">Select a location ...</option>
-                                <option id='shop1' value="RA">Rolling Acres</option>
-                                <option id='shop2' value="BW">Brownwood</option>
-                            </select> -->
-                        </p>
-                        
-                    </form>
+                    <p id='confirmText' style='text-align: left'>
+                        main text
+                    </p> 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> 
+                    <button id='confirmNo' type="button" class="btn btn-secondary" data-dismiss="modal">No</button> 
+                    <button id='confirmYes' type="button" class="btn btn-primary btn-default" data-toggle="" data-target="">Yes</button>
                 </div> 
             </div>
         </div>

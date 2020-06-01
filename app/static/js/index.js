@@ -37,7 +37,7 @@ var currentMemberID = ''
 var shopNames = ['Rolling Acres', 'Brownwood']
 var shopData = []
 var staffID = '111111'
-
+var confirmed = '' 
 //var nameList = []
 
 // DEFINE EVENT LISTENERS
@@ -63,7 +63,9 @@ if (firstTimeThrough == null) {
     else {
         staffID = localStorage.getItem('staffID')
     }
-    
+    // HIDE CONFIRMATION MODAL
+    $('#confirmAction').modal('hide')
+
     // IF clientLocation OR startUpYear IS NOT FOUND IN LOCAL STORAGE
     // THEN PROMPT WITH MODAL FORM FOR LOCATION AND YEAR
     if (!clientLocation || !startUpYear) {
@@ -134,11 +136,6 @@ function shopChanged() {
     enableRefreshBtn()
 }
 
-// function dutyChanged() {
-//     dutyFilter = this.value
-//     localStorage.setItem('dutyFilter',this.value)
-//     enableRefreshBtn();
-// }
 
 function setStartUpYear(startYear) {
     yearFilter = startYear;
@@ -200,24 +197,27 @@ function dayClicked(clicked_id) {
             // PROCESS RESPONSE FROM REQUEST
             sched = JSON.parse(this.response)
             yyyymmdd = clicked_id.slice(1,9)
-            dayNumber = sched[1][7]
+            dayNumber = sched[0][7]
+            if (dayNumber == 0) {
+                dayNumber = dayOfYear(yyyymmdd)
+                alert('yyyymmdd=' + yyyymmdd + '  dayNumber=' + dayNumber)
+            }
+            
             // IF THE CURRENT SHOP LOCATION IS SET TO 'BOTH' THEN BUILD A DAY SCHEDULE FOR EACH LOCATION
             if (shopFilter == 'BOTH') {
                 scheduleNumber = 1
-                buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber)
+                buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,clicked_id)
                 scheduleNumber = 2
-                buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber)
+                buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,clicked_id)
             }
             else if (shopFilter == 'RA'){
                     scheduleNumber = 1
-                    buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber)
+                    buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,clicked_id)
                 }
                 else {
                     scheduleNumber = 2
-                    buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber)
+                    buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,clicked_id)
                 }
-        
-            
         }
     }  // END OF xhttp
     // SEND REQUEST
@@ -246,16 +246,6 @@ function refreshCalendarRtn() {
     document.getElementById("refreshCalendarBtn").disabled = true;
 }
 
-
-// function resetCalendarFilters() {
-//     yearFilter = startUpYear
-//     shopFilter = clientLocation
-//     // dutyFilter = "BOTH"
-
-//     setupYearFilter(startUpYear)
-//     setShopFilter(clientLocation)
-//     // setDutyFilter("BOTH")
-// }
 
 // ----------------------------------------------------------------
 // CALENDAR DEFINITION CODE
@@ -310,10 +300,6 @@ function formatDate(date) {
 
 function get_calendar(day_no, days,month,year,monthYearHdg){
     var table = document.createElement('table');
-    // temp line
-    // var thead = document.createElement('thead');
-    // thead.innerHTML = monthYearHdg
-    // table.appendChild(thead)
     var tr = document.createElement('tr');
     
     //row for the day letters
@@ -402,11 +388,11 @@ function buildMonth(yr,mnth) {
     var d = new Date(strMDY)
     var month_name = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     var month = d.getMonth();   //0-11
-    var year = d.getFullYear(); //2014
+    var year = d.getFullYear(); //20yy
     var first_date = month_name[month] + " " + 1 + " " + year;
-    //September 1 2014
+    //September 1 20yy
     var tmp = new Date(first_date).toDateString();
-    //Mon Sep 01 2014 ...
+    //Mon Sep 01 20yy ...
     var first_day = tmp.substring(0, 3);    //Mon
     var day_name = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     var day_no = day_name.indexOf(first_day);   //1
@@ -414,7 +400,7 @@ function buildMonth(yr,mnth) {
     var monthAbbr = month_name[month].substring(0,3).toLowerCase()
     var monthYearPrefix = monthAbbr + year.toString()
 
-    //Tue Sep 30 2014 ...
+    //Tue Sep 30 20yy ...
     // create div for xxx-calendar-month-year
     // JAN-calendar-month-year, FEB-calendar-month-year, etc
     var monthYearHdgID = monthYearPrefix + '-calendar-month-year';
@@ -435,7 +421,6 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
     xhttp.open("POST", "/index"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.onreadystatechange = function() {
-        //console.log('onreadystatechange')
         if (this.readyState == 4 && this.status == 200) {
             sched = JSON.parse(this.response)
             shopData = sched
@@ -543,18 +528,6 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
     xhttp.send(JSON.stringify(data)); 
 }
 
-// function populateNameList() {
-//     console.log('{{nameList}}')
-//     var nameLst = '{{nameList | tojson}}';
-
-//     //var nameLst = {{ nameList | safe }};
-//     console.log(nameLst)
-//     nameArray = JSON.parse('{{nameList}}')
-//     for ( var i=0; i < nameArray.length -1; i++ ) {
-//         alert(nameArray(i))
-//     }
-// }
-
 
  // SEARCH FOR A MATCHING NAME
   $(document).on('keyup','#myInput', function (e) {
@@ -632,14 +605,14 @@ closeClass.onclick=function() {
     modal.style.display="none"
 }
 
-// When the user clics anywhere outside of the modal, close it
+// When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
     if (event.target == modal) {
         this.modal.style.display = "none"
     }
 }
 
-function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNumber) {
+function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNumber,dayID) {
     
     // if swap-in-progress ... check for day2
     cnt = sched[0].length + 1
@@ -650,6 +623,7 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         document.getElementById('day1Date').innerHTML = sched[0][1]
         day1Title = "Monitors at " + shopNames[shopNumberToDisplay-1]
         document.getElementById('day1Location').innerHTML = day1Title
+        
         // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
         document.getElementById('day1yyyymmdd').value = yyyymmdd
         // STORE SHOP LOCATION AS A NUMBER IN A HIDDEN INPUT ELEMENT
@@ -663,11 +637,13 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         SM_PM_REQD = shopData[dayNumber][6]
         TC_AM_REQD = shopData[dayNumber][7]
         TC_PM_REQD = shopData[dayNumber][8]
+        //alert('SM_AM_REQD=' + SM_AM_REQD)
     }
     else if (scheduleNumber == 2) {
         document.getElementById('day2Date').innerHTML = sched[1][1] 
         day2Title = "Monitors at " + shopNames[shopNumberToDisplay-1]
         document.getElementById('day2Location').innerHTML = day2Title
+        
         // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
         document.getElementById('day2yyyymmdd').value = yyyymmdd
         // STORE SHOP LOCATION AS A NUMBER IN A HIDDEN INPUT ELEMENT
@@ -1029,16 +1005,21 @@ function populateMemberSchedule(memberID) {
 }   // END xhttp FUNCTION
 
 
-
+function confirmAdd(memberID) {
+    answer = confirm("Make this assignment for Village ID " + memberID + "?");
+    return answer
+}
 // USER CLICKED ON A BLANK, IE, UNASSIGNED SHIFT SLOT
 // ADD A RECORD TO THE TABLE tblMonitor_Schedule
 
 function unAssignedShiftClicked(id,scheduleNumber) {
+    
     // HAS A MEMBER BEEN SELECTED?
     if (currentMemberID == '') {
         alert('You must have a member selected.')
         return
     }
+
     idPrefix = id.slice(0,9)
     
     // GET THE SHIFT AND DUTY FROM PREVIOUS SIBLING ELEMENTS IN THE ROW
@@ -1060,7 +1041,10 @@ function unAssignedShiftClicked(id,scheduleNumber) {
         dateScheduled=document.getElementById('day2yyyymmdd').value
     }
 
-    addAssignment(currentMemberID,dateScheduled,Shift,shopNumber,Duty)
+    if (!confirmAdd(currentMemberID)) {
+        return
+    }
+    addAssignment(currentMemberID,dateScheduled,Shift,shopNumber,Duty,id)
 }
 
 // USER CLICKED ON A NAME DISPLAYED IN EITHER THE SCHEDULE 1 OR 2 AREA
@@ -1069,16 +1053,43 @@ function assignedShiftClicked(nameValue) {
     alert('An ASSIGNED shift was clicked - ' + this.value + nameValue)
 }
 
+function confirmDelete() {
+    answer = confirm("Delete this assignment?");
+    return answer
+}
+
 // DELETE AN AN ASSIGNMENT BY RECORD ID
 function delAssignment(id) {
+    if (!confirmDelete()) {
+        return
+    }
+    //alert('ID for delete-' + id)
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/deleteMonitorAssignment"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
-            // PROCESS RESPONSE
+            // PROCESS RESPONSE; REFRESH CALENDAR
+            // DISPLAY RESPONSE MESSAGE
             msg = this.response
             alert(msg)
+
+            // CONSTRUCT dayID FOR EXECUTING THE dayClicked FUNCTION
+            scheduleNumber=id.slice(3,4)
+            if (scheduleNumber = 1) {
+                dayYearMoDa = document.getElementById('day1yyyymmdd').value
+            }
+            else
+            {
+                dayYearMoDa = document.getElementById('day2yyyymmdd').value
+            }
+            dayID = 'x' + dayYearMoDa
+            dayClicked(dayID)
+            
+            // REFRESH CALENDAR TO REFLECT CHANGE
+            refreshCalendarRtn()
+            //document.getElementById('refreshBtn').click()
+
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
     
@@ -1091,15 +1102,34 @@ function delAssignment(id) {
 
 
 // ADD A NEW ASSIGNMENT 
-function addAssignment(memberID,DateScheduled,Shift,shopNumbner,Duty) {
+function addAssignment(memberID,DateScheduled,Shift,shopNumbner,Duty,id) {
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/addMonitorAssignment"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             // PROCESS RESPONSE
+            // DISPLAY RESPONSE FROM REQUEST
             msg = this.response
             alert(msg)
+
+            // CONSTRUCT dayID FOR EXECUTING THE dayClicked FUNCTION
+            scheduleNumber=id.slice(3,4)
+            if (scheduleNumber = 1) {
+                dayYearMoDa = document.getElementById('day1yyyymmdd').value
+            }
+            else
+            {
+                dayYearMoDa = document.getElementById('day2yyyymmdd').value
+            }
+            dayID = 'x' + dayYearMoDa
+            dayClicked(dayID)
+
+            // REFRESH CALENDAR DISPLAY TO REFLECT NEW ASSIGNMENT
+            refreshCalendarRtn()
+            //document.getElementById('refreshBtn').click()
+            
+            
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
 
@@ -1136,4 +1166,22 @@ function printDay1() {
 
 function printDay2() {
     alert('Routine not yet implemented.')
+}
+var modalConfirm = function(callback){
+    $('#confirmYes').on('click', function() {
+        callback = true;
+        $('#confirmAction').modal(hide);
+    })
+    $('#confirmNo').on('click', function() {
+        callbacvk = false;
+        $('#confirmAction').modal(hide);
+    })
+}
+
+function dayOfYear(dateToConvert) {
+    var start = new Date(dateToConvert.getFullYear(),0,0);
+    var diff = dateToConvert - start;
+    var oneDay = 1000 * 60 * 60 * 24;
+    var day = Math.floor(diff/oneDay);
+    return day;
 }

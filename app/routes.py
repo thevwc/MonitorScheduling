@@ -3,7 +3,7 @@
 from flask import session, render_template, flash, redirect, url_for, request, jsonify, json, make_response
 from flask_bootstrap import Bootstrap
 from werkzeug.urls import url_parse
-from app.models import ShopName, Member , MemberActivity, MonitorSchedule, MonitorScheduleTransactions, MonitorWeekNotes
+from app.models import ShopName, Member , MemberActivity, MonitorSchedule, MonitorScheduleTransaction, MonitorWeekNote
 from app import app
 from app import db
 from sqlalchemy import func, case, desc, extract, select, update, text
@@ -19,14 +19,11 @@ def index():
     # POST REQUEST
     if request.method == 'POST':
         if not request.get_json() == None:
-            #print(request.get_json())
             parameters = request.get_json()
             if parameters and 'year' in parameters:
                  yearFilter=parameters['year']
             else:
                 currentYear = datetime.date.year
-                #.now().year
-                print('The current year is ' + currentYear)
                 yearFilter=currentYear
 
             if parameters and 'shop' in parameters:
@@ -35,8 +32,7 @@ def index():
                 shopFilter = 'BOTH'
                 shopNumber = 0
 
-            # build response object
-            # BUILD WHERE CLAUSE
+            # BUILD WHERE CLAUSE FOR RESPONSE OBJECT
             whereClause = "WHERE DatePart(year,[Date_Scheduled]) = '" + yearFilter + "'" 
             if shopFilter == 'RA':
                 whereClause += " and Shop_number = 1"
@@ -87,6 +83,7 @@ def index():
             
             shopDates = db.engine.execute(SQLselect2)
             for s in shopDates:
+                #print (s.Shop_Number,s.MM_DD_YYYY,s.SM_AM_REQD,s.SM_PM_REQD,s.TC_AM_REQD,s.TC_PM_REQD)
                 position = s.dayNumber
                 requirements[position][0] = s.MM_DD_YYYY.strftime("%Y%m%d")
                 requirements[position][1] = s.Status
@@ -145,12 +142,7 @@ def index():
     # ####################################################
     return render_template("index.html",nameList=nameArray,memberID='000000',displayName='... member name ...')
    
-    
 
-# @app.route('/')
-# @app.route('/month')
-# def month():
-#     return render_template("month,html")
 @app.route('/refreshCalendar', methods=['POST'])
 def refreshCalendar():
     print('refresh calendar routine')
@@ -185,14 +177,9 @@ def getDayAssignments():
     dayOfDate = dayID[-2:]
     yearOfDate = dayID[1:5]
     scheduleDate = monthOfDate + '-' + dayOfDate + '-' + yearOfDate 
-    print(scheduleDate)
     schedDateToDisplay = datetime.strptime(scheduleDate,'%m-%d-%Y')
-
-    #schedDateToDisplay = (yearOfDate + '-' + monthOfDate + '-' + dayOfDate)
-    print (schedDateToDisplay)
-
-    #print ('scheduleDate - ' + scheduleDate)
-
+    dayNumber = (schedDateToDisplay - datetime(schedDateToDisplay.year,1,1)).days + 1
+    
     # DECLARE ARRAY AND SET TO ZERO
     rows = 100
     cols = 8 # Date_Scheduled, AM_PM, Member name, Village ID
@@ -205,21 +192,26 @@ def getDayAssignments():
         sqlWhereClause = "WHERE Shop_Number = " + shopNumber + " and Date_Scheduled = '" + scheduleDate + "'"
 
     # BUILD ORDER BY CLAUSE
-    sqlOrderBy = " ORDER BY AM_PM, Duty, Last_Name"            
+    sqlOrderBy = " ORDER BY AM_PM, Duty, Last_Name"   
+
+    # BUILD SELECT CLAUSE         
     sqlSelect = "SELECT tblMonitor_Schedule.ID as RecordID, Shop_Number, tblMonitor_Schedule.Member_ID,"
     sqlSelect += " DatePart(Y,[Date_Scheduled]) as dayNumber, Date_Scheduled, AM_PM, Duty, Last_Name, First_Name FROM tblMonitor_Schedule "
     sqlSelect += " JOIN tblMember_Data ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
+    
+    # APPEND WHERE CLAUSE AND ORDER BY CLAUSES TO SELECT CLAUSE
     sqlSelect += sqlWhereClause
     sqlSelect += sqlOrderBy 
-    
+    #print (sqlSelect)
     schedule = db.engine.execute(sqlSelect)
     position = 0
     if (schedule == None):
         return 'NO DATA'
 
-    # STORE SHOP NUMBER AND DATE SCHEDULED IN POSITION 0
+    # STORE SHOP NUMBER, DATE SCHEDULED, AND DAY NUMBER IN POSITION 0
     schedArray[0][0] = shopNumber
     schedArray[0][1] = schedDateToDisplay.strftime("%B %-d, %Y")
+    schedArray[0][7] = dayNumber
 
     # BUILD ARRAY WITH ONE ASSIGNMENT PER ROW (POSITION)
     for s in schedule:
@@ -274,7 +266,10 @@ def getMemberSchedule():
         schedArray[position][0] = ms.memberID
         schedArray[position][1] = ms.Shop_Number
         schedArray[position][2] = ms.displayName
-        schedArray[position][3] = ms.trainingDate.strftime("%-m/%-d/%Y")
+        if (ms.trainingDate != None):
+            schedArray[position][3] = ms.trainingDate.strftime("%-m/%-d/%Y")
+        else:
+            schedArray[position][3] = ''
         
         if ms.Date_Scheduled != None:
             schedArray[position][4] = ms.Date_Scheduled.strftime("%Y%m%d")
@@ -330,10 +325,13 @@ def deleteMonitorAssignment():
     # try:
     #     db.session.delete(assignment)
     #     db.session.commit
+    # except SQLAlchemyError as e:
+    #     error = str(e.__dict__['orig'])
+    #     return error
+
     # except (SQLAlchemyError, DBAPIError) as e:
     #     print (e)
-    
-    
+
     # cannot use the following because of an autoincrement primary key
     # CREATE RECORD FOR tblMonitor_Schedule_Transactions
     # newTransaction = MonitorScheduleTransactions (
@@ -391,8 +389,7 @@ def addMonitorAssignment():
     #  DOES MEMBER HAVE ANOTHER ASSIGNMENT AT ANOTHER LOCATION FOR THIS TIME
     assignmentExists = MonitorSchedule.query.filter_by(Member_ID=memberID,
         Date_Scheduled = schedDate,
-        AM_PM = Shift,
-        Duty = Duty).first()
+        AM_PM = Shift).first()
     if assignmentExists:
         return 'This member has another assignment at this time.'
 

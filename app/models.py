@@ -88,7 +88,7 @@ class MonitorSchedule(db.Model):
     No_Show = db.Column(db.Boolean)
     Optional = db.Column(db.Boolean)
 
-class MonitorScheduleTransactions(db.Model):
+class MonitorScheduleTransaction(db.Model):
     __tablename__ = 'tblMonitor_Scheduled_Transactions'
     __table_args__ = {"schema": "dbo"}
     ID = db.Column(db.Integer,primary_key=True, autoincrement=True)
@@ -101,7 +101,7 @@ class MonitorScheduleTransactions(db.Model):
     AM_PM = db.Column(db.String(2))
     Duty = db.Column(db.String(20))
     
-class MonitorWeekNotes(db.Model):
+class MonitorWeekNote(db.Model):
     __tablename__ = 'monitor_week_notes'
     __table_args__ = {"schema":"dbo"}
     ID = db.Column(db.Integer, primary_key=True)
