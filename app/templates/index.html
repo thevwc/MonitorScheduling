@@ -43,10 +43,22 @@
             </div>
             
             <!-- Calendar Section DIY calendar -->
-            <div id="calendar-container">
-                
+            <div id="calendar-container"></div>
+
+            <!-- LEGEND -->
+            <div id='legend'>
+                <input id='needSM' type="text" style='width:40px; border:1px solid black'>
+                <label for='needSM'>Need shop monitors</label>
+                <input id='needTC' type="text" style='width:40px; border:1px solid black'>
+                <label for='needTC'>Need tool crib workers</label>
+                <input id='needBoth' type="text" style='width:40px; border:1px solid black'>
+                <label for='needBoth'>Need both</label>
+                <input id='filled' type="text" style='width:40px; border:1px solid black'>
+                <label for='filled'>Filled</label>
+                <input id='closed' type="text" style='width:40px; border:1px solid black'>
+                <label for='closed'>Shop closed</label>
             </div>
-             <!-- TRANSACTION LOG -->
+            <!-- TRANSACTION LOG -->
              <div id="transactionLog">
                 <p>... transaction details ...</p>
             </div>
@@ -96,6 +108,13 @@
             <!-- MEMBER NOTES -->
             <div id="memberNotes">
                 <p>... member notes ... </p>
+            </div>
+
+            <!-- SWAP BUTTONS -->
+            <div id="swapBtns" class="box">
+                <button id='initiateSwap' style="width:115px" class="btn btn-secondary btn-sm" onclick='initiateSwap()'>Initiate Swap</button>
+                <button id='cancelSwap' style="margin-left:30px;width:115px" class="btn btn-secondary btn-sm" onclick='cancelSwap()'>Cancel Swap</button>
+                <button id='makeSwap' style="margin-left:30px; width:115px" class="btn btn-secondary btn-sm" onclick='makeSwap()'>Make Swap</button>
             </div>
 
             <!-- First DAY SELECTED -->

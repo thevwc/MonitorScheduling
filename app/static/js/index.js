@@ -1,33 +1,30 @@
 // DEFINE VARIABLES
 // color constants
-//console.log('Define color constants')
 
 const colors = {
     bg_NeedSM:  "#0000FF",  // Blue
-    fg_NeedSM:  "#FFFFFF",  // White
+    fg_NeedSM:  "#FFFFFF",  // White 
     bg_NeedTC:  "#00FF00",  // Green
-    fg_NeedTC:  "#FFFFFF",  // White
-    bg_NeedBoth:"#FFFFFF",  // White
-    fg_NeedBoth:"#000000",  // Black
-    bg_Filled:  "#FF0000",  // Red
-    fg_Filled:  "#FFFFFF",  // White
+    fg_NeedTC:  "#FFFFFF",  // White (#FFFFFF)
+    bg_NeedBoth:"#FF0000",  // Red (#FF0000)
+    fg_NeedBoth:"#FFFFFF",  // White (#FFFFFF)
+    bg_Filled:  "#FFFFFF",  // White (#FFFFFF)
+    fg_Filled:  "#000000",  // Black (#000000)
     bg_Sunday:  "#cccccc",  // Light grey
-    fg_Sunday:  "#FFFFFF",  // White
+    fg_Sunday:  "#FFFFFF",  // White (#FFFFFF)
     bg_Closed:  "#2E86C1",  // Aqua
-    fg_Closed:  "#000000",  // Black
+    fg_Closed:  "#FFFFFF",  // White (#FFFFFF)
     bg_ToManySM:"#FAFE02",  // Yellow
     fg_ToManySM:"#000000",  // Black
     bg_ToManyTC:"#FE4E02",  // Orange
     fg_ToManyTC:"#000000",  // Black
     bg_PastDate:"#cccccc",  // Light grey
-    fg_PastDate:"#FFFFFF"   // White
+    fg_PastDate:"#FFFFFF"   // White (#FFFFFF)
 };
 
 // Declare global variables)
-//console.log('Define current filter variables')
 var yearFilter=localStorage.getItem('yearFilter')
 var shopFilter =localStorage.getItem('shopFilter')
-// var dutyFilter=localStorage.getItem('dutyFilter')
 var startUpYear = localStorage.getItem('startUpYear')
 var clientLocation = localStorage.getItem('clientLocation')
 var todaysDate = new Date();
@@ -38,6 +35,11 @@ var shopNames = ['Rolling Acres', 'Brownwood']
 var shopData = []
 var staffID = '111111'
 var confirmed = '' 
+var swapInProgress = ''
+var swap1ID = ''
+var swap2ID = ''
+var swapAsgmnt1ID = ''
+var swapAsgmnt2ID = ''
 //var nameList = []
 
 // DEFINE EVENT LISTENERS
@@ -46,7 +48,6 @@ document.getElementById("shopToDisplay").addEventListener("change", shopChanged)
 document.getElementById("refreshCalendarBtn").addEventListener("click",refreshCalendarRtn)
 document.getElementById("selectpicker").addEventListener("change",memberSelectedRtn)
 window.addEventListener('unload', function(event) {
-    //console.log('Removing firstTimeSwitch from localStorage.');
     localStorage.removeItem('firstTimeSwitch');
 });
 
@@ -65,6 +66,14 @@ if (firstTimeThrough == null) {
     }
     // HIDE CONFIRMATION MODAL
     $('#confirmAction').modal('hide')
+
+    // SET CANCEL SWAP AND MAKE SWAP BUTTONS TO DISABLED
+    document.getElementById('cancelSwap').disabled = true
+    document.getElementById('makeSwap').disabled = true
+    swapInProgress = false
+    swap1ID = ''
+    swap2ID = ''
+
 
     // IF clientLocation OR startUpYear IS NOT FOUND IN LOCAL STORAGE
     // THEN PROMPT WITH MODAL FORM FOR LOCATION AND YEAR
@@ -192,7 +201,6 @@ function dayClicked(clicked_id) {
     xhttp.open("POST", "/getDayAssignments"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.onreadystatechange = function() {
-        //console.log('onreadystatechange')
         if (this.readyState == 4 && this.status == 200) {
             // PROCESS RESPONSE FROM REQUEST
             sched = JSON.parse(this.response)
@@ -200,17 +208,50 @@ function dayClicked(clicked_id) {
             dayNumber = sched[0][7]
             if (dayNumber == 0) {
                 dayNumber = dayOfYear(yyyymmdd)
-                alert('yyyymmdd=' + yyyymmdd + '  dayNumber=' + dayNumber)
             }
-            
-            // IF THE CURRENT SHOP LOCATION IS SET TO 'BOTH' THEN BUILD A DAY SCHEDULE FOR EACH LOCATION
+            // CONVERT SHOP ABBREV TO SHOP NUMBER
             if (shopFilter == 'BOTH') {
-                scheduleNumber = 1
-                buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,clicked_id)
-                scheduleNumber = 2
-                buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,clicked_id)
+                shopNumber = 0
             }
-            else if (shopFilter == 'RA'){
+            else if (shopFilter == 'RA') {
+                shopNumber = 1
+                }
+                else if (shopFilter == 'BW') {
+                    shopNumber = 2
+                }
+                else {
+                    alert ('Error in shopFilter setting.')
+                    return
+                }
+
+            // IF SWAP IN PROGRESS THEN SET scheduleNumber TO THE FIRST EMPTY DAY
+            if (swapInProgress) {
+                if (swap1ID == '') {
+                    scheduleNumber = 1
+                    swap1ID = clicked_id
+                    swapAsgmnt1ID = ''
+                }
+                else if (swap2ID == '') {
+                    scheduleNumber = 2
+                    swap2ID = clicked_id
+                    swapAsgmnt2ID = ''
+                }
+                else {
+                    alert('Only two days may be selected. Press CANCEL SWAP to begin again.')
+                    return
+                }  
+                buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,clicked_id)
+            }
+
+            // IF THE CURRENT SHOP LOCATION IS SET TO 'BOTH' THEN BUILD A DAY SCHEDULE FOR EACH LOCATION
+            if (!swapInProgress) {
+                if (shopFilter == 'BOTH') {
+                    scheduleNumber = 1
+                    buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,clicked_id)
+                    scheduleNumber = 2
+                    buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,clicked_id)
+                }
+                else if (shopFilter == 'RA'){
                     scheduleNumber = 1
                     buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,clicked_id)
                 }
@@ -218,6 +259,8 @@ function dayClicked(clicked_id) {
                     scheduleNumber = 2
                     buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,clicked_id)
                 }
+            }
+
         }
     }  // END OF xhttp
     // SEND REQUEST
@@ -244,6 +287,8 @@ function refreshCalendarRtn() {
     buildYear(yearFilter);
     populateCalendar(yearFilter,shopFilter)  //,dutyFilter)
     document.getElementById("refreshCalendarBtn").disabled = true;
+    clearDay1()
+    clearDay2()
 }
 
 
@@ -268,7 +313,6 @@ function buildYear(strYear){
 
 
 function markSundays() {
-    //console.log('Marking Sundays ...')
     yearSelected = document.getElementById("yearToDisplay")
     var myDate = new Date(yearSelected.value.toString(),00,01);
     for (var d=1;d<=365;d++) {
@@ -334,12 +378,9 @@ function get_calendar(day_no, days,month,year,monthYearHdg){
         strMonth = month.toString();
         if (strMonth.length == 1)
             strMonth = '0' + strMonth
-        // console.log('1. strMonth = ' + strMonth)
         strYear = year.toString()
         newID = 'x' + strYear + strMonth + strDay
-        // console.log('1. newID = ' + newID)
         td.setAttribute("id", newID);
-        // set onclick =
         td.onclick = function() {
             dayClicked(this.id);
         }
@@ -631,8 +672,6 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         //  SET day1Detail to detailParent
         detailParent = document.getElementById('day1Detail')
         //  GET staffing requirements for shop 1
-        console.log('dayNumber=' + dayNumber.toString())
-        console.log('shopData=' + shopData[dayNumber][5])
         SM_AM_REQD = shopData[dayNumber][5]
         SM_PM_REQD = shopData[dayNumber][6]
         TC_AM_REQD = shopData[dayNumber][7]
@@ -708,9 +747,7 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         VillageID = sched[y][5]
         RecordID = sched[y][6]
         dayNumber = sched[y][7]
-        console.log('AM Tool Crib ',Name,Shift, Duty)
         if (Shift == 'AM' && Duty == 'Tool Crib') {
-            console.log(Name)
             createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,dayNumber)
             numberLoaded += 1
         }
@@ -738,7 +775,6 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         VillageID = sched[y][5]
         RecordID = sched[y][6]
         dayNumber = sched[y][7]
-        console.log(Shift,Duty,Name)
         if (Shift == 'PM' && Duty == 'Shop Monitor') {
             createScheduleDetail(scheduleNumber,ShopNumber,DateScheduled,Shift,Duty,Name,VillageID,RecordID,dayNumber)
             numberLoaded += 1
@@ -920,7 +956,6 @@ function populateMemberSchedule(memberID) {
             // IF THE ASSIGNMENT DATE IS PRIOR TO TODAY, MAKE FONT GREEN, OTHERWISE RED
             for ( var y=0; y<numberOfElements; y++ ) {
                 // IS THE ARRAY EMPTY?
-                //console.log('y=' + y.toString)
                 if (sched[y][0] == 0) {
                     break 
                 }
@@ -1013,6 +1048,11 @@ function confirmAdd(memberID) {
 // ADD A RECORD TO THE TABLE tblMonitor_Schedule
 
 function unAssignedShiftClicked(id,scheduleNumber) {
+    // PROHIBIT USE WHEN SHOPFILTER IS SET TO BOTH
+    // if (shopFilter == 'BOTH') {
+    //     alert('You need to select a specific shop location.')
+    //     return 
+    // }
     
     // HAS A MEMBER BEEN SELECTED?
     if (currentMemberID == '') {
@@ -1020,6 +1060,7 @@ function unAssignedShiftClicked(id,scheduleNumber) {
         return
     }
 
+    
     idPrefix = id.slice(0,9)
     
     // GET THE SHIFT AND DUTY FROM PREVIOUS SIBLING ELEMENTS IN THE ROW
@@ -1047,10 +1088,29 @@ function unAssignedShiftClicked(id,scheduleNumber) {
     addAssignment(currentMemberID,dateScheduled,Shift,shopNumber,Duty,id)
 }
 
+
 // USER CLICKED ON A NAME DISPLAYED IN EITHER THE SCHEDULE 1 OR 2 AREA
 // SAVE INFORMATION FOR A SWAP?
-function assignedShiftClicked(nameValue) {
-    alert('An ASSIGNED shift was clicked - ' + this.value + nameValue)
+function assignedShiftClicked(nameID) {
+    if (swapInProgress && shopFilter == 'BOTH') {
+        alert('You need to select a specific location before initiating a swap.')
+        document.getElementById('cancelSwap').click()
+    }
+
+    if (swapInProgress) {
+        if (swapAsgmnt1ID == '') {
+            swapAsgmnt1ID = nameID.slice(0,9)
+        }
+        else if (swapAsgmnt2ID == '') {
+            swapAsgmnt2ID = nameID.slice(0,9)
+        }
+            else {
+                alert('Error in swap assignedShiftClicked routine.')
+                return 
+            }
+    }
+    selectedName = document.getElementById(nameID)
+    selectedName.style.backgroundColor = 'yellow'
 }
 
 function confirmDelete() {
@@ -1184,4 +1244,53 @@ function dayOfYear(dateToConvert) {
     var oneDay = 1000 * 60 * 60 * 24;
     var day = Math.floor(diff/oneDay);
     return day;
+}
+
+function initiateSwap() {
+    swapInProgress = true
+    swap1ID = ''
+    swap2ID = ''
+    swapAsgmnt1ID = ''
+    swapAsgmnt2ID = ''
+    btnCancelSwap = document.getElementById('cancelSwap')
+    btnCancelSwap.disabled = false;
+    btnMakeSwap = document.getElementById('makeSwap')
+    btnMakeSwap.disabled = false;
+    
+    clearDay1()
+    clearDay2()
+
+    alert('Select two dates, then select two assignments.')
+    document.getElementById('initiateSwap').disabled = true
+}
+
+function cancelSwap() {
+    swapInProgress = false
+    swap1ID = ''
+    swap2ID = ''
+    swapAsgmnt1ID = ''
+    swapAsgmnt2ID = ''
+    clearDay1()
+    clearDay2()
+    document.getElementById('makeSwap').disabled = true
+    document.getElementById('cancelSwap').disabled = true
+    document.getElementById('initiateSwap').disabled = false
+}
+
+function makeSwap() {
+    console.log("makeSwap routine")
+    if (swapAsgmnt1ID == '' || swapAsgmnt2ID == '') {
+        alert("You must select two assignments.")
+        return
+    }
+
+    // CHECK FOR VALID SWAP, WILL NOT RESULT IN A TIMECONFLICT
+    
+    // GATHER DATA FOR SWAP
+
+    // RETURN SELECTED ROWS TO DEFAULT BACKGROUND
+    nameID = swapAsgmnt1ID + 'name'
+    document.getElementById(nameID).style.backgroundColor = 'white'
+    nameID = swapAsgmnt2ID + 'name'
+    document.getElementById(nameID).style.backgroundColor = 'white'
 }
