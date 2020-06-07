@@ -5,7 +5,7 @@ const colors = {
     bg_NeedSM:  "#0000FF",  // Blue
     fg_NeedSM:  "#FFFFFF",  // White 
     bg_NeedTC:  "#00FF00",  // Green
-    fg_NeedTC:  "#FFFFFF",  // White (#FFFFFF)
+    fg_NeedTC:  "#000000",  // Black (#000000)
     bg_NeedBoth:"#FF0000",  // Red (#FF0000)
     fg_NeedBoth:"#FFFFFF",  // White (#FFFFFF)
     bg_Filled:  "#FFFFFF",  // White (#FFFFFF)
@@ -679,7 +679,7 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         //alert('SM_AM_REQD=' + SM_AM_REQD)
     }
     else if (scheduleNumber == 2) {
-        document.getElementById('day2Date').innerHTML = sched[1][1] 
+        document.getElementById('day2Date').innerHTML = sched[0][1] 
         day2Title = "Monitors at " + shopNames[shopNumberToDisplay-1]
         document.getElementById('day2Location').innerHTML = day2Title
         
@@ -690,11 +690,21 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         //  SET day2Detail to detailParent
         detailParent = document.getElementById('day2Detail')
         //  GET staffing requirements for shop 2
-        SM_AM_REQD = shopData[dayNumber][9]
-        SM_PM_REQD = shopData[dayNumber][10]
-        TC_AM_REQD = shopData[dayNumber][11]
-        TC_PM_REQD = shopData[dayNumber][12]
-        //alert(SM_AM_REQD)
+        if (swapInProgress) {
+            // REQUIREMENTS FOR ONE LOCATION
+            SM_AM_REQD = shopData[dayNumber][5]
+            SM_PM_REQD = shopData[dayNumber][6]
+            TC_AM_REQD = shopData[dayNumber][7]
+            TC_PM_REQD = shopData[dayNumber][8]
+        }
+        else {
+            // REQUIREMENTS FOR COMBINED LOCATIONS
+            SM_AM_REQD = shopData[dayNumber][9]
+            SM_PM_REQD = shopData[dayNumber][10]
+            TC_AM_REQD = shopData[dayNumber][11]
+            TC_PM_REQD = shopData[dayNumber][12]
+        }
+    
     }
     // REMOVE CURRENT DAY ASSIGNMENTS FOR SELECTED SCHEDULE DAY
     while (detailParent.firstChild) {
@@ -922,6 +932,13 @@ function createScheduleDetail (scheduleNumber,ShopNumber,DateScheduled,Shift,Dut
     inputRecordID.value = RecordID
     dayDetail.appendChild(inputRecordID)
 
+    var inputVillageID = document.createElement("input")
+    inputVillageID.id=idPrefix + 'villageID'
+    inputVillageID.classList.add("villageID")
+    inputVillageID.type="hidden"
+    inputVillageID.value = VillageID
+    dayDetail.appendChild(inputVillageID)
+
 }
 
 function memberSelectedRtn() {
@@ -1048,14 +1065,16 @@ function confirmAdd(memberID) {
 // ADD A RECORD TO THE TABLE tblMonitor_Schedule
 
 function unAssignedShiftClicked(id,scheduleNumber) {
-    // PROHIBIT USE WHEN SHOPFILTER IS SET TO BOTH
-    // if (shopFilter == 'BOTH') {
-    //     alert('You need to select a specific shop location.')
-    //     return 
-    // }
-    
+    // IS A SWAP IN PROGRESS
+    if (swapInProgress) {
+        swapAsgmnt2ID = id.slice(0,9)
+        selectedName = document.getElementById(id)
+        selectedName.style.backgroundColor = 'yellow'
+        return
+    }
+
     // HAS A MEMBER BEEN SELECTED?
-    if (currentMemberID == '') {
+    if (currentMemberID == '' && !swapInProgress) {
         alert('You must have a member selected.')
         return
     }
@@ -1118,7 +1137,7 @@ function confirmDelete() {
     return answer
 }
 
-// DELETE AN AN ASSIGNMENT BY RECORD ID
+// DELETE AN ASSIGNMENT BY RECORD ID
 function delAssignment(id) {
     if (!confirmDelete()) {
         return
@@ -1148,7 +1167,11 @@ function delAssignment(id) {
             
             // REFRESH CALENDAR TO REFLECT CHANGE
             refreshCalendarRtn()
-            //document.getElementById('refreshBtn').click()
+
+            // REFRESH MEMBERS SCHEDULE
+            if (currentMemberID != '') {
+                populateMemberSchedule(currentMemberID)    
+            }
 
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
@@ -1187,15 +1210,16 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumbner,Duty,id) {
 
             // REFRESH CALENDAR DISPLAY TO REFLECT NEW ASSIGNMENT
             refreshCalendarRtn()
-            //document.getElementById('refreshBtn').click()
             
+            // REFRESH MEMBERS SCHEDULE
+            populateMemberSchedule(memberID)
             
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
 
     // SEND PARAMETERS FOR ADDING AN ASSIGNMENT
     schedDate = document.getElementById('day1yyyymmdd').value
-    var data = {memberID:memberID,schedDate:schedDate,Shift:Shift,shopNumber:shopNumber,Duty:Duty}
+    var data = {memberID:memberID,schedDate:schedDate,Shift:Shift,shopNumber:shopNumber,Duty:Duty,staffID:staffID}
 xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
 
@@ -1289,8 +1313,58 @@ function makeSwap() {
     // GATHER DATA FOR SWAP
 
     // RETURN SELECTED ROWS TO DEFAULT BACKGROUND
+    console.log('swapAsgmnt1ID=' + swapAsgmnt1ID)
     nameID = swapAsgmnt1ID + 'name'
-    document.getElementById(nameID).style.backgroundColor = 'white'
+    console.log('nameID=' + nameID)
+    name1 = document.getElementById(nameID)
+    name1.style.backgroundColor = 'white'
     nameID = swapAsgmnt2ID + 'name'
-    document.getElementById(nameID).style.backgroundColor = 'white'
+    name2 = document.getElementById(nameID)
+    name2.style.backgroundColor = 'white'
+
+    // IS THIS A SWAP OR A MOVE TO AN OPEN SLOT?
+    if (name1.value == '' || name2.value == '') {
+        moveMember()
+        return
+    }
+
+    // SEND SWAP DATA TO SERVER
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/swapMonitorAssignments"); 
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // PROCESS RESPONSE
+            // DISPLAY RESPONSE FROM REQUEST
+            msg = this.response
+            alert(msg)
+            return 
+        }  // END OF READY STATE TEST
+    }  // END OF ONREADYSTATECHANGE
+
+    // SEND WEEK#, STAFF ID, MEMBER ID, DATE SCHEDULED, AMPM, DUTY, AND RECORD ID
+    // ASSIGNMENT 1
+    idPrefix1 = swapAsgmnt1ID.slice(0,9)
+    console.log('idPrefix1='+idPrefix1)
+    recordID1 = document.getElementById(idPrefix1+"recordID").value
+    console.log('recordID1='+recordID1)
+    villageID1 = document.getElementById(idPrefix1+"villageID").value
+
+    // ASSIGNMENT 2
+    idPrefix2 = swapAsgmnt2ID.slice(0,9)
+    console.log('idPrefix2='+idPrefix2)
+    recordID2 = document.getElementById(idPrefix2+"recordID").value
+    console.log('recordID2='+recordID2)
+    villageID2 = document.getElementById(idPrefix2+"villageID").value
+    var data = {recordID1:recordID1,recordID2:recordID2,villageID1:villageID1,villageID2:villageID2,staffID:staffID};
+    xhttp.send(JSON.stringify(data)); 
+    // END xhttp FUNCTION
+
+    // END OF MAKE SWAP ROUTINE, EXECUTE CANCEL SWAP TO RESET ELEMENTS
+    cancelSwap()
+    refreshCalendarRtn()
+}
+
+function moveMember() {
+    alert ('Move member to an open slot')
 }
