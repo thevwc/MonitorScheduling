@@ -48,20 +48,20 @@
             <!-- LEGEND -->
             <div id='legend'>
                 <input id='needSM' type="text" style='width:40px; border:1px solid black'>
-                <label for='needSM'>Need shop monitors</label>
-                <input id='needTC' type="text" style='width:40px; border:1px solid black'>
-                <label for='needTC'>Need tool crib workers</label>
-                <input id='needBoth' type="text" style='width:40px; border:1px solid black'>
+                <label for='needSM'>Need monitors</label>
+                <input id='needTC' type="text" style='margin-left:15px;width:40px; border:1px solid black'>
+                <label for='needTC'>Need tool crib</label>
+                <input id='needBoth' type="text" style='margin-left:20px;width:40px; border:1px solid black'>
                 <label for='needBoth'>Need both</label>
-                <input id='filled' type="text" style='width:40px; border:1px solid black'>
+                <input id='filled' type="text" style='margin-left: 30px;width:40px; border:1px solid black'>
                 <label for='filled'>Filled</label>
-                <input id='closed' type="text" style='width:40px; border:1px solid black'>
-                <label for='closed'>Shop closed</label>
+                <input id='closed' type="text" style='margin-left:60px;width:40px; border:1px solid black'>
+                <label for='closed'>Closed</label>
             </div>
             <!-- TRANSACTION LOG -->
-             <div id="transactionLog">
-                <p>... transaction details ...</p>
-            </div>
+            <!-- <div id="transactionLog">
+                <button id="swapModalBtn" type = "button">SHOW NOTES FOR SELECTED WEEK</button>
+            </div> -->
             
         </div>  <!-- END OF PARENT1 WRAPPER -->
 
@@ -133,7 +133,7 @@
             <!-- SECOND DAY SELECTED -->
             <div id="day2-container">
                 <div class='dayHeader'>
-                    <span id='day2Date'></span>
+                    <span id='day2Date'SETTINGS></span>
                     <span id='day2Location' style='margin-left:50px'></span>
                     <button id='day2Print' class='btn btn-primary btn-sm' onclick='printDay2()'>PRINT</button>
                     <button id='day2Clear' class='btn btn-secondary btn-sm' onclick='clearDay2()'>CLEAR</button>
@@ -150,7 +150,7 @@
     </div>  <!-- END OF PARENT WRAPPER -->
     
 
-    <!-- MODAL FORM FOR APPLICATION START UP SETTINGS -->
+    <!-- MODAL FORM FOR APPLICATION START UP SETTINGS  (bootstrap?)-->
     <div id="settingsModal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -188,12 +188,58 @@
                 </div> 
             </div>
         </div>
-        <!-- <div class="closeModal">+</div> -->
-        <!--<img src="vwcIcon.png" alt="";> -->
-        
     </div>
+    <!-- .......................................... -->
+    <!-- MODAL FORM FOR ENTERING REASON FOR A TRANSACTION -->
+    <div id="swapModal" class="bg-modal-swap">
+        <div class="modal-content-swap">
+            <div class="closeModalSwap">+</div>
+            <!-- <img src="/img/favicon.ico" alt=""> -->
+            <form action="">
+                <input type="text" placeholder="Action">
+                <input type="text" placeholder="Reason">
+                <a href="" class="button">Submit</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- ------------------------------------------------------------ -->
+    <!-- <div id="swapModal2" class="modal fade bg-modal-swap" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class='modal-title'>  
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <br>
+                        <h4>The Villages Woodworkers Club</h4>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <h5 style="text-decoration: underline;">START UP SETTINGS</h5>
+                    <form action="">
+                        <p style='text-align: left'>
+                            <label>Action:-</label>
+                            <input id='actionID' type="text"  placeholder = 'action'>
+                        </p>
+                        
+                        <p style='text-align: left'>
+                            <label>Reason:- </label> 
+                            <input id='reasonID' type="text" placeholder = 'Please state the reason for this action ...'>
+                        </p>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button> 
+                </div> 
+            </div>
+        </div>
+    </div> -->
+
+
  <!-- MODAL FORM FOR CONFIRMATIONS-->
-    <div id="confirmAction" class="modal fade" tabindex="-1" role="dialog">
+    <!-- <div id="confirmAction" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -217,7 +263,7 @@
             </div>
         </div>
         
-    </div>
+    </div> -->
 
 </body>
 {% endblock %}

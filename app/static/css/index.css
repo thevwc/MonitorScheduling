@@ -39,15 +39,14 @@
 .parent1 {
     display: grid;
     grid-area: parent1Area;
-    grid-template-columns:1fr 1fr 1fr 1fr;
+    grid-template-columns:1fr 1fr 1fr;
     /* grid-template-rows:repeat(auto, minmax(50px auto));  */
     gap:.5em;
     grid-template-areas: "filterArea filterArea filterArea filterArea"
                          "calArea    calArea    calArea    calArea"
                          "calArea    calArea    calArea    calArea"
                          "calArea    calArea    calArea    calArea"
-                         "legendArea legendArea legendArea legendArea"
-                         "logArea    logArea    logArea    logArea";
+                         "legendArea legendArea legendArea legendArea";
     padding-right: 10px;
     padding-left: 10px;
     border-left: white 2px;
@@ -56,16 +55,19 @@
 
 .filterSection {
     grid-area:filterArea;
-    height:75px;
-    padding-top:20px;
+    height:auto;
+    padding-top:0px;
     padding-bottom: 0px;
-    margin:0px;
+    margin-left:10px;
     justify-content:center;
     align-items:center; 
+    align-content:center;
     text-align: center;
-    width:100%;
+    width:95%;
     background-color: var(--main-bg-color);
     color: var(--main-txt-color);
+    border:1px solid navy;
+    border-radius: 10px;
 }
 
 #settingsIcon {
@@ -90,6 +92,7 @@ select {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
+    
     /*grid-template-columns: repeat(3 1fr);
     grid-template-rows:repeat(4 1fr);
     grid-template-areas: "monthArea monthArea monthArea"
@@ -102,9 +105,9 @@ select {
 
 .calendarMonth {
     /* grid-area: monthArea; */
-    padding: 15px;
-    margin: 10px;
-    width: 170px;
+    padding: 5px;
+    margin: 5px;
+    width: 160px;
     height: 200px;
     text-align: center;
     border: 1px solid black;
@@ -128,6 +131,7 @@ select {
 }
 
 #legend {
+    margin:0;
     grid-area:legendArea;
 }
 
@@ -147,14 +151,14 @@ select {
     background-color:#2E86C1
 }
 
-#transactionLog {
+/* #transactionLog {
     grid-area:logArea;
     background-color:slategrey;
     color:white;
     border: 1px solid black;
     border-radius: 10px;
 
-} 
+}  */
 
 
 /* COLUMN 2 (PARENT2 */
@@ -179,7 +183,7 @@ select {
 }
 
 #memberNameSection {
-    height:115px;
+    height:auto;
     grid-area:nameArea;
     width:100%;
     text-align: center;
@@ -188,8 +192,8 @@ select {
     background-color:navy;
     border:navy solid 1px;
     border-radius: 10px;
-    padding:0px;
-    margin:0px;
+    padding-bottom:20px;
+    margin-bottom:20px;
 
 }  
 
@@ -218,10 +222,11 @@ select {
     height: 40px;
     align-content: center;
     justify-content: center;
-    padding:0px;
+    padding-bottom:20px;
     background-color:navy;
     color:white;
-    margin-top:10px;
+    margin-top:0px;
+    margin-bottom:10px;
 }
 
 
@@ -387,8 +392,10 @@ select {
     margin:0px;
     padding:10px;
 }
-
-/* .bg-modal {
+#swapModalBtn {
+    border: 4px solid blue;
+}
+.bg-modal-swap {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.7);
@@ -398,13 +405,31 @@ select {
     justify-content: center;
     align-items: center;
     display: none;
-} */
-
-.modal-header {
-    margin-top: 0px;
-    padding-top: 0px;
+} 
+.modal-content-swap {
+    width:500px;
+    height: 300px;
+    background-color:white;
+    border-radius: 4px;
+    text-align: center;
+    margin:0px;
+    padding: 20px;
+    position: relative;
 }
+#swapModal input {
+    width: 50%;
+    display: block;
+    margin: 15px auto;
 
+}
+.closeModalSwap {
+    position: absolute;
+    top: 0;
+    right: 14px;
+    font-size: 42px;
+    transform: rotate(45deg);
+    cursor: pointer;
+}
 .modal-header button {
     float: right;
 }
@@ -413,16 +438,6 @@ select {
     width:100%;
 }
 
-.modal-content {
-    width:500px;
-    height: 300px;
-    background-color:lightgray;
-    border-radius: 4px;
-    text-align: center;
-    margin:0px;
-    padding: 0px;
-    /* background-color: cadetblue; */
-}
 
 .modal-content form {
     margin-left: 100px;
@@ -577,4 +592,19 @@ select {
     border-color: #999;
   } */
 
+#actionID #reasonID {
+    width: 400px;
+    height: 100 px;
+    overflow: auto;
+    overflow-x: hidden;
+    border: 1px solid navy;
+    background-color: white;
 
+}
+#actionID {
+    color:green;
+}
+
+#reasonID {
+    color: blue;
+}

@@ -433,9 +433,9 @@ def addMonitorAssignment():
         return "ERROR - Assignment could NOT be added."
 
     # ADD ENTRY TO MONITOR SCHEDULE TRANSACTION LOG
-        response=LogMonitorScheduleTransaction('ADD',memberID,schedDate,Shift,Duty,staffID,shopNumber)
-        if response == 0:
-            return "ERROR - Could NOT log transaction."
+    response=LogMonitorScheduleTransaction('ADD',memberID,schedDate,Shift,Duty,staffID,shopNumber)
+    if response == 0:
+        return "ERROR - Could NOT log transaction."
 
     return "SUCCESS - Assignment added."
 
@@ -474,6 +474,8 @@ def swapMonitorAssignments():
         return "ERROR - Assignment with record ID " + recordID1 + " could not be found."
     memberID1 = assignment1.Member_ID
     schedDate1 = assignment1.Date_Scheduled
+    dayOfWeek1 = schedDate1.weekday()
+    weekOf1 = schedDate1 - timedelta(dayOfWeek1 + 1)
     shift1 = assignment1.AM_PM
     duty1 = assignment1.Duty
     shopNumber1 = assignment1.Shop_Number
@@ -482,22 +484,24 @@ def swapMonitorAssignments():
         return "ERROR - Assignment with record ID " + recordID2 + " could not be found."
     memberID2 = assignment2.Member_ID
     schedDate2 = assignment2.Date_Scheduled
+    dayOfWeek2 = schedDate1.weekday()
+    weekOf2 = schedDate1 - timedelta(dayOfWeek1 + 1)
     shift2 = assignment2.AM_PM
     duty2 = assignment2.Duty
     shopNumber2 = assignment2.Shop_Number
 
     # CHECK FOR POTENTIAL CONFLICTS WITH EACH ASSIGNMENT
-    if conflicts(villageID2,schedDate1,shift1) > 0:
-        msg = "ERROR - The member with village ID " + villageID2 + " has a conflict at "
-        msg += schedDate1.strftime('%m-%d-%Y') + " " + shift1
-        return msg
-        #return ("ERROR - The member with village ID " + villageID2 + " has a conflict.")
-    if conflicts(villageID1,schedDate2,shift2) > 0:
-        msg = "ERROR - The member with village ID " + villageID1 + " has a conflict at "
-        msg += schedDate2.strftime('%m-%d-%Y') + " " + shift2
-        return msg
-        #return ("ERROR - The member with village ID " + villageID1 + " has a conflict.")
-         
+    if schedDate1 != schedDate2 or shift1 != shift2:
+        if conflicts(villageID2,schedDate1,shift1) > 0:
+            msg = "ERROR - The member with village ID " + villageID2 + " has a conflict at "
+            msg += schedDate1.strftime('%m-%d-%Y') + " " + shift1
+            return msg
+            
+        if conflicts(villageID1,schedDate2,shift2) > 0:
+            msg = "ERROR - The member with village ID " + villageID1 + " has a conflict at "
+            msg += schedDate2.strftime('%m-%d-%Y') + " " + shift2
+            return msg
+            
 
     # THERE ARE NO OPEN ASSIGNMENTS
     if (recordID1 != '' and recordID2 != ''):
@@ -529,14 +533,32 @@ def swapMonitorAssignments():
         sqlUpdate2 = "UPDATE tblMonitor_Schedule SET Member_ID = " 
         sqlUpdate2 += "'" + villageID1 + "' WHERE ID = " + recordID2
         result2 = db.engine.execute(text(sqlUpdate2).execution_options(autocommit=True))
-           
-        if (result1.rowcount > 0) and (result2.rowcount > 0):
-            return "SUCCESS - Swap was completed."
-        else:
+
+        # WAS SWAP SUCCESSFUL?
+        if (result1.rowcount == 0) or (result2.rowcount == 0):
             return "ERROR - Swap could NOT be completed."
+
+        # WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
+        response=LogMonitorScheduleTransaction('RMV-SWP',memberID1,schedDate1,shift1,duty1,staffID,shopNumber1)
+        if response == 0:
+            return "ERROR - Could NOT log transaction."
+        response=LogMonitorScheduleTransaction('RMV-SWP',memberID2,schedDate2,shift2,duty2,staffID,shopNumber2)
+        if response == 0:
+            return "ERROR - Could NOT log transaction."
+        response=LogMonitorScheduleTransaction('ADD-SWP',memberID1,schedDate1,shift1,duty1,staffID,shopNumber1)
+        if response == 0:
+            return "ERROR - Could NOT log transaction."
+        response=LogMonitorScheduleTransaction('ADD-SWP',memberID2,schedDate2,shift2,duty2,staffID,shopNumber2)
+        if response == 0:
+            return "ERROR - Could NOT log transaction."
+        
+        
+        # WRITE TO MONITOR_WEEK_NOTES
+
+        
  
 
-    # IF SECOND ASSIGNMENT IS OPEN
+    # IF THE MOVE IS FROM THE FIRST ASSIGNMENT TO THE SECOND (OPEN) ...
     if (recordID1 != '' and recordID2 == ''):
         assignment1 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID1).first()
         if assignment1 == None:
@@ -551,19 +573,52 @@ def swapMonitorAssignments():
         sqlInsert = "INSERT INTO tblMonitor_Schedule (Member_ID, Date_Scheduled, AM_PM, Shop_Number,Duty)"
         sqlInsert += " VALUES ('" + memberID + "', '" + schedDate + "', '" + shift + "'"
         sqlInsert += ", " + shopNumber + ", '" + duty + "')"
-        #print (sqlInsert)
-
         result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
         if (result.rowcount > 0):
-            return "SUCCESS - Assignment added to tblMonitor_Schedule"
+            insertCompleted = True
         else:
-            return "ERROR - Assignment could NOT be completed."
+            insertCompleted = False 
+            return "ERROR - Assignment could NOT be added."
 
+        #  WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
+        response=LogMonitorScheduleTransaction('RMV-MV',memberID1,schedDate1,shift1,duty1,staffID,shopNumber1)
+        if response == 0:
+            return "ERROR - Could NOT log transaction."
+        response=LogMonitorScheduleTransaction('ADD-MV',memberID1,schedDate1,shift1,duty1,staffID,shopNumber1)
+        if response == 0:
+            return "ERROR - Could NOT log transaction."
+        
+    # IF MOVE IS FROM SECOND ASSIGNMENT TO THE FIRST ASSIGNMENT (OPEN) ...
     if (recordID1 == '' and recordID2 != ''):
-        # IF FIRST ASSIGNMENT IS OPEN
-        return "ERROR - ROUTINE NOT YET IMPLEMENTED"
-    
-    print ('recordID1=',recordID1,' recordID2=',recordID2, ' staffID=',staffID)
+        assignment2 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID2).first()
+        if assignment2 == None:
+            return "ERROR - Assignment with record ID " + recordID2 + " could not be found."
+        memberID = assignment2.memberID
+        schedDate = assignment2.MM_DD_YYYY
+        shift = assignment2.AM_PM
+        duty = assignment2.Duty
+        shopNumber = assignment2.shopNumber
+        
+        #  ADD ASSIGNMENT TO tblMonitor_Schedule VIA RAW SQL
+        sqlInsert = "INSERT INTO tblMonitor_Schedule (Member_ID, Date_Scheduled, AM_PM, Shop_Number,Duty)"
+        sqlInsert += " VALUES ('" + memberID + "', '" + schedDate + "', '" + shift + "'"
+        sqlInsert += ", " + shopNumber + ", '" + duty + "')"
+        result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
+        if (result.rowcount > 0):
+            insertCompleted = True
+        else:
+            insertCompleted = False
+            return "ERROR - Could not add assignment."
+
+        #  WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
+        response=LogMonitorScheduleTransaction('RMV-MV',memberID2,schedDate2,shift2,duty2,staffID,shopNumber2)
+        if response == 0:
+            return "ERROR - Could NOT log transaction."
+        response=LogMonitorScheduleTransaction('ADD-MV',memberID2,schedDate2,shift2,duty2,staffID,shopNumber2)
+        if response == 0:
+            return "ERROR - Could NOT log transaction."
+        
+        
     return 'SWAP COMPLETED'
 
 def conflicts(villageID,dateScheduled,shift):
@@ -588,27 +643,31 @@ def conflicts(villageID,dateScheduled,shift):
 # dateScheduled (date or str?)  date
 def LogMonitorScheduleTransaction(transactionType,villageID,dateScheduled,shift,duty,staffID,shopNumber):
     # VALID TRANSACTION TYPES ARE ADD, ADD-MV, ADD-SWP, DELETE, DELETE NS, RMV-MV, RMV-SWP
-    # CALCULATE DATE FOR START OF WEEK CONTAINING dateScheduled
-    transactionDate = date.today()
-    strTransactionDate = transactionDate.strftime('%m-%d-%Y')
-    dtSched = datetime.strftime(dateScheduled,'%Y%m%d')
-    #strDtSched = datetime.strftime(dtSched,'%m-%d-%Y')
-    #strDtSched = dtSched.strftime('%m-%d-%Y')
-    dayOfWeek = dateScheduled.weekday()
-    #dayOfWeek = dtSched.weekday()
-    #weekOf = dtSched - timedelta(dayOfWeek + 1)
-    weekOf = dateScheduled - timedelta(dayOfWeek + 1)
-    strWeekOf = weekOf.strftime('%m-%d-%Y')
+    transactionDate = datetime.now()
+    strTransactionDate = transactionDate.strftime('%Y-%m-%d %I:%M %p')
+    
+    # CREATE A DATE VAR AND A STR VAR OF THE dateScheduled PASSED IN
+    if (isinstance(dateScheduled, str)):
+        strDateScheduled = dateScheduled
+        datDateScheduled = datetime.strptime(dateScheduled,'%Y-%m-%d')
+    else:
+        strDateScheduled = dateScheduled.strftime('%m-%d-%Y')
+        datDateScheduled = dateScheduled 
 
+    # CALCULATE DATE FOR START OF WEEK CONTAINING dateScheduled
+    dayOfWeek = datDateScheduled.weekday()
+    weekOf = datDateScheduled - timedelta(dayOfWeek + 1)
+    strWeekOf = weekOf.strftime('%m-%d-%Y')
+    
+    # BUILD THE SQL INSERT STATEMENT FOR POSTING TO THE MONITOR SCHEDULE TRANSACTION TABLE
     sqlInsert = "INSERT INTO tblMonitor_Schedule_Transactions (Transaction_Date,WeekOf,Staff_ID,"
     sqlInsert += "Member_ID,Transaction_Type,Date_Scheduled, AM_PM,Duty,ShopNumber) VALUES("
     sqlInsert += "'" + strTransactionDate +"','"  + strWeekOf + "','" + staffID + "','" + villageID 
-    sqlInsert += "','" + transactionType + "','" + dtSched + "','" + shift 
+    sqlInsert += "','" + transactionType + "','" + strDateScheduled + "','" + shift 
     sqlInsert += "','" + duty + "'," + str(shopNumber) + ")"
-    #print (sqlInsert)
+
     try:
         result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
-        #result = db.engine.execute(sqlInsert)
     except (SQLAlchemyError, DBAPIError) as e:
         print("ERROR -",e)
         return 0
@@ -625,4 +684,3 @@ def LogCoordinatorWeekNote(schedDate,note,shopNumber,staffID):
         return "Entry added to monitorWeekNotes"
     else:
         return "Assignment could NOT be added to monitorWeekNotes."
-#result = db.engine.execute(sqlInsert)

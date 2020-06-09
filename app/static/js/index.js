@@ -47,6 +47,13 @@ document.getElementById("yearToDisplay").addEventListener("change", yearChanged)
 document.getElementById("shopToDisplay").addEventListener("change", shopChanged);
 document.getElementById("refreshCalendarBtn").addEventListener("click",refreshCalendarRtn)
 document.getElementById("selectpicker").addEventListener("change",memberSelectedRtn)
+// document.getElementById("swapModalBtn").addEventListener("click",openSwapModal)
+   
+document.querySelector('.closeModalSwap').addEventListener('click',
+    function() {
+        document.querySelector('.bg-modal-swap').style.display = 'none'
+    });
+
 window.addEventListener('unload', function(event) {
     localStorage.removeItem('firstTimeSwitch');
 });
@@ -646,10 +653,22 @@ closeClass.onclick=function() {
     modal.style.display="none"
 }
 
+// Assign the second modal button and form for swap explanations to variables
+var modal2 = document.getElementById("swapModalID")
+//var modalBtn = document.getElementById("settingsModalBtn")
+
+// When the user clicks on the X symbol or 'CLOSE', close the modal form
+closeClass2 = document.getElementsByClassName("closeModal2")
+closeClass2.onclick=function() {
+    modal2.style.display="none"
+}
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
     if (event.target == modal) {
         this.modal.style.display = "none"
+    }
+    if (event.target == modal2) {
+        this.modal2.style.display = "none"
     }
 }
 
@@ -1367,4 +1386,12 @@ function makeSwap() {
 
 function moveMember() {
     alert ('Move member to an open slot')
+}
+
+function openSwapModal() {
+    document.querySelector('.bg-modal-swap').style.display='flex';
+}
+
+function closeSwapModal() {
+    document.querySelector('.bg-modal-swap').style.display='none';
 }
