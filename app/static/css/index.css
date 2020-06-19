@@ -11,7 +11,6 @@
 .parent {
     display: grid;
     grid-template-columns:1.10fr .90fr;
-    /* grid-template-rows:repeat(auto, minmax(20px auto)); */
     grid-template-areas: "hdgArea      hdgArea"
                          "parent1Area  parent2Area";
     background-color:lightgray;                   
@@ -30,17 +29,10 @@
     border-bottom:white 3px;
 }
 
-/*
-.hdg h1 {
-    align-items:center;
-}
-*/
-
 .parent1 {
     display: grid;
     grid-area: parent1Area;
     grid-template-columns:1fr 1fr 1fr;
-    /* grid-template-rows:repeat(auto, minmax(50px auto));  */
     gap:.5em;
     grid-template-areas: "filterArea filterArea filterArea filterArea"
                          "calArea    calArea    calArea    calArea"
@@ -82,29 +74,15 @@ select {
     color:blue;
 }
 
-/* .calendarSection {
-    grid-area:calArea;
-    background-color:beige;
-    color:blue;
-} */
 #calendar-container{
     grid-area:calArea;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
-    
-    /*grid-template-columns: repeat(3 1fr);
-    grid-template-rows:repeat(4 1fr);
-    grid-template-areas: "monthArea monthArea monthArea"
-                         "monthArea monthArea monthArea"
-                         "monthArea monthArea monthArea"
-                         "monthArea monthArea monthArea"; */
-                              
     background-color: var(--calendar-background);  
 }
 
 .calendarMonth {
-    /* grid-area: monthArea; */
     padding: 5px;
     margin: 5px;
     width: 160px;
@@ -115,15 +93,11 @@ select {
     font-size: 14px;
     font-family: Arial;
     background-image: linear-gradient(#fff, #d3d3d3); 
-    /* color: var(--calendar-text); */
 } 
 #myInput {
     background-color: white;
     color:blue;
 }
-/* .calendar-container div {
-    background-color: crimson;
-} */
 
 .monthYearHdg {
     background-color: navy;
@@ -151,15 +125,6 @@ select {
     background-color:#2E86C1
 }
 
-/* #transactionLog {
-    grid-area:logArea;
-    background-color:slategrey;
-    color:white;
-    border: 1px solid black;
-    border-radius: 10px;
-
-}  */
-
 
 /* COLUMN 2 (PARENT2 */
 .parent2 {
@@ -167,8 +132,6 @@ select {
     grid-area: parent2Area;
     grid-template-columns:1fr;
     grid-template-rows:auto minmax(200px,auto) auto minmax(200px, auto) auto auto 1fr;
-    /* grid-template-rows:30px minmax(100px auto) 10px 1fr 1fr 50px; */
-    /* grid-template-rows:repeat(auto, minmax(20px auto));  */
     grid-area: 0.5em;
     grid-template-areas: "nameArea"
                          "scheduleArea"
@@ -244,7 +207,6 @@ select {
 .memberScheduleHeader {
     display: grid;
     grid-template-columns:2fr 2fr 1fr 2fr 1fr;
-    /* grid-template-rows:repeat(auto, minmax(40px auto)); */
     font-size: 16px;
     align-items:center;
     justify-content:center; 
@@ -264,7 +226,6 @@ select {
 .memberScheduleRow {
     display: grid;
     grid-template-columns:2fr 2fr 1fr 2fr 1fr;
-    /* grid-template-rows:repeat(auto, minmax(20px auto)); */
     background-color:white;
     font-size: 14px;
     align-items:center;
@@ -299,8 +260,6 @@ select {
     height:40px;
     background-color: navy;
     color:white;
-    /* justify-content: center;
-    align-content: center; */
     padding:10px;
     margin:0px;
     border:black solid 1px;
@@ -333,10 +292,8 @@ select {
 
 .dayHeader {
     display: grid;
-    grid-template-columns:1fr 2fr .5fr .5fr;
-    /* grid-template-rows:repeat(auto, minmax(40px auto)); */
+    grid-template-columns:1fr 2fr .5fr .5fr .5fr;
     border: 1px solid black;
-    /* border-radius: 10px; */
     font-size: 18px;
     align-items:center;
     justify-content:center; 
@@ -346,18 +303,13 @@ select {
     padding:0px;
 }
 
-/* .dayHeader button {
-    width:60px;
-} */
-
-#day1Print, #day1Clear, #day2Print, #day2Clear {
+#day1Notes, #day1Print, #day1Clear,#day2Notes, #day2Print, #day2Clear {
     width: 60px;
     margin-right:5px;
 }
 .dayDetail {
     display: grid;
     grid-template-columns:.5fr 1fr 2fr 1fr .1fr;
-    /* grid-template-rows:repeat(auto, minmax(20px auto)); */
     background-color:linen;
     color:blue;
     font-size: 14px;
@@ -372,30 +324,13 @@ select {
     margin-right:0px;
 }
 
-/* .delbtn {
-    width:15px;
-    
-} */
-
-
-#monitorNotes {
-    display:none;
-    height:40px;
-    width:100%;
-    grid-area:monitorNoteArea;
-    background-color: gray;
-    color:white;
-    text-align: center;
-    align-content: center;
-    border:black solid 1px;
-    border-radius: 10px;
-    margin:0px;
-    padding:10px;
-}
 #swapModalBtn {
     border: 4px solid blue;
 }
-.bg-modal-swap {
+
+
+/* MODAL FORM FOR MONITOR SCHEDULING WEEK NOTES */
+.bg-modal-notes {
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.7);
@@ -406,9 +341,9 @@ select {
     align-items: center;
     display: none;
 } 
-.modal-content-swap {
-    width:500px;
-    height: 300px;
+.modal-content-notes {
+    width:800px;
+    height: minmax(200px auto);
     background-color:white;
     border-radius: 4px;
     text-align: center;
@@ -416,20 +351,33 @@ select {
     padding: 20px;
     position: relative;
 }
-#swapModal input {
-    width: 50%;
-    display: block;
-    margin: 15px auto;
-
-}
-.closeModalSwap {
+.closeModalNotes {
     position: absolute;
-    top: 0;
-    right: 14px;
-    font-size: 42px;
+    top: 20px;
+    right: 30px;
+    height:30px;
+    width:30px;
+    font-size: 30px;
+    line-height: 30px;
     transform: rotate(45deg);
     cursor: pointer;
+    background-color: white;
+    color:navy;
+    border-radius:50%; 
+    text-align: center;
 }
+.modal-header-notes {
+    border: 1px solid blue;
+    background-color: navy;
+    color:white;
+}
+
+#modalBodyNotes {
+    display:grid;
+    grid-template-columns: 1fr 5fr 1fr;
+}
+
+/* MODAL - FOR ALL BOOTSTRAP MODAL FORMS */
 .modal-header button {
     float: right;
 }
@@ -455,14 +403,6 @@ select {
     margin:10px;
     padding:0px;
 }
-/* .close {
-    position: absolute;
-    top:0;
-    right: 14px;
-    font-size: 42px;
-    transform: rotate(45deg); 
-}
-*/
 
 /* The Close Button */
 .close {
@@ -474,104 +414,13 @@ select {
   
 .close:hover,
 .close:focus {
-    color: #000;
+    color:white;
     text-decoration: none;
     cursor: pointer;
   }
-/* $icon_size: 1em;
 
-.gear {
-    display: inline-block;
-    position: relative;
-    margin: $icon_size/5;
-    width: $icon_size;
-    height: $icon_size;
-    background: white;
-    border-radius: 50%;
-    border: $icon_size/3.5 solid gray;
-    box-swizing: border-box;
 
-} */
-
-/* .btn-primary {
-    background-color: green;
-    color:white;
-} */
-/* 
-@media only screen and (max-width: 768px) {
-.parent {
-    display: grid;
-    grid-template-columns:100%;
-    grid-template-rows:repeat(auto,10); 
-    gap:.25em;
-    grid-template-areas: "hdgArea"
-                         "filterArea"
-                         "calArea"
-                         "nameArea"
-                         "scheduleArea"
-                         "memberNoteArea"
-                         "day1Area"
-                         "day2Area"
-                         "monitorNoteArea"
-        } 
-
-} 
-
-#calendar-container{
-    grid-area:calArea;
-    display: grid;
-    /* padding: 10px;
-    width: 210px;
-    height: 240px;
-    text-align: center;
-    border: 1px solid #eee;
-    border-radius: 10px;
-    font-size: 16px;
-    font-family: Arial;
-    background-image: linear-gradient(#fff, #d3d3d3);
-    
-    background-color:beige;
-    color:blue; 
-}
-
-/* #calendar-container>div{
-    padding: 0;
-    margin-bottom: 10px;
-}
-
-#calendar-month-year{
-    margin: 5px;
-}
-
-#calendar-dates>table>tr>td{
-    padding: 5px;
-} 
-
-.calendarMonth {
-    grid-column: 1fr 1fr 1fr;
-    grid-row: auto;
-    padding: 10px;
-    width: 120px;
-    height: 120px;
-    text-align: center;
-    border: 1px solid black;
-    border-radius: 10px;
-    font-size: 12px;
-    font-family: Arial;
-    background-image: linear-gradient(#fff, #d3d3d3); 
-    color:red;
-} 
-
-.calendar-dates>table>tr>td{
-    padding:5px;
-} */
-
-.shift {
-    /* margin-left: 20px; */
-    padding-left: 0px;
-    padding-bottom: 0px;
-}
-
+/* CSS FOR MEMBER NAME SECTION */
 .nameID {
     color:green;
     border:black 1px;
@@ -586,17 +435,15 @@ select {
     height:40px;
 
 }
-/* .bootstrap-select > .dropdown-toggle.bs-placeholder:active {
-    background: #FFF;
-    color: #000;
-    border-color: #999;
-  } */
 
+/* CSS FOR ACTION/REASON MODAL FORM */
+#reasonModalID .modal-header {
+    background-color: green;
+    color:white;
+}
 #actionID #reasonID {
-    width: 400px;
-    height: 100 px;
-    overflow: auto;
-    overflow-x: hidden;
+    width: 600px;
+    height: minmax(20px auto);
     border: 1px solid navy;
     background-color: white;
 

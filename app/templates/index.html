@@ -7,16 +7,11 @@
 
 
 {% block content %}
-
-    <title>Document</title>
-</head>
-<body>
     <div class="parent">
         <div class="hdg">
             <h2>MONITOR SCHEDULING</h2>  
         </div>
-        <div class="parent1">
-            
+        <div class="parent1"> 
             <div class="filterSection">
                 <form class = "filterItems "></form>
                     <label> Year - </label>
@@ -33,7 +28,6 @@
                     </select>
                     
                     <input id="refreshCalendarBtn" class="btn btn-primary btn-sm" type="submit" value="Refresh Calendar">  
-                    <!-- <input id="resetCalendarFiltersBtn" class="btn btn-primary" type="submit" value="Reset Calendar Filters">   -->
                     
                     <button id="settingsIcon"><i class="fas fa-bars" data-toggle='modal' data-target='#settingsModal'></i></button>
                     <button id="settingsBtn" style="display:none" type='button' class = 'btn btn-primary' data-toggle = 'modal' data-target = '#settingsModal'>
@@ -60,7 +54,7 @@
             </div>
             <!-- TRANSACTION LOG -->
             <!-- <div id="transactionLog">
-                <button id="swapModalBtn" type = "button">SHOW NOTES FOR SELECTED WEEK</button>
+                
             </div> -->
             
         </div>  <!-- END OF PARENT1 WRAPPER -->
@@ -93,7 +87,6 @@
                 </div>
             </div>
 
-
             <!-- MEMBER SCHEDULE -->
             <div id="memberSchedule-container">
                 <div id='schedHdg1' class='memberScheduleHeader'>
@@ -122,6 +115,7 @@
                 <div class='dayHeader'>
                     <span id='day1Date'></span>
                     <span id='day1Location' style='margin-left:50px'></span>
+                    <button id='day1Notes' class='btn btn-secondary btn-sm' onclick='openNotesRtn(1)'>NOTES</button>
                     <button id='day1Print' class='btn btn-primary btn-sm' onclick='printDay1()'>PRINT</button>
                     <button id='day1Clear' class='btn btn-secondary btn-sm' onclick ="clearDay1()">CLEAR</button>
                     <input id='day1yyyymmdd' type='hidden' value = ''>
@@ -135,6 +129,7 @@
                 <div class='dayHeader'>
                     <span id='day2Date'SETTINGS></span>
                     <span id='day2Location' style='margin-left:50px'></span>
+                    <button id='day2Notes' class='btn btn-primary btn-sm' onclick='openNotesRtn(2)'>NOTES</button>
                     <button id='day2Print' class='btn btn-primary btn-sm' onclick='printDay2()'>PRINT</button>
                     <button id='day2Clear' class='btn btn-secondary btn-sm' onclick='clearDay2()'>CLEAR</button>
                     <input id='day2yyyymmdd' type='hidden' value = ''>
@@ -144,6 +139,8 @@
             </div>  <!-- END OF DAY2 -->
             <!-- MONITOR NOTES -->
             <div id="monitorNotes">
+                <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reasonModalID">TEST</button> -->
+                <button type="button" class="btn-primary btn" onclick="openReasonModal('test')">TEST REASON</button>
                 <p>... monitor notes ... </p>
             </div>
         </div> <!-- END OF PARENT2 WRAPPER -->
@@ -179,7 +176,6 @@
                                 <option id='shop2' value="BW">Brownwood</option>
                             </select>
                         </p>
-                        <!-- <a href="" class="modalBtn">Submit</a> -->
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -189,83 +185,51 @@
             </div>
         </div>
     </div>
-    <!-- .......................................... -->
-    <!-- MODAL FORM FOR ENTERING REASON FOR A TRANSACTION -->
-    <div id="swapModal" class="bg-modal-swap">
-        <div class="modal-content-swap">
-            <div class="closeModalSwap">+</div>
-            <!-- <img src="/img/favicon.ico" alt=""> -->
-            <form action="">
-                <input type="text" placeholder="Action">
-                <input type="text" placeholder="Reason">
-                <a href="" class="button">Submit</a>
-            </form>
+
+    <!-- MODAL FORM FOR DISPLAYING MONITOR NOTES FOR A SPECIFIC WEEK -->
+    <div id="notesModal" class="bg-modal-notes">
+        <div class="modal-content-notes">
+            <div class="closeModalNotes">+</div>
+            <div class="modal-header-notes">
+                <div class="modal-title-notes">
+                    <label for="">COORDINATOR NOTES FOR WEEK OF </label>
+                    <span id="noteWeek"></span>
+                    <label for=""> AT </label>
+                    <span id="noteShopName"></span>
+                </div>
+                <div>
+                    <span id="noteCoordinator"></span>
+                </div>
+            </div>
+            <div id="modalBodyNotes">
+            </div>
         </div>
     </div>
 
-    <!-- ------------------------------------------------------------ -->
-    <!-- <div id="swapModal2" class="modal fade bg-modal-swap" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+    <!-- MODAL FORM FOR INPUT OF TRANSACTION REASON (BOOTSTRAP) -->
+    <div id="reasonModalID" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <div class='modal-title'>  
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <br>
-                        <h4>The Villages Woodworkers Club</h4>
-                    </div>
+                    <h5 class="modal-title" id="exampleModalLabel">Scheduling Note</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
-                    <h5 style="text-decoration: underline;">START UP SETTINGS</h5>
-                    <form action="">
-                        <p style='text-align: left'>
-                            <label>Action:-</label>
-                            <input id='actionID' type="text"  placeholder = 'action'>
-                        </p>
-                        
-                        <p style='text-align: left'>
-                            <label>Reason:- </label> 
-                            <input id='reasonID' type="text" placeholder = 'Please state the reason for this action ...'>
-                        </p>
-                    </form>
+                    <span>Action:</span>
+                    <textarea id="actionID" rows="2" cols="75" readonly="true" ></textarea>
+                    <br>
+                    <span>Reason:</span> 
+                    <textarea id="reasonDescID" rows="2" cols="75" required="true" spellcheck="true"  placeholder="Reason ..."></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">OK</button> 
-                </div> 
+                    <button id='saveReasonID' type="button" class="btn btn-primary">Save changes</button>
+                </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
-
- <!-- MODAL FORM FOR CONFIRMATIONS-->
-    <!-- <div id="confirmAction" class="modal fade" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class='modal-title'>  
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <br>
-                        <h4>The Villages Woodworkers Club</h4>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <p id='confirmText' style='text-align: left'>
-                        main text
-                    </p> 
-                </div>
-                <div class="modal-footer">
-                    <button id='confirmNo' type="button" class="btn btn-secondary" data-dismiss="modal">No</button> 
-                    <button id='confirmYes' type="button" class="btn btn-primary btn-default" data-toggle="" data-target="">Yes</button>
-                </div> 
-            </div>
-        </div>
-        
-    </div> -->
-
-</body>
 {% endblock %}
 
 {% block scripts %}

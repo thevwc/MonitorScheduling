@@ -36,7 +36,8 @@ class Member(db.Model):
          unique=True)
     Last_Name = db.Column(db.String(30))
     First_Name = db.Column(db.String(30))
-    #NickName = db.Column(db.String(30))
+    NickName = db.Column(db.String(30))
+    Initials = db.Column(db.String(3))
     Date_Joined = db.Column(db.DateTime)
     #monthJoined = db.Column(db.Integer)
     #yearJoined=db.Column(db.String(4))
@@ -102,7 +103,7 @@ class MonitorScheduleTransaction(db.Model):
     Duty = db.Column(db.String(20))
     
 class MonitorWeekNote(db.Model):
-    __tablename__ = 'monitor_week_notes'
+    __tablename__ = 'monitorWeekNotes'
     __table_args__ = {"schema":"dbo"}
     ID = db.Column(db.Integer, primary_key=True)
     Shop_Number = db.Column(db.Integer)
@@ -123,3 +124,12 @@ class ShopDates(db.Model):
     SM_PM_REQD = db.Column(db.Integer)
     TC_AM_REQD = db.Column(db.Integer)
     TC_PM_REQD = db.Column(db.Integer)
+
+class CoordinatorsSchedule(db.Model):
+    __tablename__ = 'coordinatorsSchedule'
+    __table_args__ = {"schema":"dbo"}
+    ID = db.Column(db.Integer)
+    Shop_Number = db.Column(db.Integer, primary_key=True)
+    Start_Date = db.Column(db.DateTime, primary_key=True)
+    End_Date = db.Column(db.DateTime)
+    Coordinator_ID = db.Column(db.String(6))

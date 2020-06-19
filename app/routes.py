@@ -3,7 +3,7 @@
 from flask import session, render_template, flash, redirect, url_for, request, jsonify, json, make_response
 from flask_bootstrap import Bootstrap
 from werkzeug.urls import url_parse
-from app.models import ShopName, Member , MemberActivity, MonitorSchedule, MonitorScheduleTransaction, MonitorWeekNote
+from app.models import ShopName, Member , MemberActivity, MonitorSchedule, MonitorScheduleTransaction, MonitorWeekNote, CoordinatorsSchedule
 from app import app
 from app import db
 from sqlalchemy import func, case, desc, extract, select, update, text
@@ -11,7 +11,10 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError, DBAPIError
 
 import datetime as dt
 from datetime import date, datetime, timedelta
-#from datetime import datetime
+
+# @app.context_processor
+# def context_processor():
+#     return dict(actionDesc=g.actionDesc)
 
 @app.route('/')
 @app.route('/index', methods=['GET','POST'])
@@ -83,7 +86,6 @@ def index():
             
             shopDates = db.engine.execute(SQLselect2)
             for s in shopDates:
-                #print (s.Shop_Number,s.MM_DD_YYYY,s.SM_AM_REQD,s.SM_PM_REQD,s.TC_AM_REQD,s.TC_PM_REQD)
                 position = s.dayNumber
                 requirements[position][0] = s.MM_DD_YYYY.strftime("%Y%m%d")
                 requirements[position][1] = s.Status
@@ -107,7 +109,6 @@ def index():
     nameArray=[]
     sqlSelect = "SELECT Last_Name, First_Name, Member_ID FROM tblMember_Data "
     sqlSelect += "ORDER BY Last_Name, First_Name "
-    #print(sqlSelect)
     nameList = db.engine.execute(sqlSelect)
     position = 0
     for n in nameList:
@@ -145,7 +146,6 @@ def index():
 
 @app.route('/refreshCalendar', methods=['POST'])
 def refreshCalendar():
-    print('refresh calendar routine')
     return ('refreshed by refreshCalendar endpoint')
 
 
@@ -157,7 +157,6 @@ def getDayAssignments():
     if request.get_json() == None:
         return "ERROR - Missing schedule date."
     
-    #print(request.get_json())
     parameters = request.get_json()
     if parameters == None:
         return "ERROR - Missing parameter."
@@ -202,7 +201,7 @@ def getDayAssignments():
     # APPEND WHERE CLAUSE AND ORDER BY CLAUSES TO SELECT CLAUSE
     sqlSelect += sqlWhereClause
     sqlSelect += sqlOrderBy 
-    #print (sqlSelect)
+
     schedule = db.engine.execute(sqlSelect)
     position = 0
     if (schedule == None):
@@ -224,7 +223,6 @@ def getDayAssignments():
         schedArray[position][5] = s.Member_ID
         schedArray[position][6] = s.RecordID
         schedArray[position][7] = s.dayNumber
-        #print(s.Member_ID, s.Last_Name)
     
     return jsonify(schedArray)
 
@@ -259,14 +257,10 @@ def getMemberSchedule():
     sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, Date_Scheduled, AM_PM, Duty, No_Show, Shop_Number "
     sqlSelect += "FROM tblMember_Data "
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
-    print('1. ',sqlSelect)
-    # print('memberID type -')
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' ORDER BY Date_Scheduled desc"
-    print('2. ',sqlSelect)
     memberSchedule = db.engine.execute(sqlSelect)
     position = 0
     for ms in memberSchedule:
-        print('ID:' + ms.memberID,ms.displayName, ms.Date_Scheduled)
         schedArray[position][0] = ms.memberID
         schedArray[position][1] = ms.Shop_Number
         schedArray[position][2] = ms.displayName
@@ -306,6 +300,11 @@ def deleteMonitorAssignment():
     if staffID == None: 
         return "ERROR - Missing staffID."
   
+    # input () is for CLI only
+    # promptMsg = "Why are you deleting this record?"
+    # reason = input(promptMsg)
+    # print ('Reason-' , reason)
+
     # RETRIEVE RECORD TO BE DELETED
     assignment = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID).first()
     if assignment == None:
@@ -316,7 +315,6 @@ def deleteMonitorAssignment():
     ampm=assignment.AM_PM
     duty=assignment.Duty
     shopNumber=assignment.Shop_Number
-
 
     # DELETE THE ASSIGNMENT VIA RAW SQL
     sqlDelete = "DELETE FROM tblMonitor_Schedule WHERE ID = " + recordID
@@ -329,45 +327,21 @@ def deleteMonitorAssignment():
     if response == 0:
         return "ERROR - Could NOT log DELETE transaction."
 
-    return "SUCCESS - The assignment has been removed from the database." 
+    # ADD ENTRY TO MONITOR SCHEDULE NOTES
+    mbr = db.session.query(Member).filter(Member.Member_ID == memberID).first()
+    memberName = mbr.First_Name + ' ' + mbr.Last_Name + ' (' + memberID + ')'
+    dateScheduledSTR = dateScheduled.strftime('%m-%d-%Y')
+    actionDesc = "DELETE " + memberName + ' ' + dateScheduledSTR + ' ' + ampm + ' ' + duty
+    #print ('type of dateScheduled - ' ,type(dateScheduled))
+
+    session.dateScheduled=dateScheduled
+    session.actionDesc = actionDesc
+    session.shopNumber=shopNumber
+    session.staffID=staffID
+
+    # LogCoordinatorWeekNote(dateScheduled,swapDescription,shopNumber,staffID)
+    return (actionDesc) 
        
-    # the following does not work with autoincrement primary key 
-    #..............................
-    # try:
-    #     db.session.delete(assignment)
-    #     db.session.commit
-    # except SQLAlchemyError as e:
-    #     error = str(e.__dict__['orig'])
-    #     return error
-
-    # except (SQLAlchemyError, DBAPIError) as e:
-    #     print (e)
-
-    # cannot use the following because of an autoincrement primary key
-    # CREATE RECORD FOR tblMonitor_Schedule_Transactions
-    # newTransaction = MonitorScheduleTransactions (
-    #     Transaction_Date = date.today(),
-    #     Staff_ID = staffID,
-    #     Member_ID = memberID,
-    #     Transaction_Type = "DELETE",
-    #     Date_Scheduled = dateScheduled,
-    #     AM_PM = ampm,
-    #     Duty = duty
-    # )
-    # try:
-    #     print("Add transaction record -",Transaction_Type, staffID,memberID,ampm,duty)
-    #     db.session.add(newTransaction)
-    #     db.session.commit
-    # except SQLAlchemyError as e:
-    #     print (e)
-    #     db.session.rollback()
-    #     return 'DELETE Transaction record could not be added.'
-    # except DBAPIError as e:
-    #     print(e)
-    #     db.session.rollback()
-    #     return 'DELETE Transaction record could not be added.'
-
-    
     
 @app.route('/addMonitorAssignment', methods=['GET','POST'])
 def addMonitorAssignment():
@@ -449,130 +423,155 @@ def swapMonitorAssignments():
     parameters = request.get_json()
     if parameters == None:
         return "ERROR - Missing all parameters."
+
+    schedDate = parameters['schedDate1']
+    if (schedDate == None):
+        return "ERROR - Missing schedDate1 parameter."
+    schedDate1 = datetime.strptime(schedDate,'%Y%m%d')
+    schedDateSTR1 = schedDate1.strftime('%m-%d-%Y')
+    dayOfWeek1 = schedDate1.weekday()
+    weekOf1 = schedDate1 - timedelta(dayOfWeek1 + 1)
+    session.dateScheduled1 = schedDate1
+
+    schedDate = parameters['schedDate2']
+    if (schedDate == None):
+        return "ERROR - Missing schedDate2 parameter."
+    schedDate2 = datetime.strptime(schedDate,'%Y%m%d')
+    schedDateSTR2 = schedDate2.strftime('%m-%d-%Y')
+    dayOfWeek2 = schedDate2.weekday()
+    weekOf2 = schedDate2 - timedelta(dayOfWeek2 + 1)
+    session.dateScheduled2 = schedDate2
+
+    shift1 = parameters['shift1']
+    if (shift1 == None):
+        return "ERROR - Missing shift1 parameter."
+    shift2 = parameters['shift2']
+    if (shift2 == None):
+        return "ERROR - Missing shift2 parameter."
+
+    duty1 = parameters['duty1']
+    if (duty1 == None):
+        return "ERROR - Missing duty1 parameter."
+    duty2 = parameters['duty2']
+    if (duty2 == None):
+        return "ERROR - Missing duty2 parameter."
+
     recordID1 = parameters['recordID1']
     if (recordID1 == None):
         return "ERROR - Missing recordID 1 parameter."
     recordID2 = parameters['recordID2']
     if (recordID2 == None):
         return "ERROR - Missing recordID 2 parameter."
-    villageID1 = parameters['villageID1']
-    if (villageID1 == None):
-        return "ERROR - Missing villageID 1 parameter."
-    villageID2 = parameters['villageID2']
-    if (villageID2 == None):
-        return "ERROR - Missing villageID 2 parameter."
+
+    memberID1 = parameters['memberID1']
+    if (memberID1 == None):
+        return "ERROR - Missing memberID 1 parameter."
+    memberID2 = parameters['memberID2']
+    if (memberID2 == None):
+        return "ERROR - Missing memberID 2 parameter."
+
+    shopNumber1 = parameters['shopNumber1']
+    if (shopNumber1 == None):
+        return "ERROR - Missing shopNumber 1 parameter."
+    shopNumber2 = parameters['shopNumber2']
+    if (shopNumber2 == None):
+        return "ERROR - Missing shopNumber 2 parameter."
+
+
     staffID = parameters['staffID']
     if (staffID == None):
         return "ERROR - Missing staffID parameter."
+    session.staffID=staffID
 
-    if (recordID1 == '') and (recordID2 == ''):
+    if (recordID1 == '0') and (recordID2 == '0'):
         return "ERROR - You cannot swap two OPEN assignments."
 
-    # RETRIEVE CURRENT ASSIGNMENTS
-    assignment1 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID1).first()
-    if (assignment1 == None):
-        return "ERROR - Assignment with record ID " + recordID1 + " could not be found."
-    memberID1 = assignment1.Member_ID
-    schedDate1 = assignment1.Date_Scheduled
-    dayOfWeek1 = schedDate1.weekday()
-    weekOf1 = schedDate1 - timedelta(dayOfWeek1 + 1)
-    shift1 = assignment1.AM_PM
-    duty1 = assignment1.Duty
-    shopNumber1 = assignment1.Shop_Number
-    assignment2 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID2).first()
-    if (assignment2 == None):
-        return "ERROR - Assignment with record ID " + recordID2 + " could not be found."
-    memberID2 = assignment2.Member_ID
-    schedDate2 = assignment2.Date_Scheduled
-    dayOfWeek2 = schedDate1.weekday()
-    weekOf2 = schedDate1 - timedelta(dayOfWeek1 + 1)
-    shift2 = assignment2.AM_PM
-    duty2 = assignment2.Duty
-    shopNumber2 = assignment2.Shop_Number
+    # RETRIEVE ASSIGNMENT 1 DATA
+    if (recordID1 != '0'):
+        assignment1 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID1).first()
+        if (assignment1 == None):
+            return "ERROR - Assignment with record ID " + recordID1 + " could not be found."
+        mbr1 = db.session.query(Member).filter(Member.Member_ID == memberID1).first()
+        memberName1 = mbr1.First_Name + ' ' + mbr1.Last_Name + ' (' + memberID1 + ')'     
+    else:
+        memberName1 = ''
+
+    # RETRIEVE ASSIGNMENT 2 DATA
+    if (recordID2 != '0'):
+        assignment2 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID2).first()
+        if (assignment2 == None):
+            return "ERROR - Assignment with record ID " + recordID2 + " could not be found."
+        mbr2 = db.session.query(Member).filter(Member.Member_ID == memberID2).first()
+        memberName2 = mbr2.First_Name + ' ' + mbr2.Last_Name + ' (' + memberID2 + ')'
+    else:
+        memberName2 = ''
+
 
     # CHECK FOR POTENTIAL CONFLICTS WITH EACH ASSIGNMENT
     if schedDate1 != schedDate2 or shift1 != shift2:
-        if conflicts(villageID2,schedDate1,shift1) > 0:
-            msg = "ERROR - The member with village ID " + villageID2 + " has a conflict at "
+        if conflicts(memberID2,schedDate1,shift1) > 0:
+            msg = "ERROR - The member with village ID " + memberID2 + " has a conflict at "
             msg += schedDate1.strftime('%m-%d-%Y') + " " + shift1
             return msg
             
-        if conflicts(villageID1,schedDate2,shift2) > 0:
-            msg = "ERROR - The member with village ID " + villageID1 + " has a conflict at "
+        if conflicts(memberID1,schedDate2,shift2) > 0:
+            msg = "ERROR - The member with village ID " + memberID1 + " has a conflict at "
             msg += schedDate2.strftime('%m-%d-%Y') + " " + shift2
             return msg
-            
+        
 
     # THERE ARE NO OPEN ASSIGNMENTS
-    if (recordID1 != '' and recordID2 != ''):
-        # MAKE SWAP VIA ORM
-        # try:
-        #     assignment1 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID1).first()
-        #     if assignment1 == None:
-        #         return "ERROR - Assignment with record ID " + recordID1 + " could not be found."
-        #     assignment2 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID2).first()
-        #     if assignment2 == None:
-        #         return "ERROR - Assignment with record ID " + recordID2 + " could not be found."
-           
-        #    # UPDATE EACH ASSIGNMENT RECORD WITH THE VILLAGE ID FROM THE OTHER ASSIGNMENT
-        #     assignment1.memberID = villageID2
-        #     db.session.commit()
-        #     assignment2.memberID = villageID1
-        #     db.session.commit()
-        #     return "SUCCESS - SWAP COMPLETED SUCCESSFULLY."    
-        # except (SQLAlchemyError, DBAPIError) as e:
-        #     print (e)
-        #     db.session.rollback
-        #     return 'An error occurred during swap -' + e
+    if (recordID1 != '0' and recordID2 != '0'):
         
         # MAKE SWAP VIA RAW SQL
         sqlUpdate1 = "UPDATE tblMonitor_Schedule SET Member_ID = " 
-        sqlUpdate1 += "'" + villageID2 + "' WHERE ID = " + recordID1
+        sqlUpdate1 += "'" + memberID2 + "' WHERE ID = " + recordID1
         result1 = db.engine.execute(text(sqlUpdate1).execution_options(autocommit=True))
 
         sqlUpdate2 = "UPDATE tblMonitor_Schedule SET Member_ID = " 
-        sqlUpdate2 += "'" + villageID1 + "' WHERE ID = " + recordID2
+        sqlUpdate2 += "'" + memberID1 + "' WHERE ID = " + recordID2
         result2 = db.engine.execute(text(sqlUpdate2).execution_options(autocommit=True))
 
         # WAS SWAP SUCCESSFUL?
-        if (result1.rowcount == 0) or (result2.rowcount == 0):
+        if (result1.rowcount == '0') or (result2.rowcount == '0'):
             return "ERROR - Swap could NOT be completed."
 
         # WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
         response=LogMonitorScheduleTransaction('RMV-SWP',memberID1,schedDate1,shift1,duty1,staffID,shopNumber1)
-        if response == 0:
+        if response == '0':
             return "ERROR - Could NOT log transaction."
         response=LogMonitorScheduleTransaction('RMV-SWP',memberID2,schedDate2,shift2,duty2,staffID,shopNumber2)
-        if response == 0:
+        if response == '0':
             return "ERROR - Could NOT log transaction."
         response=LogMonitorScheduleTransaction('ADD-SWP',memberID1,schedDate1,shift1,duty1,staffID,shopNumber1)
-        if response == 0:
+        if response == '0':
             return "ERROR - Could NOT log transaction."
         response=LogMonitorScheduleTransaction('ADD-SWP',memberID2,schedDate2,shift2,duty2,staffID,shopNumber2)
-        if response == 0:
+        if response == '0':
             return "ERROR - Could NOT log transaction."
         
         
         # WRITE TO MONITOR_WEEK_NOTES
-
-        
- 
+        actionDesc = "SWAP " + memberName1 + ' ' + schedDateSTR1 + ' ' + shift1 + ' ' + duty1\
+            + ' WITH ' + memberName2 + ' ' + schedDateSTR2 + ' ' + shift2 + ' ' + duty2
+        print (actionDesc)
 
     # IF THE MOVE IS FROM THE FIRST ASSIGNMENT TO THE SECOND (OPEN) ...
-    if (recordID1 != '' and recordID2 == ''):
+    if (recordID1 != '0' and recordID2 == '0'):
         assignment1 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID1).first()
         if assignment1 == None:
             return "ERROR - Assignment with record ID " + recordID1 + " could not be found."
-        memberID = assignment1.memberID
-        schedDate = assignment1.MM_DD_YYYY
+        memberID = assignment1.Member_ID
+        schedDate = assignment1.Date_Scheduled
+        schedDateSTR = schedDate.strftime('%m-%d-%Y')
         shift = assignment1.AM_PM
         duty = assignment1.Duty
-        shopNumber = assignment1.shopNumber
+        shopNumber = assignment1.Shop_Number
         
         #  ADD ASSIGNMENT TO tblMonitor_Schedule VIA RAW SQL
         sqlInsert = "INSERT INTO tblMonitor_Schedule (Member_ID, Date_Scheduled, AM_PM, Shop_Number,Duty)"
-        sqlInsert += " VALUES ('" + memberID + "', '" + schedDate + "', '" + shift + "'"
-        sqlInsert += ", " + shopNumber + ", '" + duty + "')"
+        sqlInsert += " VALUES ('" + memberID + "', '" + schedDateSTR + "', '" + shift + "'"
+        sqlInsert += ", " + str(shopNumber) + ", '" + duty + "')"
         result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
         if (result.rowcount > 0):
             insertCompleted = True
@@ -580,29 +579,43 @@ def swapMonitorAssignments():
             insertCompleted = False 
             return "ERROR - Assignment could NOT be added."
 
+        # DELETE SECOND ASSIGNMENT
+        sqlDelete = "DELETE FROM tblMonitor_Schedule WHERE ID = " + recordID2
+        result = db.engine.execute(text(sqlDelete).execution_options(autocommit=True))
+        if result == 0:
+            return "ERROR - Delete of assignment failed."
+
+
         #  WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
         response=LogMonitorScheduleTransaction('RMV-MV',memberID1,schedDate1,shift1,duty1,staffID,shopNumber1)
-        if response == 0:
+        if response == '0':
             return "ERROR - Could NOT log transaction."
         response=LogMonitorScheduleTransaction('ADD-MV',memberID1,schedDate1,shift1,duty1,staffID,shopNumber1)
-        if response == 0:
+        if response == '0':
             return "ERROR - Could NOT log transaction."
         
+        # WRITE TO MONITOR_WEEK_NOTES
+        schedDateSTR1 = schedDate1.strftime('%m-%d-%Y')
+        actionDesc = "MOVE " + memberName1 + ' ' + schedDateSTR1 + ' ' + shift1 + ' ' + duty1\
+        + ' TO ' + schedDateSTR2 + ' ' + shift2 + ' ' + duty2
+        print (actionDesc)
+
     # IF MOVE IS FROM SECOND ASSIGNMENT TO THE FIRST ASSIGNMENT (OPEN) ...
-    if (recordID1 == '' and recordID2 != ''):
+    if (recordID1 == '0' and recordID2 != '0'):
         assignment2 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID2).first()
         if assignment2 == None:
             return "ERROR - Assignment with record ID " + recordID2 + " could not be found."
-        memberID = assignment2.memberID
-        schedDate = assignment2.MM_DD_YYYY
+        memberID = assignment2.Member_ID
+        schedDate = assignment2.Date_Scheduled
+        schedDateSTR = schedDate.strftime('%m-%d-%Y')
         shift = assignment2.AM_PM
         duty = assignment2.Duty
-        shopNumber = assignment2.shopNumber
+        shopNumber = assignment2.Shop_Number
         
         #  ADD ASSIGNMENT TO tblMonitor_Schedule VIA RAW SQL
         sqlInsert = "INSERT INTO tblMonitor_Schedule (Member_ID, Date_Scheduled, AM_PM, Shop_Number,Duty)"
-        sqlInsert += " VALUES ('" + memberID + "', '" + schedDate + "', '" + shift + "'"
-        sqlInsert += ", " + shopNumber + ", '" + duty + "')"
+        sqlInsert += " VALUES ('" + memberID + "', '" + schedDateSTR + "', '" + shift + "'"
+        sqlInsert += ", " + str(shopNumber) + ", '" + duty + "')"
         result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
         if (result.rowcount > 0):
             insertCompleted = True
@@ -610,29 +623,42 @@ def swapMonitorAssignments():
             insertCompleted = False
             return "ERROR - Could not add assignment."
 
+        # DELETE FIRST ASSIGNMENT
+        sqlDelete = "DELETE FROM tblMonitor_Schedule WHERE ID = " + recordID1
+        result = db.engine.execute(text(sqlDelete).execution_options(autocommit=True))
+        if result == 0:
+            return "ERROR - Delete of assignment failed."
+
         #  WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
         response=LogMonitorScheduleTransaction('RMV-MV',memberID2,schedDate2,shift2,duty2,staffID,shopNumber2)
-        if response == 0:
+        if response == '0':
             return "ERROR - Could NOT log transaction."
         response=LogMonitorScheduleTransaction('ADD-MV',memberID2,schedDate2,shift2,duty2,staffID,shopNumber2)
-        if response == 0:
+        if response == '0':
             return "ERROR - Could NOT log transaction."
-        
-        
-    return 'SWAP COMPLETED'
 
-def conflicts(villageID,dateScheduled,shift):
+        # WRITE TO MONITOR_WEEK_NOTES
+        schedDateSTR2 = schedDate1.strftime('%m-%d-%Y')
+        actionDesc = "MOVE " + memberName2 + ' ' + schedDateSTR2 + ' ' + shift2 + ' ' + duty2\
+            + ' TO ' + schedDateSTR1 + ' ' + shift1 + ' ' + duty1
+        print (actionDesc)
+
+    print(actionDesc)
+    return actionDesc    
+    
+
+def conflicts(memberID,dateScheduled,shift):
     # CONVERT DATETIME FIELD TO STRING
     dtSched = dateScheduled.strftime('%Y-%m-%d')
 
     # SEARCH FOR OTHER ASSIGNMENTS AT THIS TIME
     assignmentCount = db.session.query(func.count(MonitorSchedule.Member_ID))\
-        .filter(MonitorSchedule.Member_ID==villageID)\
+        .filter(MonitorSchedule.Member_ID==memberID)\
         .filter(MonitorSchedule.Date_Scheduled==dtSched)\
         .filter(MonitorSchedule.AM_PM==shift).scalar()
     return assignmentCount 
     # sqlCount = "SELECT COUNT(*) FROM tblMonitor_Schedule WHERE Member_ID = " 
-    # sqlCount += "'" + villageID + "' and Date_Scheduled = '" + dtSched + "' and "
+    # sqlCount += "'" + memberID + "' and Date_Scheduled = '" + dtSched + "' and "
     # sqlCount += "AM_PM = '" + shift + "'"
     # print ('sqlCount=' + sqlCount)
     # recordCount = db.engine.execute(sqlCount)
@@ -641,7 +667,7 @@ def conflicts(villageID,dateScheduled,shift):
 
 
 # dateScheduled (date or str?)  date
-def LogMonitorScheduleTransaction(transactionType,villageID,dateScheduled,shift,duty,staffID,shopNumber):
+def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,duty,staffID,shopNumber):
     # VALID TRANSACTION TYPES ARE ADD, ADD-MV, ADD-SWP, DELETE, DELETE NS, RMV-MV, RMV-SWP
     transactionDate = datetime.now()
     strTransactionDate = transactionDate.strftime('%Y-%m-%d %I:%M %p')
@@ -649,7 +675,7 @@ def LogMonitorScheduleTransaction(transactionType,villageID,dateScheduled,shift,
     # CREATE A DATE VAR AND A STR VAR OF THE dateScheduled PASSED IN
     if (isinstance(dateScheduled, str)):
         strDateScheduled = dateScheduled
-        datDateScheduled = datetime.strptime(dateScheduled,'%Y-%m-%d')
+        datDateScheduled = datetime.strptime(dateScheduled,'%Y%m%d')
     else:
         strDateScheduled = dateScheduled.strftime('%m-%d-%Y')
         datDateScheduled = dateScheduled 
@@ -662,7 +688,7 @@ def LogMonitorScheduleTransaction(transactionType,villageID,dateScheduled,shift,
     # BUILD THE SQL INSERT STATEMENT FOR POSTING TO THE MONITOR SCHEDULE TRANSACTION TABLE
     sqlInsert = "INSERT INTO tblMonitor_Schedule_Transactions (Transaction_Date,WeekOf,Staff_ID,"
     sqlInsert += "Member_ID,Transaction_Type,Date_Scheduled, AM_PM,Duty,ShopNumber) VALUES("
-    sqlInsert += "'" + strTransactionDate +"','"  + strWeekOf + "','" + staffID + "','" + villageID 
+    sqlInsert += "'" + strTransactionDate +"','"  + strWeekOf + "','" + staffID + "','" + memberID 
     sqlInsert += "','" + transactionType + "','" + strDateScheduled + "','" + shift 
     sqlInsert += "','" + duty + "'," + str(shopNumber) + ")"
 
@@ -674,13 +700,124 @@ def LogMonitorScheduleTransaction(transactionType,villageID,dateScheduled,shift,
 
     return result.rowcount
 
-def LogCoordinatorWeekNote(schedDate,note,shopNumber,staffID):
-    dayOfWeek = datetime.schedDate.weekday()
-    weekOf = schedDate - timedelta(dayOfWeek + 1)
+@app.route('/logMonitorScheduleNote', methods=['GET','POST'])
+def logMonitorScheduleNote():
+    # POST REQUEST
+    if request.method != 'POST':
+        return "ERROR - Not a POST request."
+    if request.get_json() == None:
+        return "ERROR - Missing reason description."
+    parameters = request.get_json()
+    if parameters == None:
+        return "ERROR - Missing all parameters."
+    reasonDesc = parameters['reasonDesc']
+
+    print ('logMonitorScheduleNote routine')
+    # RETRIEVE VALUES SAVED IN SESSION VARIABLES FROM DELETE OR SWAP TRANSACTIONS
+    if dateScheduled in session:
+        dateScheduled = session.dateScheduled
+    else:
+        dateScheduled=''
+
+    if actionDesc in session:
+        actionDesc = session.actionDesc
+    else:
+        actionDesc = ''
+
+    if shopNumber in session:
+        shopNumber = session.shopNumber
+    else:
+        shopNumber = ''
+
+    if staffID in session:
+        staffID = session.staffID
+    else:
+        staffID = ''
+
+    # schedDate must be datetime
+    print ('type of dateScheduled - ',type(dateScheduled))
+    dayOfWeek = dateScheduled.weekday()
+    weekOf = dateScheduled - timedelta(dayOfWeek + 1)
+    weekOfSTR = weekOf.strftime('%m-%d-%Y')
+    today=date.today()
+    todaySTR = today.strftime('%m-%d-%Y')
     sqlInsert = "INSERT INTO monitorWeekNotes (Author_ID, Date_Of_Change,Schedule_Note,WeekOf,Shop_Number) "
-    sqlInsert += " VALUES ('" + staffID + "','" + today() + "','" + weekOf + "','" + str(shopNumber) + "')"
+    sqlInsert += " VALUES ('" + staffID + "','" + todaySTR + "','" + note + "','" + weekOfSTR + "','" + str(shopNumber) + "')"
     result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
     if (result.rowcount > 0):
         return "Entry added to monitorWeekNotes"
     else:
         return "Assignment could NOT be added to monitorWeekNotes."
+
+@app.route('/getMonitorWeekNotes', methods=['GET','POST'])
+def getMonitorWeekNotes():
+    # POST REQUEST
+    if request.method != 'POST':
+        return "ERROR - Not a POST request."
+    if request.get_json() == None:
+        return "ERROR - Missing member number."
+    parameters = request.get_json()
+
+    if parameters == None:
+        return "ERROR - Missing parameter."
+
+    dateScheduled = parameters['dateScheduled']
+    if (dateScheduled == None or dateScheduled == ''):
+        return "ERROR - Missing dateScheduled parameter."
+
+    shopNumber= parameters['shopNumber']
+    if (shopNumber == None):
+        return "ERROR - Missing shopNumber parameter."
+
+    #  DETERMINE START OF WEEK DATE
+    #  CONVERT TO DATE TYPE
+    dateScheduledDat = datetime.strptime(dateScheduled,'%Y%m%d')
+    dayOfWeek = dateScheduledDat.weekday()
+    weekOf = dateScheduledDat - timedelta(dayOfWeek + 1)
+    strWeekOf = weekOf.strftime('%Y-%m-%d')
+
+    # GET COORDINATOR ID FROM COORDINATOR TABLE
+    #assignment2 = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID2).first()
+    coordinatorRecord = db.session.query(CoordinatorsSchedule)\
+        .filter(CoordinatorsSchedule.Start_Date==strWeekOf)\
+        .filter(CoordinatorsSchedule.Shop_Number==shopNumber).first()
+    if coordinatorRecord == None:
+        coordinatorsName = 'Not Assigned'
+    else:
+        # LOOK UP COORDINATORS NAME
+        coordinatorID = coordinatorRecord.Coordinator_ID
+        memberRecord = db.session.query(Member).filter(Member.Member_ID==coordinatorID).first()
+        if memberRecord == None:
+            coordinatorsName = '(' + coordinatorID + ')'
+        else:
+            coordinatorsName = memberRecord.First_Name + ' ' + memberRecord.Last_Name + ' (' + coordinatorID + ')'
+
+    shopRecord = db.session.query(ShopName).filter(ShopName.Shop_Number==shopNumber).first()
+    shopName = shopRecord.Shop_Name
+
+    # RETRIEVE MONITOR SHOP NOTES FOR SPECIFIC WEEK AND SHOP NUMBER
+    notes = db.session.query(MonitorWeekNote)\
+        .filter(MonitorWeekNote.WeekOf==weekOf)\
+        .filter(MonitorWeekNote.Shop_Number==shopNumber).all()
+
+    # BUILD LIST OF NOTES WITH COORDINATORS NAME AND SHOP NAME
+    # DECLARE ARRAY AND SET TO ZERO 
+    rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
+    cols = 6 # coordinators name and id, shop name, start date of week, and note
+    noteArray = [[0 for x in range(cols)] for y in range(rows)]
+    position = 0
+    for n in notes:
+        noteArray[position][0] = weekOf.strftime('%m-%d-%Y')
+        noteArray[position][1] = shopName
+        noteArray[position][2] = coordinatorsName
+        noteArray[position][3] = n.Date_Of_Change.strftime('%m/%d/%y')
+        noteArray[position][4] = n.Schedule_Note
+        initials = db.session.query(Member.Initials).filter(Member.Member_ID==coordinatorID).first()
+        noteArray[position][5] = initials
+       
+        position += 1
+    
+    return jsonify(noteArray)
+
+
+
