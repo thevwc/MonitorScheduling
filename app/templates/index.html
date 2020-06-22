@@ -140,7 +140,7 @@
             <!-- MONITOR NOTES -->
             <div id="monitorNotes">
                 <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reasonModalID">TEST</button> -->
-                <button type="button" class="btn-primary btn" onclick="openReasonModal('test')">TEST REASON</button>
+                <button type="button" class="btn-primary btn" onclick="openReasonModal('Test Reason')">TEST REASON</button>
                 <p>... monitor notes ... </p>
             </div>
         </div> <!-- END OF PARENT2 WRAPPER -->
@@ -188,7 +188,7 @@
 
     <!-- MODAL FORM FOR DISPLAYING MONITOR NOTES FOR A SPECIFIC WEEK -->
     <div id="notesModal" class="bg-modal-notes">
-        <div class="modal-content-notes">
+        <div class="modal-content-notes ">
             <div class="closeModalNotes">+</div>
             <div class="modal-header-notes">
                 <div class="modal-title-notes">
@@ -202,6 +202,7 @@
                 </div>
             </div>
             <div id="modalBodyNotes">
+            
             </div>
         </div>
     </div>
@@ -218,14 +219,15 @@
                 </div>
                 <div class="modal-body">
                     <span>Action:</span>
-                    <textarea id="actionID" rows="2" cols="75" readonly="true" ></textarea>
+                    <textarea id="actionDescID" readonly rows="2" cols="75" ></textarea>
                     <br>
                     <span>Reason:</span> 
-                    <textarea id="reasonDescID" rows="2" cols="75" required="true" spellcheck="true"  placeholder="Reason ..."></textarea>
+                    <textarea id="reasonDescID" rows="2" cols="75" placeholder='State the reason for this transaction ...' required></textarea>
                 </div>
                 <div class="modal-footer">
                     <button id='saveReasonID' type="button" class="btn btn-primary">Save changes</button>
                 </div>
+                
             </div>
         </div>
     </div>
