@@ -455,3 +455,9 @@ select {
 #reasonID {
     color: blue;
 }
+
+/* CSS FOR MEMBER DATA MODAL */
+#memberModalID .modal-header {
+    background-color: green;
+    color:white;
+}

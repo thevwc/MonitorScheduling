@@ -301,7 +301,6 @@ function dayClicked(clicked_id) {
 }
 
 function refreshCalendarRtn() {
-    alert('begin refreshCalendarRtn')
     yearSelected = document.getElementById("yearToDisplay")
     shopSelected = document.getElementById("shopToDisplay")
     yearFilter = yearSelected.value
@@ -713,7 +712,6 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         SM_PM_REQD = shopData[dayNumber][6]
         TC_AM_REQD = shopData[dayNumber][7]
         TC_PM_REQD = shopData[dayNumber][8]
-        //alert('SM_AM_REQD=' + SM_AM_REQD)
     }
     else if (scheduleNumber == 2) {
         // REVEAL BUTTONS
@@ -997,6 +995,7 @@ function memberSelectedRtn() {
     currentMemberID= lastEight.slice(1,7)
     populateMemberSchedule(currentMemberID)
     document.getElementById('selectpicker').value=''
+    document.getElementById('memberBtnsID').style.display='block'
 }
   
 function populateMemberSchedule(memberID) {
@@ -1116,6 +1115,7 @@ function confirmAdd(memberID) {
 function unAssignedShiftClicked(nameID,scheduleNumber) {
     selectedName = document.getElementById(nameID)
     selectedName.style.backgroundColor = 'yellow'
+    
     // IS A SWAP IN PROGRESS
     if (swapInProgress) {
         if (swapAsgmnt1ID == '') {
@@ -1128,9 +1128,9 @@ function unAssignedShiftClicked(nameID,scheduleNumber) {
                 alert('Error in swap unAssignedShiftClicked routine.')
                 return 
             }
-        swapAsgmnt2ID = nameID.slice(0,9)
         return
     }
+    
 
     // IF NOT A SWAP OR MOVE THEN IT MUST BE AN ADD OR DELETE
     // HAS A MEMBER BEEN SELECTED?
@@ -1139,8 +1139,7 @@ function unAssignedShiftClicked(nameID,scheduleNumber) {
         selectedName.style.backgroundColor = 'white'
         return
     }
-
-    
+ 
     idPrefix = nameID.slice(0,9)
     
     // GET THE SHIFT AND DUTY FROM PREVIOUS SIBLING ELEMENTS IN THE ROW
@@ -1178,9 +1177,7 @@ function assignedShiftClicked(nameID) {
     // HIGHLIGHT NAME SELECTED
     selectedName = document.getElementById(nameID)
     selectedName.style.backgroundColor = 'yellow'
-    console.log('nameID= '+ nameID)
-    console.log('selectedName.value= ' + selectedName.value)
-
+    
     if (swapInProgress) {
         if (swapAsgmnt1ID == '') {
             swapAsgmnt1ID = nameID.slice(0,9)
@@ -1195,6 +1192,7 @@ function assignedShiftClicked(nameID) {
                 return 
             }
     }
+    
     else {
         currentSelection = nameID.slice(0,9)
     }
@@ -1376,8 +1374,6 @@ function cancelSwap() {
 }
 
 function makeSwap() {
-    console.log("makeSwap routine")
-    alert('swap1ID= ' + swap1ID + '\n swapAsgmnt1ID= ' + swapAsgmnt1ID)
     if (swapAsgmnt1ID == '' || swapAsgmnt2ID == '') {
         alert("You must select two assignments.")
         return
@@ -1538,21 +1534,18 @@ function closeNotesRtn() {
 
 
 function openReasonModal(actionDesc) {
-    alert('openReasonModal actionDesc = '+ actionDesc)
     dt = document.getElementById('day1yyyymmdd').value
     document.getElementById('actionDescID').value = actionDesc
     document.getElementById('reasonDescID').value = ""
-    document.getElementById('reasonDescID').focus
     $('#reasonModalID').modal('show')
-    // document.getElementById('reasonModalClass').style.display='flex';
+    document.getElementById('reasonDescID').focus
 }
 
 function closeReasonModal() {
-    alert('begin closeReasonModal routine')
     $('#reasonModalID').modal('hide')
     actionDesc = document.getElementById('actionDescID').value
     reasonDesc = document.getElementById('reasonDescID').value
-    alert('Action: ' + actionDesc + '\n Reason: ' + reasonDesc)
+    
     if (reasonDesc == '') {
         alert('Please enter a reason.')
         $('#reasonModalID').modal('show')
@@ -1565,32 +1558,22 @@ function closeReasonModal() {
     }
 
     // SEND ACTION AND REASON TO SERVER WITH DATES, STAFFID, AND SHOPNUMBER
-    console.log('before XMLHttpRequest')
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/logMonitorScheduleNote"); 
-    console.log('after OPEN')
     xhttp.setRequestHeader("Content-Type", "application/json");
-    console.log('after setRequestHeader')
     xhttp.onreadystatechange = function() {
-        console.log('check readState ...')
         if (this.readyState == 4 && this.status == 200) {
-            console.log('begin response ...')
-            alert('msg- '+msg)
             msg = this.response
             if (msg.slice(0,4) == 'ERROR') {
                 alert(msg)
                 return
             }
-            alert('Transaction completed.')
-            alert('call to refreshCalendarRtn')
+            //alert('Transaction completed.')
             refreshCalendarRtn()
         }  // END OF READY STATE RESPONSE
     }  // END OF ONREADYSTATECHANGE
 
     // CAPTURE DATES NEEDED FOR tblMonitor_Schedule_Notes
-    console.log ('prepare data to send')
-    alert('id= ' + swapAsgmnt1ID + 'schedDateID')
-
     if (actionDesc.slice(0,4) == 'SWAP' || actionDesc.slice(0,4) == 'MOVE') {
         swapDate1 = document.getElementById(swapAsgmnt1ID+'schedDateID').value 
         swapDate2 = document.getElementById(swapAsgmnt2ID+'schedDateID').value
@@ -1600,8 +1583,17 @@ function closeReasonModal() {
         swapDate2 = ''
     }
     // NOTE - staffID, deleteAsgmntDt, swapAsgmnt1ID, and swapAsgmnt2ID are GLOBAL variables
-    console.log('construct var data')
     var data = {actionDesc:actionDesc,reasonDesc:reasonDesc,staffID:staffID,deleteAsgmntDt:deleteAsgmntDt,swapDate1:swapDate1,swapDate2:swapDate2,shopNumber:curShopNumber};
-    console.log('send data')
     xhttp.send(JSON.stringify(data));
 }  // END OF CLOSE NOTES ROUTINE                 
+
+// MODAL FOR MEMBER DATA
+function openMemberModal() {
+    document.getElementById("lastTrainingDateID").value = "9/7/2020"
+    document.getElementById("certifiedRA").value = true
+    document.getElementById("janID").value = true
+    // document.getElementById("decID").value = true
+    //document.getElementById("febID").value = false
+    $('#memberModalID').modal('show')
+    
+}

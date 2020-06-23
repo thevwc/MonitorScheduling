@@ -747,11 +747,11 @@ def logMonitorScheduleNote():
         dayOfWeek1 = swapDate1DAT.weekday()
         weekOf1 = swapDate1DAT - timedelta(dayOfWeek1 + 1)
         weekOf1STR = weekOf1.strftime('%m-%d-%Y')
-        if actionDesc[0:4] == 'SWAP':
-            swapDate2DAT = datetime.strptime(swapDate2,'%Y%m%d')
-            dayOfWeek2 = swapDate2DAT.weekday()
-            weekOf2 = swapDate2DAT - timedelta(dayOfWeek2 + 1)
-            weekOf2STR = weekOf2.strftime('%m-%d-%Y')
+        
+        swapDate2DAT = datetime.strptime(swapDate2,'%Y%m%d')
+        dayOfWeek2 = swapDate2DAT.weekday()
+        weekOf2 = swapDate2DAT - timedelta(dayOfWeek2 + 1)
+        weekOf2STR = weekOf2.strftime('%m-%d-%Y')
 
     if actionDesc[0:4] == 'DELE':
         deleteAsgmntDtDAT = datetime.strptime(deleteAsgmntDt,'%Y%m%d')
@@ -763,11 +763,6 @@ def logMonitorScheduleNote():
     todaySTR = today.strftime('%m-%d-%Y')
     
     #  ALL TRANSACTIONS GET ONE NOTE (DELETE, SWAP, MOVE)
-    # try:
-    #     result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
-    # except (SQLAlchemyError, DBAPIError) as e:
-    #     print("ERROR -",e)
-    #     return 0
     try:
         sqlInsert1 = "INSERT INTO monitorWeekNotes (Author_ID, Date_Of_Change,Schedule_Note,WeekOf,Shop_Number) "
         sqlInsert1 += " VALUES ('" + staffID + "','" + todaySTR + "','" + note + "','" + weekOf1STR + "','" + shopNumber + "')"
@@ -782,8 +777,8 @@ def logMonitorScheduleNote():
     if actionDesc[0:4] == "DELE":
         return "SUCCESS - DELETE COMPLETED"
 
-    # IF A SWAP IS BETWEEN TWO WEEKS, INSERT A COPY OF THE NOTE FOR THE SECOND WEEK DATE
-    if actionDesc[0:4] == 'SWAP' and weekOf1 != weekOf2:
+    # IF A SWAP OR MOVE IS BETWEEN TWO WEEKS, INSERT A COPY OF THE NOTE FOR THE SECOND WEEK DATE
+    if actionDesc[0:4] != 'DELE' and weekOf1 != weekOf2:
         try:
             sqlInsert2 = "INSERT INTO monitorWeekNotes (Author_ID, Date_Of_Change,Schedule_Note,WeekOf,Shop_Number) "
             sqlInsert2 += " VALUES ('" + staffID + "','" + todaySTR + "','" + note + "','" + weekOf2STR + "','" + shopNumber + "')"
