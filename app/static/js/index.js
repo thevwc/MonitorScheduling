@@ -54,6 +54,8 @@ document.getElementById("shopToDisplay").addEventListener("change", shopChanged)
 document.getElementById("refreshCalendarBtn").addEventListener("click",refreshCalendarRtn)
 document.getElementById("selectpicker").addEventListener("change",memberSelectedRtn)
 document.getElementById("saveReasonID").addEventListener("click",closeReasonModal)
+document.getElementById("memberModalID").addEventListener("change",memberModalChange)
+document.getElementById("saveMemberModalID").addEventListener("click",memberModalSave)
 
 //$('#reasonModalID').on('hidden.bs.modal',closeReasonModal)
 document.querySelector('.closeModalNotes').addEventListener('click', closeNotesRtn)
@@ -1024,11 +1026,6 @@ function populateMemberSchedule(memberID) {
                 if (sched[y][0] == 0) {
                     break 
                 }
-                // IF RECORD 1 OF THE ARRAY, INSERT DISPLAY NAME AND TRAINING DATE
-                if (y == 1) {
-                    document.getElementById('memberNameHdg').innerHTML = displayName
-                    document.getElementById('lastMonitorTraining').value = trainingDate
-                }
 
                 // DOES THE MEMBER HAVE ANY ASSIGNMENTS?
                 if (sched[y][4] == 0) {
@@ -1046,6 +1043,13 @@ function populateMemberSchedule(memberID) {
                 noShow = sched[y][8]
                 locationName = shopNames[shopNumber - 1]
                 
+                // IF FIRST RECORD OF THE ARRAY, INSERT TRAINING DATE AND HIDDEN MEMBER ID
+                if (y == 0) {
+                    //document.getElementById('memberNameHdg').innerHTML = 'name - ' + displayName
+                    document.getElementById('lastMonitorTrainingID').value = trainingDate
+                    document.getElementById('memberID').innerHTML = memberIDfromArray 
+                }
+
                 // CREATE NEW day1shift AS CHILD OF memberSchedule (new row)
                 var mbrRowDiv = document.createElement("div")
                 //day1shift.id='day1shift'
@@ -1071,7 +1075,7 @@ function populateMemberSchedule(memberID) {
                 }
                 memberScheduleDetailID.appendChild(mbrRowDiv)
 
-                //  THE FOLLOWING ELEMENTS ARE TO BE CHILDREN OF mbrRowDiv NOT memberSheduleDetailID
+                //  THE FOLLOWING ELEMENTS ARE TO BE CHILDREN OF mbrRowDiv NOT memberScheduleDetailID
                 var spanLocation = document.createElement("span")
                 spanLocation.classList.add("memberScheduleCol")
                 spanLocation.innerHTML = locationName
@@ -1253,7 +1257,7 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
             // PROCESS RESPONSE
             // DISPLAY RESPONSE FROM REQUEST
             msg = this.response
-            if (msg.slice(0,4) == 'ERROR') {
+            if (msg.slice(0,5) == 'ERROR') {
                 alert(msg)
                 return
             }
@@ -1402,7 +1406,7 @@ function makeSwap() {
             // DISPLAY RESPONSE FROM REQUEST
             // THE RESPONSE WILL BE EITHER AN ERROR MESSAGE OR THE actionDesc, SWAP ... MOVE ...
             msg = this.response
-            if (msg.slice(0,4) != 'ERROR') {
+            if (msg.slice(0,5) != 'ERROR') {
                 // SWITCH NAMES
                 nameSave = name1.value
                 name1.value = name2.value
@@ -1411,8 +1415,8 @@ function makeSwap() {
             }
             else {
                 alert(msg)
-            }
-            return 
+                return
+            } 
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
 
@@ -1564,11 +1568,11 @@ function closeReasonModal() {
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
             msg = this.response
-            if (msg.slice(0,4) == 'ERROR') {
+            if (msg.slice(0,5) == 'ERROR') {
                 alert(msg)
                 return
             }
-            //alert('Transaction completed.')
+            alert(msg)
             refreshCalendarRtn()
         }  // END OF READY STATE RESPONSE
     }  // END OF ONREADYSTATECHANGE
@@ -1587,13 +1591,101 @@ function closeReasonModal() {
     xhttp.send(JSON.stringify(data));
 }  // END OF CLOSE NOTES ROUTINE                 
 
+
+
 // MODAL FOR MEMBER DATA
 function openMemberModal() {
-    document.getElementById("lastTrainingDateID").value = "9/7/2020"
-    document.getElementById("certifiedRA").value = true
-    document.getElementById("janID").value = true
-    // document.getElementById("decID").value = true
-    //document.getElementById("febID").value = false
-    $('#memberModalID').modal('show')
+    memberID = currentMemberID
+    if (memberID = '') {
+        alert('Must select a member.')
+        return
+    } 
+    mbrName =  document.getElementById('memberNameHdg').innerHTML
+    document.getElementById("memberNameID").innerHTML = mbrName
     
+    // SEND MEMBER ID TO SERVER
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/getMemberModalData"); 
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+        response = JSON.parse(this.response)
+        msg = this.response
+        if (msg.slice(0,5) == 'ERROR') {
+            alert(msg)
+            return
+        }
+        dataArray = response 
+
+        document.getElementById("janID").checked = dataArray[1]
+        document.getElementById("febID").checked = dataArray[2]
+        document.getElementById("marID").checked = dataArray[3]
+        document.getElementById("aprID").checked = dataArray[4]
+        document.getElementById("mayID").checked = dataArray[5]
+        document.getElementById("junID").checked = dataArray[6]
+        document.getElementById("julID").checked = dataArray[7]
+        document.getElementById("augID").checked = dataArray[8]
+        document.getElementById("sepID").checked = dataArray[9]
+        document.getElementById("octID").checked = dataArray[10]
+        document.getElementById("novID").checked = dataArray[11]
+        document.getElementById("decID").checked = dataArray[12]
+
+        document.getElementById("certifiedRA").checked = dataArray[13]
+        document.getElementById("certifiedBW").checked = dataArray[14]
+        
+        document.getElementById("lastTrainingDateID").value = dataArray[15]
+        document.getElementById("needsToolCribID").checked = dataArray[16]
+
+        document.getElementById("memberNotesID").value = dataArray[17]
+        document.getElementById("monitorDutyNotesID").value = dataArray[18]
+        document.getElementById("saveMemberModalID").disabled = true
+        
+        $('#memberModalID').modal('show')
+    }  // END OF READY STATE RESPONSE
+    }  // END OF ONREADYSTATECHANGE
+    // SEND DATA TO SERVER
+    var data = {memberID:currentMemberID};
+    xhttp.send(JSON.stringify(data));
+}  // END OF OPEN MEMBER MODAL ROUTINE    
+
+// ROUTINE FOR MEMBER DATA CHANGE
+function memberModalChange() {
+    document.getElementById("saveMemberModalID").disabled = false 
 }
+
+// ROUTINE FOR MEMBER DATA SAVE
+function memberModalSave() {
+    monitorNotes=document.getElementById("memberNotesID").value
+    memberNotes=document.getElementById("monitorDutyNotesID").value
+    jan= document.getElementById("janID").checked
+    feb= document.getElementById("febID").checked
+    mar= document.getElementById("marID").checked
+    apr= document.getElementById("aprID").checked
+    may= document.getElementById("mayID").checked
+    jun= document.getElementById("junID").checked
+    jul= document.getElementById("julID").checked
+    aug= document.getElementById("augID").checked
+    sep= document.getElementById("sepID").checked
+    oct= document.getElementById("octID").checked
+    nov= document.getElementById("novID").checked
+    dec= document.getElementById("decID").checked
+    
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/updateMemberModalData"); 
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            //response = JSON.parse(this.response)
+            msg = this.response
+            if (msg.slice(0,5) == 'ERROR') {
+                alert(msg)
+                return 
+            }
+            alert(msg)
+        }  // END OF READY STATE RESPONSE
+    }  // END OF ONREADYSTATECHANGE
+// SEND DATA TO SERVER
+var data = {memberID:currentMemberID,monitorNotes:monitorNotes,memberNotes:memberNotes,jan:jan,feb:feb,mar:mar,apr:apr,may:may,jun:jun,jul:jul,aug:aug,sep:sep,oct:oct,nov:nov,dec:dec};
+xhttp.send(JSON.stringify(data));
+}  // END OF MEMBER MODAL SAVE ROUTINE   
+

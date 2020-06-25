@@ -64,9 +64,9 @@
                 <div id="memberNameHdg">   
                     <span style="text-align: center;">{{displayName}}</span><br>
                 </div>
-                <div id = "memberID">
-                    <span style = "display:none;">{{memberID}}</span>  
-                </div>
+                <div>
+                    <span id = "memberID" style = "display:none;"></span>  
+                </div> 
 
                 <div id="memberOptions">
                     <select id="selectpicker" class='selectpicker' style='margin-bottom:20px' title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
@@ -77,7 +77,7 @@
                 </div>
                 <div id="memberBtnsID" style = "display:none">
                     <label style="margin-left:20px; color:white"for="lastMonitorTraining">Last Monitor Training:</label>
-                    <input id="lastMonitorTraining" type="text" style="width:90px;text-align: center;margin-top:10px" value="">
+                    <input id="lastMonitorTrainingID" type="text" style="width:90px;text-align: center;margin-top:10px" value="">
                     <button type="button" style="margin-left:5px;width: 120px;height:35px" class="btn-primary btn btn-sm" onclick="openMemberModal()">Member Data</button>
                     <button id="printMemberSchedule" style="margin-left:10px;width:60px" class="btn btn-primary btn-sm">PRINT</button>
                     <button id="emailMemberSchedule" style="margin-left:10px;width: 60px" class="btn btn-primary btn-sm">EMAIL</button>
@@ -96,9 +96,9 @@
                 <div id='memberScheduleDetailID' class='memberScheduleDetail'></div>    
             </div>
             <!-- MEMBER NOTES -->
-            <div id="memberNotes">
+            <!-- <div id="memberNotes">
                 <p>... member notes ... </p>
-            </div>
+            </div> -->
 
             <!-- SWAP BUTTONS -->
             <div id="swapBtns" class="box">
@@ -233,7 +233,7 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{displayName}}</h5>
+                    <h3 id="memberNameID" class="modal-title"></h3>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -241,55 +241,67 @@
                 <div class="modal-body">
                     <div class = certification>
                         <label for="certifiedRA" style="margin-left:0px">Certified for Rolling Acres</label>
-                        <input type="checkbox" style="margin-left:5px" id="certifiedRA" name="certifiedRA" value=""><br>
+                        <input type="checkbox" style="margin-left:5px" id="certifiedRA" onclick="return false;" name="certifiedRA" value=""><br>
                         <label for="certifiedBW" style="margin-left:0px">Certified for Brownwood</label>
-                        <input type="checkbox" style="margin-left:15px"id="certifiedBW" name="certifiedBW" value=""><br>
+                        <input type="checkbox" style="margin-left:15px"id="certifiedBW" onclick="return false;" name="certifiedBW" value=""><br>
                     </div>
                     <div class="training">
                         <label for="lastTrainingDateID">Last monitor training:</label>
-                        <input type="text" id="lastTrainingDateID" style="width:90px;text-align:center" value=''>
-                        <br><br>
+                        <input type="text" id="lastTrainingDateID" style="width:90px;text-align:center" onclick="return false;" value=''>
+                        <br>
                     </div>
+                    <div>
+                        <label for="needsToolCribID" >Requires Tool Crib Duty:</label>
+                        <input type="checkbox" style="margin-left:15px"id="needsToolCribID" name="needsToolCrib" onclick="return false;" value=""><br>
+                    </div>
+                    <br><br>
                     <div class="memberNotes">
-                        <label for="memberNotesID">Member Notes:</label>
+                        <label for="memberNotesID">Monitor Duty Notes:</label>
                         <br>
-                        <textarea id="memberNotesID" readonly rows="2" cols="75" ></textarea>
+                        <textarea id="memberNotesID" rows="2" cols="75" ></textarea>
                         <br><br>
                     </div>
+                    <div class="monitorDutyNotes">
+                        <label for="monitorDutyNotesID">Member Notes:</label>
+                        <br>
+                        <textarea id="monitorDutyNotesID" rows="2" cols="75" ></textarea>
+                        <br><br>
+                    </div>
+                    <label for="villageMonthsID">Months in The Villages:</label>
+                        <br>
                     <div class="monthsInVillages">
-                        <label for="villageMontsID">Months in The Villages:</label>
-                        <br>
-                        <label>Jan</label>
-                        <label>Feb</label>
-                        <label>Mar</label>
-                        <label>Apr</label>
-                        <label>May</label>
-                        <label>Jun</label>
-                        <label>Jul</label>
-                        <label>Aug</label>
-                        <label>Sep</label>
-                        <label>Oct</label>
-                        <label>Nov</label>
-                        <label>Dec</label>
-                        <br>
-
-                        <input type="checkbox" id="janID" style="margin-left:5px; margin-right:10px" value='1'
-                        <input type="checkbox" id="febID" style="margin-left:5px;margin-right:10px" value='true'
-                        <input type="checkbox" id="marID" style="margin-left:5px;margin-right:10px" value=''
-                        <input type="checkbox" id="aprID" style="margin-left:5px;margin-right:10px" value=''                        
-                        <input type="checkbox" id="mayID" style="margin-left:5px;margin-right:10px" value=''
-                        <input type="checkbox" id="junID" style="margin-left:5px;margin-right:10px" value=''                        
-                        <input type="checkbox" id="julID" style="margin-left:5px;margin-right:10px" value=''                        
-                        <input type="checkbox" id="augID" style="margin-left:5px;margin-right:10px" value=''
-                        <input type="checkbox" id="sepID" style="margin-left:5px;margin-right:10px" value=''                        
-                        <input type="checkbox" id="octID" style="margin-left:5px;margin-right:10px" value=''
-                        <input type="checkbox" id="novID" style="margin-left:5px;margin-right:10px" value=''
-                        <input type="checkbox" id="decID" style="margin-left:5px;margin-right:10px" value=''
-                        
+                        <div class="monthNames">   
+                            <label>Jan</label>
+                            <label>Feb</label>
+                            <label>Mar</label>
+                            <label>Apr</label>
+                            <label>May</label>
+                            <label>Jun</label>
+                            <label>Jul</label>
+                            <label>Aug</label>
+                            <label>Sep</label>
+                            <label>Oct</label>
+                            <label>Nov</label>
+                            <label>Dec</label>
+                        </div>
+                        <div class='monthValues'>
+                            <input type="checkbox" id="janID">
+                            <input type="checkbox" id="febID">
+                            <input type="checkbox" id="marID">
+                            <input type="checkbox" id="aprID">                        
+                            <input type="checkbox" id="mayID">
+                            <input type="checkbox" id="junID">                       
+                            <input type="checkbox" id="julID">                      
+                            <input type="checkbox" id="augID">
+                            <input type="checkbox" id="sepID">                        
+                            <input type="checkbox" id="octID">
+                            <input type="checkbox" id="novID">
+                            <input type="checkbox" id="decID">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id='saveMemberID' type="button" class="btn btn-primary">Save changes</button>
+                    <button id='saveMemberModalID' type="button" class="btn btn-primary">Save changes</button>
                 </div>
                 
             </div>
