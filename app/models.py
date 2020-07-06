@@ -25,6 +25,11 @@ from app import app
 #         return
 #     return User.query.get(id)
 
+class ControlVariables(db.Model):
+    __tablename__ = 'tblControl_Variables'
+    __table_args__ = {"schema": "dbo"}
+    Shop_Number = db.Column(db.Integer, primary_key=True)
+    Last_Acceptable_Monitor_Training_Date = db.Column(db.DateTime)
         
 
 class Member(db.Model):
@@ -45,7 +50,7 @@ class Member(db.Model):
     Certification_Training_Date_2 = db.Column(db.DateTime)
     Home_Phone = db.Column(db.String(14))
     Cell_Phone = db.Column(db.String(14))
-    #Email = db.Column(db.String(255))
+    E_Mail = db.Column(db.String(50))
     Dues_Paid=db.Column(db.Boolean)
     NonMember_Volunteer=db.Column(db.Boolean)
     Restricted_From_Shop = db.Column(db.Boolean)

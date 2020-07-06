@@ -42,7 +42,7 @@
             <!-- LEGEND -->
             <div id='legend'>
                 <input id='needSM' type="text" style='width:40px; border:1px solid black'>
-                <label for='needSM'>Need monitors</label>
+                <label for='needSM'>Need shop monitors</label>
                 <input id='needTC' type="text" style='margin-left:15px;width:40px; border:1px solid black'>
                 <label for='needTC'>Need tool crib</label>
                 <input id='needBoth' type="text" style='margin-left:20px;width:40px; border:1px solid black'>
@@ -62,11 +62,9 @@
             <!-- MEMBER NAME SECTION -->
             <div id="memberNameSection">
                 <div id="memberNameHdg">   
-                    <span style="text-align: center;">{{displayName}}</span><br>
+                    <span style="text-align: center;">{{displayName}}</span>
                 </div>
-                <div>
-                    <span id = "memberID" style = "display:none;"></span>  
-                </div> 
+            
 
                 <div id="memberOptions">
                     <select id="selectpicker" class='selectpicker' style='margin-bottom:20px' title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
@@ -79,9 +77,10 @@
                     <label style="margin-left:20px; color:white"for="lastMonitorTraining">Last Monitor Training:</label>
                     <input id="lastMonitorTrainingID" type="text" style="width:90px;text-align: center;margin-top:10px" value="">
                     <button type="button" style="margin-left:5px;width: 120px;height:35px" class="btn-primary btn btn-sm" onclick="openMemberModal()">Member Data</button>
-                    <button id="printMemberSchedule" style="margin-left:10px;width:60px" class="btn btn-primary btn-sm">PRINT</button>
+                    <button id="printMemberScheduleBtn" style="margin-left:10px;width:60px" class="btn btn-primary btn-sm" >PRINT</button>>    
                     <button id="emailMemberSchedule" style="margin-left:10px;width: 60px" class="btn btn-primary btn-sm">EMAIL</button>
                 </div>
+                <span id = "memberID" style = "color:red;display:none;">{{currentMemberID}}</span>  
             </div>
 
             <!-- MEMBER SCHEDULE -->
@@ -95,10 +94,6 @@
                 </div>
                 <div id='memberScheduleDetailID' class='memberScheduleDetail'></div>    
             </div>
-            <!-- MEMBER NOTES -->
-            <!-- <div id="memberNotes">
-                <p>... member notes ... </p>
-            </div> -->
 
             <!-- SWAP BUTTONS -->
             <div id="swapBtns" class="box">
@@ -113,7 +108,7 @@
                     <span id='day1Date'></span>
                     <span id='day1Location' style='margin-left:50px'></span>
                     <button id='day1Notes' class='btn btn-secondary btn-sm' onclick='openNotesRtn(1)'>NOTES</button>
-                    <button id='day1Print' class='btn btn-primary btn-sm' onclick='printDay1()'>PRINT</button>
+                    <button id='day1Print' class='btn btn-primary btn-sm'>PRINT</button>
                     <button id='day1Clear' class='btn btn-secondary btn-sm' onclick ="clearDay1()">CLEAR</button>
                     <input id='day1yyyymmdd' type='hidden' value = ''>
                     <input id='day1shopNumber' type='hidden' value = ''>
@@ -127,7 +122,7 @@
                     <span id='day2Date'SETTINGS></span>
                     <span id='day2Location' style='margin-left:50px'></span>
                     <button id='day2Notes' class='btn btn-primary btn-sm' onclick='openNotesRtn(2)'>NOTES</button>
-                    <button id='day2Print' class='btn btn-primary btn-sm' onclick='printDay2()'>PRINT</button>
+                    <button id='day2Print' class='btn btn-primary btn-sm' onclick='printWeeklyMonitorSchedule(2)'>PRINT</button>
                     <button id='day2Clear' class='btn btn-secondary btn-sm' onclick='clearDay2()'>CLEAR</button>
                     <input id='day2yyyymmdd' type='hidden' value = ''>
                     <input id='day2shopNumber' type='hidden' value = ''>

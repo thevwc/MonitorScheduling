@@ -120,15 +120,14 @@ if (firstTimeThrough == null) {
     // WAS A MEMBER ID INCLUDED IN THE URL?
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
+    
     if (urlParams.has('id')) {
         currentMemberID = urlParams.get('id')
         populateMemberSchedule(currentMemberID)
     }
     else {
-        currentMemberID=''
         document.getElementById('memberNameHdg').innerHTML = ' '  
-    }
-    
+    } 
     //  END OF FIRST TIME ROUTINE
 }
 
@@ -264,6 +263,7 @@ function dayClicked(clicked_id) {
                     return
                 }  
                 buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,clicked_id)
+                return
             }
 
             // IF THE CURRENT SHOP LOCATION IS SET TO 'BOTH' THEN BUILD A DAY SCHEDULE FOR EACH LOCATION
@@ -282,6 +282,7 @@ function dayClicked(clicked_id) {
                     scheduleNumber = 2
                     buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,clicked_id)
                 }
+                return
             }
 
         }
@@ -310,13 +311,14 @@ function refreshCalendarRtn() {
     buildYear(yearFilter);
     populateCalendar(yearFilter,shopFilter)  //,dutyFilter)
     document.getElementById("refreshCalendarBtn").disabled = true;
-    clearDay1()
-    clearDay2()
+    // clearDay1()
+    // clearDay2()
     cancelSwap()
     // REFRESH MEMBERS SCHEDULE
-    if (currentMemberID != '') {
-        populateMemberSchedule(currentMemberID)    
-    }
+    //if (currentMemberID != '') {
+    // alert('currentMemberID- ' + currentMemberID)
+    populateMemberSchedule(currentMemberID)    
+    //}
 }
 
 
@@ -412,6 +414,7 @@ function get_calendar(day_no, days,month,year,monthYearHdg){
         td.onclick = function() {
             dayClicked(this.id);
         }
+        td.oncontextmenu = function() {dayRightClick};
         count++;
         tr.appendChild(td);
     }
@@ -441,6 +444,7 @@ function get_calendar(day_no, days,month,year,monthYearHdg){
             td.onclick = function() {
                 dayClicked(this.id);
             };
+            td.oncontextmenu = function() {dayRightClick};
             count++;
             tr.appendChild(td);
         }
@@ -689,13 +693,13 @@ window.onclick = function(event) {
 }
 
 function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNumber,dayID) {
-    
     // if swap-in-progress ... check for day2
     cnt = sched[0].length + 1
     // REVEAL BUTTONS
     document.getElementById('day1Notes').style.display='block'
     document.getElementById('day1Print').style.display='block'
     document.getElementById('day1Clear').style.display='block'
+    
 
     // INSERT DATE INTO APPROPRIATE SCHEDULE HEADING
     if (scheduleNumber == 1) {
@@ -703,6 +707,11 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         day1Title = "Monitors at " + shopNames[shopNumberToDisplay-1]
         document.getElementById('day1Location').innerHTML = day1Title
         
+        prt = document.getElementById("day1Print")
+        address = "/printWeeklyMonitorSchedule?dateScheduled="+ yyyymmdd + "&shopNumber=" + shopNumberToDisplay 
+        lnk = "window.location.href='" + address +"'"
+        prt.setAttribute("onclick",lnk)
+
         // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
         document.getElementById('day1yyyymmdd').value = yyyymmdd
         // STORE SHOP LOCATION AS A NUMBER IN A HIDDEN INPUT ELEMENT
@@ -1011,6 +1020,11 @@ function populateMemberSchedule(memberID) {
             sched = JSON.parse(this.response)
             numberOfElements = sched.length // Array is fixed at 100
             
+            // SET LINK FOR PRINT BUTTON
+            prt = document.getElementById("printMemberScheduleBtn")
+            lnk = "window.location.href='printMemberSchedule/"+ memberID + "'"
+            prt.setAttribute("onclick",lnk)
+
             // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
             memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
 
@@ -1045,7 +1059,6 @@ function populateMemberSchedule(memberID) {
                 
                 // IF FIRST RECORD OF THE ARRAY, INSERT TRAINING DATE AND HIDDEN MEMBER ID
                 if (y == 0) {
-                    //document.getElementById('memberNameHdg').innerHTML = 'name - ' + displayName
                     document.getElementById('lastMonitorTrainingID').value = trainingDate
                     document.getElementById('memberID').innerHTML = memberIDfromArray 
                 }
@@ -1086,7 +1099,6 @@ function populateMemberSchedule(memberID) {
                 spanDateScheduled.innerHTML = dateScheduledFormatted
                 mbrRowDiv.appendChild(spanDateScheduled)
             
-                
                 var spanShift = document.createElement("span")
                 spanShift.classList.add("memberScheduleCol")
                 spanShift.innerHTML = shift
@@ -1101,7 +1113,9 @@ function populateMemberSchedule(memberID) {
                 spanNoShow.classList.add("memberScheduleCol")
                 spanNoShow.innerHTML = noShow
                 mbrRowDiv.appendChild(spanNoShow)
+            
             }  // END OF FOR LOOP  
+            return
         }  // END OF READY STATE TEST
     }   // END IF READYSTATE ...
     var data = {memberID:memberID}; //send memberID selected to server;
@@ -1274,13 +1288,24 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
             {
                 dayYearMoDa = document.getElementById('day2yyyymmdd').value
             }
-            
+            // REFRESH DAYn LIST
+            //alert('execute dayClicked')
+            //click_id = 'x' + dayYearMoDay
+            //dayClicked(click_id)
+
             // REFRESH CALENDAR DISPLAY TO REFLECT NEW ASSIGNMENT
+            alert('execute refreshCalendarRtn')
+            
             refreshCalendarRtn()
             
+
             // REFRESH MEMBERS SCHEDULE
+            alert('populateMemberSchedule')
             populateMemberSchedule(memberID)
             
+            
+            
+
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
 
@@ -1318,14 +1343,14 @@ function clearDay2() {
     document.getElementById('day2Clear').style.display='none'
 }
 
-function printDay1() {
-    alert('Routine not yet implemented.')
+function printDay(dayNumber) {
+    
+    // alert('Routine not yet implemented.')
+
 }
 
 
-function printDay2() {
-    alert('Routine not yet implemented.')
-}
+
 var modalConfirm = function(callback){
     $('#confirmYes').on('click', function() {
         callback = true;
@@ -1689,3 +1714,37 @@ var data = {memberID:currentMemberID,monitorNotes:monitorNotes,memberNotes:membe
 xhttp.send(JSON.stringify(data));
 }  // END OF MEMBER MODAL SAVE ROUTINE   
 
+
+function printWeeklyMonitorSchedule(dayNumber) {
+    // DETERMINE WHICH DAY WAS CLICKED
+    if (dayNumber == 1){
+        dateScheduled = document.getElementById('day1yyyymmdd').value
+        shopNumber = document.getElementById('day1shopNumber').value
+    }
+    else if (dayNumber == 2) {
+        dt = document.getElementById('day2yyyymmdd').value
+        shopNumber = document.getElementById('day2shopNumber').value    
+        }
+        else {
+            alert('ERROR - printWeeklyMonitorSchedule routine.')
+            return
+        }
+
+   
+    // SEND DATE AND SHOPNUMBER TO SERVER
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/printWeeklyMonitorSchedule"); 
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            // PROCESS RESPONSE
+            // open report ????????????
+            alert("Report completed.")
+            return 
+        }
+    }      // END OF READY STATE RESPONSE
+   // END OF ONREADYSTATECHANGE
+    // SEND DATA TO SERVER
+    var data = {dateScheduled:dateScheduled,shopNumber:shopNumber};
+    xhttp.send(JSON.stringify(data));
+}  // END OF OPEN MEMBER MODAL ROUTINE      
