@@ -144,7 +144,7 @@ document.getElementById("refreshCalendarBtn").disabled = true;
 buildYear(yearFilter); 
 
 // POPULATE CALENDAR USING STARTUP PARAMETERS
-populateCalendar(yearFilter,shopFilter) //,dutyFilter)
+populateCalendar(yearFilter,shopFilter) 
 //populateNameList()
 
 
