@@ -251,9 +251,6 @@ def getMemberSchedule():
             schedArray[position][7] = ms.Duty
             schedArray[position][8] = ms.No_Show
         
-        
-        print(position,schedArray[position][0],ms.memberID)
-        print(ms.Date_Scheduled.strftime("%a %-m/%-d/%y"),ms.Duty,ms.AM_PM,ms.displayName)
         position += 1
     return jsonify(schedArray)
     
@@ -277,10 +274,6 @@ def deleteMonitorAssignment():
     if staffID == None: 
         return "ERROR - Missing staffID."
   
-    # input () is for CLI only
-    # promptMsg = "Why are you deleting this record?"
-    # reason = input(promptMsg)
-    # print ('Reason-' , reason)
 
     # RETRIEVE RECORD TO BE DELETED
     assignment = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID).first()
@@ -815,7 +808,6 @@ def getMemberModalData():
     dataArray[14] = member.Certified_2
 
     dataArray[15] = member.Last_Monitor_Training.strftime("%-m/%-d/%Y")
-    print('Last_Monitor_Training- ', dataArray[15])
     dataArray[16] = member.Requires_Tool_Crib_Duty
 
     dataArray[17] = member.Monitor_Duty_Notes
@@ -1005,8 +997,7 @@ def printMonitorScheduleWeek():
                 coordinatorsName = memberRecord.First_Name + ' ' + memberRecord.Last_Name + ' (' + memberRecord.NickName + ')'
             else:
                 coordinatorsName = memberRecord.First_Name + ' ' + memberRecord.Last_Name + ')'
-    coordinatorsEmail = memberRecord.E_Mail
-    print('E-Mail- ',coordinatorsEmail)
+    coordinatorsEmail = memberRecord.eMail
 
     shopRecord = db.session.query(ShopName).filter(ShopName.Shop_Number==shopNumber).first()
     shopName = shopRecord.Shop_Name
@@ -1127,8 +1118,6 @@ def printMonitorScheduleWeek():
         else:
             trainingNeeded = 'N'
 
-        print (s.Duty,s.AM_PM,s.dayOfWeek,s.displayName, trainingNeeded)
-
         # Group - Shop Monitor;  shift - AM
         if (s.Duty == 'Shop Monitor' and s.AM_PM == 'AM'):
             for r in range(SMAMrows):
@@ -1138,9 +1127,7 @@ def printMonitorScheduleWeek():
                     break
         
         # Group - Shop Monitor;  shift - PM
-        if (s.Duty == 'Shop Monitor' and s.AM_PM == 'PM'):
-            print ('Shop Monitor, PM', SMAMrows)
-            
+        if (s.Duty == 'Shop Monitor' and s.AM_PM == 'PM'): 
             for r in range(SMPMrows):
                 if (SMPMnames[r][s.dayOfWeek] == 0):
                     SMPMnames[r][s.dayOfWeek] = s.displayName
@@ -1153,7 +1140,6 @@ def printMonitorScheduleWeek():
                 if (TCAMnames[r][s.dayOfWeek] == 0):
                     TCAMnames[r][s.dayOfWeek] = s.displayName
                     TCAMtraining[r][s.dayOfWeek] = trainingNeeded
-                    print(r,s.dayOfWeek,TCAMnames[r][s.dayOfWeek])
                     break
 
         # Group - Tool Crib;  shift - PM
