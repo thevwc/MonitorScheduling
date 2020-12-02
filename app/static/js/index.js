@@ -11,7 +11,7 @@ const colors = {
     fg_NeedBoth:"#FFFFFF",  // White (#FFFFFF)
     bg_Filled:  "#FFFFFF",  // White (#FFFFFF)
     fg_Filled:  "#000000",  // Black (#000000)
-    bg_Sunday:  "#cccccc",  // Light grey
+    bg_Sunday:  "#2E86C1",  // Aqua
     fg_Sunday:  "#FFFFFF",  // White (#FFFFFF)
     bg_Closed:  "#2E86C1",  // Aqua
     fg_Closed:  "#FFFFFF",  // White (#FFFFFF)
@@ -132,7 +132,6 @@ if (firstTimeThrough == null) {
 }
 
 //  SET FILTER VALUES BASED ON localStorage values
-
 // Set the value for shop location filter
 // Set shop dropdown box default value
 setShopFilter(shopFilter)
@@ -348,8 +347,10 @@ function markSundays() {
     for (var d=1;d<=365;d++) {
         dayOfWeek = myDate.getDay()
         if (dayOfWeek == 0) {
-            var sunday = 'x' + formatDate(myDate) // Append yyyymmdd to 'x'
-            document.getElementById(sunday).style.backgroundColor = colors.bg_Sunday;
+            // Append yyyymmdd to 'x'
+            var sunday = 'x' + formatDate(myDate)
+            //console.log('sunday - '+sunday) 
+            document.getElementById(sunday).style.backgroundColor = colors.bg_Sunday;  
             document.getElementById(sunday).style.color = colors.fg_Sunday;
         }
         
@@ -1294,18 +1295,14 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
             //dayClicked(click_id)
 
             // REFRESH CALENDAR DISPLAY TO REFLECT NEW ASSIGNMENT
-            alert('execute refreshCalendarRtn')
-            
             refreshCalendarRtn()
             
 
             // REFRESH MEMBERS SCHEDULE
-            alert('populateMemberSchedule')
             populateMemberSchedule(memberID)
             
-            
-            
-
+            // SHOW SUCCESS MSG
+            alert(msg)
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
 

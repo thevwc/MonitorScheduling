@@ -9,7 +9,13 @@
 {% block content %}
     <div class="parent">
         <div class="hdg">
-            <h2>MONITOR SCHEDULING</h2>  
+            <div class="title">
+                <h2>MONITOR SCHEDULING</h2>
+            </div>
+            <div class="version">
+                <h4>ver. 12/2/2020</h4> 
+            </div> 
+            
         </div>
         <div class="parent1"> 
             <div class="filterSection">
@@ -42,7 +48,7 @@
             <!-- LEGEND -->
             <div id='legend'>
                 <input id='needSM' type="text" style='width:40px; border:1px solid black'>
-                <label for='needSM'>Need shop monitors</label>
+                <label for='needSM'>Need shop mntrs</label>
                 <input id='needTC' type="text" style='margin-left:15px;width:40px; border:1px solid black'>
                 <label for='needTC'>Need tool crib</label>
                 <input id='needBoth' type="text" style='margin-left:20px;width:40px; border:1px solid black'>
@@ -67,7 +73,8 @@
             
 
                 <div id="memberOptions">
-                    <select id="selectpicker" class='selectpicker' style='margin-bottom:20px' title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
+                    <select id="selectpicker" class='selectpicker' style='margin-bottom:20px' 
+                    title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
                         {% for nme in nameList %}
                             <option  class="optName" value='{{nme}}'</option>{{nme}}</option>
                         {% endfor %}
@@ -152,7 +159,7 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <h5 style="text-decoration: underline;">START UP SETTINGS</h5>
+                    <h5 style="text-decoration: underline;text-align:center">START UP SETTINGS</h5>
                     <form action="">
                         <p style='text-align: left'>
                             <label>Year to display -</label>

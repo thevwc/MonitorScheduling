@@ -16,7 +16,10 @@
     background-color:lightgray;                   
 }
 .hdg {
-    grid-area: hdgArea; 
+    grid-area: hdgArea;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:    'titleArea  versionArea'; 
     height:40px;
     padding-top: 0px;
     padding-bottom: 20px;
@@ -28,7 +31,14 @@
     color: var(--main-txt-color);
     border-bottom:white 3px;
 }
-
+.title {
+    grid-area:titleArea;
+    margin-top:3px;
+}
+.version {
+    grid-area:versionArea;
+    align-self:right;
+}
 .parent1 {
     display: grid;
     grid-area: parent1Area;

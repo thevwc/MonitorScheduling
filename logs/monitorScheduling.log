@@ -15,3 +15,7 @@
 2020-04-22 14:19:59,574 INFO: Monitor Scheduling startup [in /Users/richardhartley/Projects/FlaskJSyearCalendar/app/__init__.py:29]
 2020-04-22 14:23:03,057 INFO: Monitor Scheduling startup [in /Users/richardhartley/Projects/FlaskJSyearCalendar/app/__init__.py:29]
 2020-04-22 14:43:10,892 INFO: Monitor Scheduling startup [in /Users/richardhartley/Projects/FlaskJSyearCalendar/app/__init__.py:29]
+2020-07-28 13:21:29,602 INFO: Monitor Scheduling startup [in /Users/richardhartley/Projects/AzureMonitorScheduling/app/__init__.py:29]
+2020-07-28 13:22:01,171 INFO: Monitor Scheduling startup [in /Users/richardhartley/Projects/AzureMonitorScheduling/app/__init__.py:29]
+2020-07-28 13:34:32,121 INFO: Monitor Scheduling startup [in /Users/richardhartley/Projects/AzureMonitorScheduling/app/__init__.py:29]
+2020-08-25 13:03:19,656 INFO: Monitor Scheduling startup [in /Users/richardhartley/Projects/AzureMonitorScheduling/app/__init__.py:29]

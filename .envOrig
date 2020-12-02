@@ -1,6 +1,0 @@
-# Database Source Name Variables
-Driver=ODBC Driver 17 for SQL Server
-Server=nro5j08dna.database.windows.net
-Database=VWCAccess
-Username=vwcDataMgr
-Password=vwc-0513!
