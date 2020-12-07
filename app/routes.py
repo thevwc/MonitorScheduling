@@ -12,7 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError, DBAPIError
 
 import datetime as dt
 from datetime import date, datetime, timedelta
-
+from pytz import timezone
 # @app.context_processor
 # def context_processor():
 #     return dict(actionDesc=g.actionDesc)
@@ -35,7 +35,7 @@ def index():
             else:
                 shopFilter = 'BOTH'
                 shopNumber = 0
-
+            #print('yearFilter type - ',type(yearFilter))
             # BUILD WHERE CLAUSE FOR RESPONSE OBJECT
             whereClause = "WHERE DatePart(year,[Date_Scheduled]) = '" + yearFilter + "'" 
             if shopFilter == 'RA':
@@ -219,6 +219,7 @@ def getMemberSchedule():
 
     # RETRIEVE MEMBER NAME AND LAST TRAINING DATE
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
+    #est = timezone('EST')
     Today = date.today()
     currentYear = Today.year
     
@@ -577,7 +578,8 @@ def conflicts(memberID,dateScheduled,shift):
     
 def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,duty,staffID,shopNumber):
     # VALID TRANSACTION TYPES ARE ADD, ADD-MV, ADD-SWP, DELETE, DELETE NS, RMV-MV, RMV-SWP
-    transactionDate = datetime.now()
+    est = timezone('EST')
+    transactionDate = datetime.now(est)
     strTransactionDate = transactionDate.strftime('%Y-%m-%d %I:%M %p')
     
     # CREATE A DATE VAR AND A STR VAR OF THE dateScheduled PASSED IN
@@ -666,6 +668,7 @@ def logMonitorScheduleNote():
         weekOf1 = deleteAsgmntDtDAT - timedelta(dayOfWeek1 + 1)
         weekOf1STR = weekOf1.strftime('%m-%d-%Y')
     
+    #est = timezone('EST')
     today=date.today()
     todaySTR = today.strftime('%m-%d-%Y')
     
@@ -921,6 +924,7 @@ def printMemberSchedule(memberID):
         needsTraining = ''
 
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
+    #est = timezone('EST')
     todays_date = date.today()
     currentYear = todays_date.year
     beginDateDAT = datetime(todays_date.year,1,1)
@@ -977,8 +981,11 @@ def printMonitorScheduleWeek():
     weekOfHdg = beginDateDAT.strftime('%B %-d, %Y')
     
     # RETRIEVE SCHEDULE FOR SPECIFIC WEEK
+    #est = timezone('EST')
     todays_date = date.today()
+    print('est - ',todays_date)
     todays_dateSTR = todays_date.strftime('%-m-%-d-%Y')
+    print('est STR - ',todays_dateSTR)
 
     # GET COORDINATOR ID FROM COORDINATOR TABLE
     coordinatorRecord = db.session.query(CoordinatorsSchedule)\
