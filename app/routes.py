@@ -13,9 +13,6 @@ from sqlalchemy.exc import SQLAlchemyError, IntegrityError, DBAPIError
 import datetime as dt
 from datetime import date, datetime, timedelta
 from pytz import timezone
-# @app.context_processor
-# def context_processor():
-#     return dict(actionDesc=g.actionDesc)
 
 @app.route('/')
 @app.route('/index', methods=['GET','POST'])
