@@ -24,20 +24,19 @@ const colors = {
 };
 
 // Declare global variables)
-var yearFilter=localStorage.getItem('yearFilter')
-var shopFilter =localStorage.getItem('shopFilter')
-var startUpYear = localStorage.getItem('startUpYear')
-var clientLocation = localStorage.getItem('clientLocation')
+var staffID = ''
+var currentMemberID = ''
+var currentMemberName = ''  // This var is used when refreshing the page.
+var startUpYear = ''
+var yearFilter = ''
+var clientLocation = ''  // Client location is where this app is being used; if is the startup point for shop filter
+var shopFilter = ''     // Shop filter, shop location, shop number refers to the shop data being manipulated
+
 var todaysDate = new Date();
 var currentYear = todaysDate.getFullYear()
 var firstTimeThrough = localStorage.getItem('firstTimeSwitch')
-var currentMemberID = ''
 var shopNames = ['Rolling Acres', 'Brownwood']
 var shopData = []
-
-var staffID = '604875'
-// REPLACE THE FOLLOWING LINE ONCE THE LOGIN IS IMPLEMENTED
-localStorage.setItem('staffID','604875')
 
 var confirmed = '' 
 var swapInProgress = ''
@@ -47,6 +46,109 @@ var swapAsgmnt1ID = ''  // Save the row clicked id - day1row03, aka idPrefix
 var swapAsgmnt2ID = ''
 var deleteAsgmntDt = ''
 var curShopNumber = ''
+
+// GET STAFF ID FROM URL IF AVAILABLE, OTHERWISE FROM LOCALSTORAGE, NEXT FROM PROMPT
+console.log('1. checking URL ...')
+const params = new URLSearchParams(window.location.search)
+var pathArray = window.location.pathname.split('/');
+if (pathArray.length = 4) {
+    if (pathArray[3] != null & pathArray[3] != '') {
+        staffID = pathArray[3]
+        localStorage.setItem('staffID',staffID)
+    }
+    else {
+        staffID = ''
+    }
+}
+
+if (staffID == '' | staffID == null) {
+    // CHECK LOCAL STORAGE FOR STAFF ID
+    if (!localStorage.getItem('staffID')) {
+        staffID = prompt('Staff ID - ','xxxxxx')
+        localStorage.setItem('staffID',staffID)
+    }
+    else {
+        staffID = localStorage.getItem('staffID')
+    }
+}
+console.log('2. staffID - '+staffID)
+
+// IS THERE A CURRENT MEMBER?
+console.log('3. Is there a current member?')
+if (pathArray.length >= 3) {
+    if (pathArray[2] != null & pathArray[2] != '') {
+        currentMemberID = pathArray[2]
+        localStorage.setItem('currentMemberID',currentMemberID)
+    }
+    else {
+        currentMemberID = ''
+    }
+}
+
+console.log('4. currentMemberID from URL, if any - '+currentMemberID )
+// IS THE PAGE BEING REFRESHED? TAKE USER BACK TO DATA THEY WERE WORKING WITH.
+if (currentMemberID == '' | currentMemberID == null) {
+    console.log('5. localStorage currentMemberID- ' + localStorage.getItem('currentMemberID'))
+    currentMemberID = localStorage.getItem('currentMemberID')
+    console.log('6. currentMemberID from local storage - '+currentMemberID)
+    //  CHECK FOR A SAVED NAME
+    currentMemberName = localStorage.getItem('currentMemberName')
+    console.log('7. currentMemberName - ' + currentMemberName)
+    if (currentMemberName != null) {
+        document.getElementById('memberNameHdg').innerHTML = currentMemberName
+    }
+    // DISPLAY CURRENT MEMBER'S SCHEDULE
+    console.log('8. call populateMemberSchedule using - ' + currentMemberID)
+    populateMemberSchedule(currentMemberID)
+}
+
+
+// DISPLAY MEMBER NAME AND ID
+
+// THE FOLLOWING CODE IS RELEVANT IS NAME/VALUE PAIRS ARE BEING USED
+// WAS A MEMBER ID INCLUDED IN THE URL?
+//const queryString = window.location.search;
+//const urlParams = new URLSearchParams(queryString);
+//alert('Name/value pair encountered.')
+// if (urlParams.has('id')) {
+//     currentMemberID = urlParams.get('id')
+//     populateMemberSchedule(currentMemberID)
+// }
+// else {
+//     document.getElementById('memberNameHdg').innerHTML = ' '  
+// } 
+
+
+
+// IS THERE A STARTUP YEAR STORED IN LOCALSTORAGE, IF NOT USE CURRENT YEAR
+// START UP YEAR IS THE MIDDLE VALUE OF THE THREE YEARS LISTED IN THE DROPDOWN LIST
+startUpYear = localStorage.getItem('startUpYear')
+if (!localStorage.getItem('startUpYear')) {
+    startUpYear = currentYear
+    localStorage.setItem('startUpYear',startUpYear)
+}
+else {
+    startUpYear = localStorage.getItem('startUpYear')
+}
+setStartUpYear(startUpYear)
+// SET VALUES FOR YEAR DROP DOWN LIST
+setupYearFilter(startUpYear)
+
+// WHICH SHOP LOCATION? IS THERE A LOCATION STORED IN LOCALSTORAGE?
+if (!localStorage.getItem('clientLocation')) {
+    clientLocation = prompt("Location - 'RA' or 'BW",'xx')
+    clientLocation = clientLocation.toUpperCase()
+    if (clientLocation != 'RA' & clientLocation != 'BW'){
+        clientLocation = 'BOTH'
+    }
+    localStorage.setItem('clientLocation',clientLocation)
+}
+else {
+    clientLocation = localStorage.getItem('clientLocation')
+}
+// SET UP SHOP FILTER LIST
+setShopFilter(clientLocation)
+
 
 // DEFINE EVENT LISTENERS
 document.getElementById("yearToDisplay").addEventListener("change", yearChanged);
@@ -72,13 +174,7 @@ window.addEventListener('unload', function(event) {
 // firstTimeThrough = localStorage.getItem('firstTimeSwitch')
 if (firstTimeThrough == null) {
     localStorage.setItem('firstTimeSwitch',false)
-
-    if (!localStorage.getItem('staffID')) {
-        localStorage.setItem('staffID','111111')
-    }
-    else {
-        staffID = localStorage.getItem('staffID')
-    }
+ 
     // HIDE CONFIRMATION MODAL
     $('#confirmAction').modal('hide')
 
@@ -97,39 +193,23 @@ if (firstTimeThrough == null) {
     swap1ID = ''
     swap2ID = ''
 
-
+    //console.log('startUpYear - ',startUpYear)
+    //console.log('clientLocation - ',clientLocation)
     // IF clientLocation OR startUpYear IS NOT FOUND IN LOCAL STORAGE
     // THEN PROMPT WITH MODAL FORM FOR LOCATION AND YEAR
-    if (!clientLocation || !startUpYear) {
+    //if (!clientLocation || !startUpYear) {
         // PROMPT USER TO ENTER THEIR DESIRED LOCATION AND STARTING YEAR
-        document.getElementById('settingsBtn').click()
-    }
+    //    document.getElementById('settingsBtn').click()
+    //}
 
-    // Get stored start up year if it exists otherwise set todays date
-    // startUpYear  = localStorage.getItem('startUpYear')
-    if (startUpYear != null) {
-        setStartUpYear(startUpYear)
-        setupYearFilter(startUpYear)
-    }
-    else {
-        setupYearFilter(currentYear)
-    }
-
-    setShopFilter(clientLocation)
-
-    // WAS A MEMBER ID INCLUDED IN THE URL?
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
     
-    if (urlParams.has('id')) {
-        currentMemberID = urlParams.get('id')
-        populateMemberSchedule(currentMemberID)
-    }
-    else {
-        document.getElementById('memberNameHdg').innerHTML = ' '  
-    } 
+
+    
+
+    
     //  END OF FIRST TIME ROUTINE
 }
+
 
 //  SET FILTER VALUES BASED ON localStorage values
 // Set the value for shop location filter
@@ -144,7 +224,8 @@ buildYear(yearFilter);
 
 // POPULATE CALENDAR USING STARTUP PARAMETERS
 populateCalendar(yearFilter,shopFilter) 
-//populateNameList()
+
+console.log('end of page loading ...')
 
 
 // ------------------------------------------------------------------------------------------------------
@@ -315,7 +396,7 @@ function refreshCalendarRtn() {
     cancelSwap()
     // REFRESH MEMBERS SCHEDULE
     //if (currentMemberID != '') {
-    // alert('currentMemberID- ' + currentMemberID)
+    console.log('before call to populate - ' + currentMemberID)
     populateMemberSchedule(currentMemberID)    
     //}
 }
@@ -343,15 +424,18 @@ function buildYear(strYear){
 
 function markSundays() {
     yearSelected = document.getElementById("yearToDisplay")
+    if (yearSelected == null) {
+        return
+    } 
     var myDate = new Date(yearSelected.value.toString(),00,01);
     for (var d=1;d<=365;d++) {
         dayOfWeek = myDate.getDay()
         if (dayOfWeek == 0) {
             // Append yyyymmdd to 'x'
             var sunday = 'x' + formatDate(myDate)
-            //console.log('sunday - '+sunday) 
-            document.getElementById(sunday).style.backgroundColor = colors.bg_Sunday;  
-            document.getElementById(sunday).style.color = colors.fg_Sunday;
+            sundayElement = document.getElementById(sunday)
+            sundayElement.style.backgroundColor = colors.bg_Sunday;  
+            sundayElement.style.color = colors.fg_Sunday;
         }
         
         // Increment the date
@@ -492,7 +576,7 @@ function buildMonth(yr,mnth) {
 function populateCalendar(yearValue,shopValue) { //,dutyValue) {
     // send POST request with year, shop, and duty
     var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/index"); 
+    xhttp.open("POST", "/index/"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -1002,15 +1086,23 @@ function createScheduleDetail (scheduleNumber,ShopNumber,yyyymmdd,Shift,Duty,Nam
 
 function memberSelectedRtn() {
     selectedMember = this.value
+    console.log('selectedMember - '+selectedMember)
+
     document.getElementById('memberNameHdg').innerHTML = selectedMember
+    localStorage.setItem('currentMemberName',selectedMember)
     lastEight = selectedMember.slice(-8)
     currentMemberID= lastEight.slice(1,7)
+    console.log('currentMemberID in memberSelectedRtn - '+currentMemberID)
+    // STORE MEMBER ID  
+    localStorage.setItem('currentMemberID',currentMemberID)
+    console.log('call populateMemberSchedule using - '+ currentMemberID)
     populateMemberSchedule(currentMemberID)
     document.getElementById('selectpicker').value=''
     document.getElementById('memberBtnsID').style.display='block'
 }
   
 function populateMemberSchedule(memberID) {
+    console.log('9. populateMemberSchedule - '+memberID)
     // Ajax request for last training date and monitor schedule for current year forward
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/getMemberSchedule"); 
@@ -1023,26 +1115,31 @@ function populateMemberSchedule(memberID) {
             
             // SET LINK FOR PRINT BUTTON
             prt = document.getElementById("printMemberScheduleBtn")
-            lnk = "window.location.href='printMemberSchedule/"+ memberID + "'"
+            lnk = "window.location.href='/printMemberSchedule/"+ memberID + "'"
             prt.setAttribute("onclick",lnk)
 
             // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
+            console.log('IDENTIFY ...')
             memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
 
             // REMOVE CHILD RECORDS OF memberScheduleDetailID
+            console.log('REMOVE CHILD ...')
             while (memberScheduleDetailID.firstChild) {
                 memberScheduleDetailID.removeChild(memberScheduleDetailID.lastChild);
             }
    
             // STEP THROUGH ARRAY PASSED IN FROM SERVER AND BUILD MEMBERS SCHEDULE
             // IF THE ASSIGNMENT DATE IS PRIOR TO TODAY, MAKE FONT GREEN, OTHERWISE RED
+            console.log('11. DATA RETURNED FROM SERVER ...')
             for ( var y=0; y<numberOfElements; y++ ) {
                 // IS THE ARRAY EMPTY?
                 if (sched[y][0] == 0) {
+                    console.log(' 12. array is empty')
                     break 
                 }
 
                 // DOES THE MEMBER HAVE ANY ASSIGNMENTS?
+                console.log('11.5 date scheduled - '+sched[y][4])
                 if (sched[y][4] == 0) {
                     return
                 }
@@ -1120,6 +1217,7 @@ function populateMemberSchedule(memberID) {
         }  // END OF READY STATE TEST
     }   // END IF READYSTATE ...
     var data = {memberID:memberID}; //send memberID selected to server;
+    console.log('10. SEND DATA TO SERVER ...' + memberID)
     xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
 

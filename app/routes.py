@@ -14,13 +14,28 @@ import datetime as dt
 from datetime import date, datetime, timedelta
 from pytz import timezone
 
-@app.route('/')
-@app.route('/index', methods=['GET','POST'])
-def index():
+@app.route('/', defaults={'villageID':None,'staffID':None}, methods=['GET','POST'])
+@app.route('/index/', defaults={'villageID':None,'staffID':None}, methods=['GET','POST'])
+@app.route('/index/<villageID>/<staffID>', methods=['GET','POST'])
+@app.route('/index/<staffID>', defaults={'villageID':None}, methods=['GET','POST'])
+@app.route('/index/<villageID>', defaults={'staffID':None}, methods=['GET','POST'])
+def index(villageID,staffID):
+    print('villageID - ',villageID)
+    print('staffID - ',staffID)
+
     # POST REQUEST
     if request.method == 'POST':
         if not request.get_json() == None:
             parameters = request.get_json()
+            if parameters and 'villageID' in parameters:
+                 villageID=parameters['villageID']
+            else:
+                villageID = None
+
+            if parameters and 'staffID' in parameters:
+                 staffID=parameters['staffID']
+            else:
+                staffID = None
             if parameters and 'year' in parameters:
                  yearFilter=parameters['year']
             else:
@@ -34,7 +49,7 @@ def index():
                 shopNumber = 0
             #print('yearFilter type - ',type(yearFilter))
             # BUILD WHERE CLAUSE FOR RESPONSE OBJECT
-            whereClause = "WHERE DatePart(year,[Date_Scheduled]) = '" + yearFilter + "'" 
+            whereClause = "WHERE DatePart(year,[Date_Scheduled]) = '" + str(yearFilter) + "'" 
             if shopFilter == 'RA':
                 whereClause += " and Shop_number = 1"
 
@@ -80,7 +95,7 @@ def index():
             SQLselect2 += " SM_AM_REQD, SM_PM_REQD, TC_AM_REQD, TC_PM_REQD, "
             SQLselect2 += " DATEPART(Y,[MM_DD_YYYY]) AS dayNumber "
             SQLselect2 += " FROM tblShop_Dates  "
-            SQLselect2 += " WHERE DatePart(year,[MM_DD_YYYY]) = '" + yearFilter + "'" 
+            SQLselect2 += " WHERE DatePart(year,[MM_DD_YYYY]) = '" + str(yearFilter) + "'" 
             
             shopDates = db.engine.execute(SQLselect2)
             for s in shopDates:
@@ -200,6 +215,7 @@ def getDayAssignments():
 
 @app.route('/getMemberSchedule', methods=['GET','POST'])
 def getMemberSchedule():
+    print ('/getMemberSchedule')
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -211,6 +227,7 @@ def getMemberSchedule():
         return "ERROR - Missing parameter."
 
     memberID = parameters['memberID']
+    print('memberID - ', memberID)
     if (memberID == None):
         return "ERROR - Missing member ID parameter."
 
@@ -233,7 +250,9 @@ def getMemberSchedule():
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' ORDER BY Date_Scheduled desc"
     memberSchedule = db.engine.execute(sqlSelect)
     position = 0
+    
     for ms in memberSchedule:
+        #print(ms.memberID,ms.displayName)
         schedArray[position][0] = ms.memberID
         schedArray[position][1] = ms.Shop_Number
         schedArray[position][2] = ms.displayName
@@ -250,6 +269,9 @@ def getMemberSchedule():
             schedArray[position][8] = ms.No_Show
         
         position += 1
+    print(schedArray[0][2])
+    print(schedArray[1][4])
+    #print('schedArray - ',schedArray)
     return jsonify(schedArray)
     
 
@@ -907,7 +929,7 @@ def updateMemberModalData():
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/printMemberSchedule/<string:memberID>/", methods=['GET','POST'])
 def printMemberSchedule(memberID):
-    
+    print('memberID - ',memberID)
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
@@ -915,10 +937,15 @@ def printMemberSchedule(memberID):
 
     # RETRIEVE LAST_ACCEPTABLE_TRAINING_DATE FROM tblControl_Variables
     lastAcceptableTrainingDate = db.session.query(ControlVariables.Last_Acceptable_Monitor_Training_Date).filter(ControlVariables.Shop_Number == '1').scalar()
-    if (lastTraining < lastAcceptableTrainingDate):
+    if lastTraining == None:
         needsTraining = 'TRAINING IS NEEDED'
     else:
-        needsTraining = ''
+        print(lastTraining,lastAcceptableTrainingDate)
+        print('type lastTraining - ',type(lastTraining),' type last acceptable ... ',type(lastAcceptableTrainingDate))
+        if (lastTraining < lastAcceptableTrainingDate):
+            needsTraining = 'TRAINING IS NEEDED'
+        else:
+            needsTraining = ''
 
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
     #est = timezone('EST')
@@ -941,7 +968,8 @@ def printMemberSchedule(memberID):
 
     schedule = db.engine.execute(sqlSelect)
     
-    return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,schedule=schedule,todays_date=todays_dateSTR)
+    return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,\
+    schedule=schedule,todays_date=todays_dateSTR)
 
 
 # PRINT WEEKLY MONITOR DUTY SCHEDULE FOR COORDINATOR
