@@ -34,7 +34,7 @@ var shopFilter = ''     // Shop filter, shop location, shop number refers to the
 
 var todaysDate = new Date();
 var currentYear = todaysDate.getFullYear()
-var firstTimeThrough = localStorage.getItem('firstTimeSwitch')
+//var firstTimeThrough = localStorage.getItem('firstTimeSwitch')
 var shopNames = ['Rolling Acres', 'Brownwood']
 var shopData = []
 
@@ -48,7 +48,6 @@ var deleteAsgmntDt = ''
 var curShopNumber = ''
 
 // GET STAFF ID FROM URL IF AVAILABLE, OTHERWISE FROM LOCALSTORAGE, NEXT FROM PROMPT
-console.log('1. checking URL ...')
 const params = new URLSearchParams(window.location.search)
 var pathArray = window.location.pathname.split('/');
 if (pathArray.length = 4) {
@@ -71,54 +70,6 @@ if (staffID == '' | staffID == null) {
         staffID = localStorage.getItem('staffID')
     }
 }
-console.log('2. staffID - '+staffID)
-
-// IS THERE A CURRENT MEMBER?
-console.log('3. Is there a current member?')
-if (pathArray.length >= 3) {
-    if (pathArray[2] != null & pathArray[2] != '') {
-        currentMemberID = pathArray[2]
-        localStorage.setItem('currentMemberID',currentMemberID)
-    }
-    else {
-        currentMemberID = ''
-    }
-}
-
-console.log('4. currentMemberID from URL, if any - '+currentMemberID )
-// IS THE PAGE BEING REFRESHED? TAKE USER BACK TO DATA THEY WERE WORKING WITH.
-if (currentMemberID == '' | currentMemberID == null) {
-    console.log('5. localStorage currentMemberID- ' + localStorage.getItem('currentMemberID'))
-    currentMemberID = localStorage.getItem('currentMemberID')
-    console.log('6. currentMemberID from local storage - '+currentMemberID)
-    //  CHECK FOR A SAVED NAME
-    currentMemberName = localStorage.getItem('currentMemberName')
-    console.log('7. currentMemberName - ' + currentMemberName)
-    if (currentMemberName != null) {
-        document.getElementById('memberNameHdg').innerHTML = currentMemberName
-    }
-    // DISPLAY CURRENT MEMBER'S SCHEDULE
-    console.log('8. call populateMemberSchedule using - ' + currentMemberID)
-    populateMemberSchedule(currentMemberID)
-}
-
-
-// DISPLAY MEMBER NAME AND ID
-
-// THE FOLLOWING CODE IS RELEVANT IS NAME/VALUE PAIRS ARE BEING USED
-// WAS A MEMBER ID INCLUDED IN THE URL?
-//const queryString = window.location.search;
-//const urlParams = new URLSearchParams(queryString);
-//alert('Name/value pair encountered.')
-// if (urlParams.has('id')) {
-//     currentMemberID = urlParams.get('id')
-//     populateMemberSchedule(currentMemberID)
-// }
-// else {
-//     document.getElementById('memberNameHdg').innerHTML = ' '  
-// } 
-
-
 
 // IS THERE A STARTUP YEAR STORED IN LOCALSTORAGE, IF NOT USE CURRENT YEAR
 // START UP YEAR IS THE MIDDLE VALUE OF THE THREE YEARS LISTED IN THE DROPDOWN LIST
@@ -149,7 +100,6 @@ else {
 // SET UP SHOP FILTER LIST
 setShopFilter(clientLocation)
 
-
 // DEFINE EVENT LISTENERS
 document.getElementById("yearToDisplay").addEventListener("change", yearChanged);
 document.getElementById("shopToDisplay").addEventListener("change", shopChanged);
@@ -165,51 +115,34 @@ $('#reasonModalID').on('shown.bs.modal', function () {
     $('#reasonDescID').trigger('focus')
   })
 window.addEventListener('unload', function(event) {
-    localStorage.removeItem('firstTimeSwitch');
+    localStorage.removeItem('currentMemberID')
+    //localStorage.removeItem('firstTimeSwitch');
 });
 
 
 // FIRST TIME ROUTINES
 // IS THIS THE FIRST TIME ON THIS PAGE?
 // firstTimeThrough = localStorage.getItem('firstTimeSwitch')
-if (firstTimeThrough == null) {
-    localStorage.setItem('firstTimeSwitch',false)
- 
-    // HIDE CONFIRMATION MODAL
-    $('#confirmAction').modal('hide')
+//if (firstTimeThrough == null) {
+//localStorage.setItem('firstTimeSwitch',false)
 
-    // HIDE DAY 1 AND 2 BUTTONS
-    document.getElementById('day1Notes').style.display='none'
-    document.getElementById('day1Print').style.display='none'
-    document.getElementById('day1Clear').style.display='none'
-    document.getElementById('day2Notes').style.display='none'
-    document.getElementById('day2Print').style.display='none'
-    document.getElementById('day2Clear').style.display='none'
+// HIDE CONFIRMATION MODAL
+$('#confirmAction').modal('hide')
 
-    // SET 'CANCEL SWAP' AND 'MAKE SWAP' BUTTONS TO DISABLED
-    document.getElementById('cancelSwap').disabled = true
-    document.getElementById('makeSwap').disabled = true
-    swapInProgress = false
-    swap1ID = ''
-    swap2ID = ''
+// HIDE DAY 1 AND 2 BUTTONS
+document.getElementById('day1Notes').style.display='none'
+document.getElementById('day1Print').style.display='none'
+document.getElementById('day1Clear').style.display='none'
+document.getElementById('day2Notes').style.display='none'
+document.getElementById('day2Print').style.display='none'
+document.getElementById('day2Clear').style.display='none'
 
-    //console.log('startUpYear - ',startUpYear)
-    //console.log('clientLocation - ',clientLocation)
-    // IF clientLocation OR startUpYear IS NOT FOUND IN LOCAL STORAGE
-    // THEN PROMPT WITH MODAL FORM FOR LOCATION AND YEAR
-    //if (!clientLocation || !startUpYear) {
-        // PROMPT USER TO ENTER THEIR DESIRED LOCATION AND STARTING YEAR
-    //    document.getElementById('settingsBtn').click()
-    //}
-
-    
-
-    
-
-    
-    //  END OF FIRST TIME ROUTINE
-}
-
+// SET 'CANCEL SWAP' AND 'MAKE SWAP' BUTTONS TO DISABLED
+document.getElementById('cancelSwap').disabled = true
+document.getElementById('makeSwap').disabled = true
+swapInProgress = false
+swap1ID = ''
+swap2ID = ''
 
 //  SET FILTER VALUES BASED ON localStorage values
 // Set the value for shop location filter
@@ -225,7 +158,39 @@ buildYear(yearFilter);
 // POPULATE CALENDAR USING STARTUP PARAMETERS
 populateCalendar(yearFilter,shopFilter) 
 
-console.log('end of page loading ...')
+
+// IF RETURNING TO THIS PAGE ...
+
+// IS THERE A CURRENT MEMBER?
+if (pathArray.length >= 3) {
+    if (pathArray[2] != null & pathArray[2] != '') {
+        currentMemberID = pathArray[2]
+        localStorage.setItem('currentMemberID',currentMemberID)
+    }
+    else {
+        currentMemberID = ''
+    }
+}
+
+// IS THE PAGE BEING REFRESHED? TAKE USER BACK TO DATA THEY WERE WORKING WITH.
+if (currentMemberID == '' | currentMemberID == null) {
+    currentMemberID = localStorage.getItem('currentMemberID')
+    //  CHECK FOR A SAVED NAME
+    currentMemberName = localStorage.getItem('currentMemberName')
+    if (currentMemberName != null) {
+        document.getElementById('memberNameHdg').innerHTML = currentMemberName
+    }
+    // DISPLAY CURRENT MEMBER'S SCHEDULE
+    populateMemberSchedule(currentMemberID)
+}
+
+clicked_id = localStorage.getItem('clicked_id')
+console.log('test for localStorage clicked_id - ' + clicked_id)
+if (clicked_id) {
+    dayClicked(clicked_id)
+}
+
+//  console.log('end of page loading ...')
 
 
 // ------------------------------------------------------------------------------------------------------
@@ -236,6 +201,7 @@ function yearChanged() {
     yearFilter = this.value;
     localStorage.setItem('yearFilter', yearFilter);
     enableRefreshBtn()
+    refreshCalendarRtn()
 }
 
 function shopChanged() {
@@ -298,6 +264,9 @@ function enableRefreshBtn() {
 
 
 function dayClicked(clicked_id) {
+    // SAVE clicked_id FOR REFRESHING PAGE ON PAGE LOAD
+    console.log('clicked id - '+clicked_id)
+    localStorage.setItem('clicked_id',clicked_id)
     // send POST request with year, shop, and duty
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/getDayAssignments"); 
@@ -391,13 +360,11 @@ function refreshCalendarRtn() {
     buildYear(yearFilter);
     populateCalendar(yearFilter,shopFilter)  //,dutyFilter)
     document.getElementById("refreshCalendarBtn").disabled = true;
-    // clearDay1()
-    // clearDay2()
-    cancelSwap()
+    //cancelSwap()
     // REFRESH MEMBERS SCHEDULE
-    //if (currentMemberID != '') {
-    console.log('before call to populate - ' + currentMemberID)
-    populateMemberSchedule(currentMemberID)    
+    
+    //console.log('before call to populate - ' + currentMemberID)
+    //populateMemberSchedule(currentMemberID)    
     //}
 }
 
@@ -1231,7 +1198,7 @@ function confirmAdd(memberID) {
 
 function unAssignedShiftClicked(nameID,scheduleNumber) {
     selectedName = document.getElementById(nameID)
-    selectedName.style.backgroundColor = 'yellow'
+    //selectedName.style.backgroundColor = 'yellow'
     
     // IS A SWAP IN PROGRESS
     if (swapInProgress) {
@@ -1293,7 +1260,7 @@ function assignedShiftClicked(nameID) {
     }
     // HIGHLIGHT NAME SELECTED
     selectedName = document.getElementById(nameID)
-    selectedName.style.backgroundColor = 'yellow'
+    //selectedName.style.backgroundColor = 'yellow'
     
     if (swapInProgress) {
         if (swapAsgmnt1ID == '') {
@@ -1325,7 +1292,7 @@ function confirmDelete() {
 function delAssignment(id) {
     idPrefix = id.slice(0,9)
     selectedName = document.getElementById(idPrefix + 'name')
-    selectedName.style.backgroundColor = 'yellow'
+    //selectedName.style.backgroundColor = 'yellow'
     if (!confirmDelete()) {
         selectedName.style.backgroundColor = 'white'
         return
@@ -1413,6 +1380,7 @@ xhttp.send(JSON.stringify(data));
 
 
 function clearDay1() {
+    console.log('clearDay1 rtn')
     while (day1Detail.firstChild) {
         day1Detail.removeChild(day1Detail.lastChild);
     }
@@ -1423,6 +1391,9 @@ function clearDay1() {
     document.getElementById('day1Notes').style.display='none'
     document.getElementById('day1Print').style.display='none'
     document.getElementById('day1Clear').style.display='none'
+
+    // REMOVE STORED VALUE
+    localStorage.removeItem('clicked_id')
 }
 
 function clearDay2() {

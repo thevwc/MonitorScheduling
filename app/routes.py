@@ -20,8 +20,8 @@ from pytz import timezone
 @app.route('/index/<staffID>', defaults={'villageID':None}, methods=['GET','POST'])
 @app.route('/index/<villageID>', defaults={'staffID':None}, methods=['GET','POST'])
 def index(villageID,staffID):
-    print('villageID - ',villageID)
-    print('staffID - ',staffID)
+    #print('villageID - ',villageID)
+    #print('staffID - ',staffID)
 
     # POST REQUEST
     if request.method == 'POST':
@@ -227,7 +227,7 @@ def getMemberSchedule():
         return "ERROR - Missing parameter."
 
     memberID = parameters['memberID']
-    print('memberID - ', memberID)
+    #print('memberID - ', memberID)
     if (memberID == None):
         return "ERROR - Missing member ID parameter."
 
@@ -269,8 +269,8 @@ def getMemberSchedule():
             schedArray[position][8] = ms.No_Show
         
         position += 1
-    print(schedArray[0][2])
-    print(schedArray[1][4])
+    #print(schedArray[0][2])
+    #print(schedArray[1][4])
     #print('schedArray - ',schedArray)
     return jsonify(schedArray)
     
@@ -807,7 +807,7 @@ def getMemberModalData():
     if member == None:
         print('No record found')
         return
-    
+    #print('email - ', member.eMail)
     cols = 19
     dataArray = [0 for x in range(cols)]
 
@@ -929,7 +929,7 @@ def updateMemberModalData():
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/printMemberSchedule/<string:memberID>/", methods=['GET','POST'])
 def printMemberSchedule(memberID):
-    print('memberID - ',memberID)
+    #print('memberID - ',memberID)
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
@@ -941,7 +941,7 @@ def printMemberSchedule(memberID):
         needsTraining = 'TRAINING IS NEEDED'
     else:
         print(lastTraining,lastAcceptableTrainingDate)
-        print('type lastTraining - ',type(lastTraining),' type last acceptable ... ',type(lastAcceptableTrainingDate))
+        #print('type lastTraining - ',type(lastTraining),' type last acceptable ... ',type(lastAcceptableTrainingDate))
         if (lastTraining < lastAcceptableTrainingDate):
             needsTraining = 'TRAINING IS NEEDED'
         else:
@@ -1008,9 +1008,9 @@ def printMonitorScheduleWeek():
     # RETRIEVE SCHEDULE FOR SPECIFIC WEEK
     #est = timezone('EST')
     todays_date = date.today()
-    print('est - ',todays_date)
+    #print('est - ',todays_date)
     todays_dateSTR = todays_date.strftime('%-m-%-d-%Y')
-    print('est STR - ',todays_dateSTR)
+    #print('est STR - ',todays_dateSTR)
 
     # GET COORDINATOR ID FROM COORDINATOR TABLE
     coordinatorRecord = db.session.query(CoordinatorsSchedule)\
