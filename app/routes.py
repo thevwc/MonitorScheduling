@@ -20,9 +20,7 @@ from pytz import timezone
 @app.route('/index/<staffID>', defaults={'villageID':None}, methods=['GET','POST'])
 @app.route('/index/<villageID>', defaults={'staffID':None}, methods=['GET','POST'])
 def index(villageID,staffID):
-    #print('villageID - ',villageID)
-    #print('staffID - ',staffID)
-
+   
     # POST REQUEST
     if request.method == 'POST':
         if not request.get_json() == None:
@@ -47,7 +45,7 @@ def index(villageID,staffID):
             else:
                 shopFilter = 'BOTH'
                 shopNumber = 0
-            #print('yearFilter type - ',type(yearFilter))
+            
             # BUILD WHERE CLAUSE FOR RESPONSE OBJECT
             whereClause = "WHERE DatePart(year,[Date_Scheduled]) = '" + str(yearFilter) + "'" 
             if shopFilter == 'RA':
@@ -215,7 +213,6 @@ def getDayAssignments():
 
 @app.route('/getMemberSchedule', methods=['GET','POST'])
 def getMemberSchedule():
-    print ('/getMemberSchedule')
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -227,7 +224,6 @@ def getMemberSchedule():
         return "ERROR - Missing parameter."
 
     memberID = parameters['memberID']
-    #print('memberID - ', memberID)
     if (memberID == None):
         return "ERROR - Missing member ID parameter."
 
@@ -252,7 +248,6 @@ def getMemberSchedule():
     position = 0
     
     for ms in memberSchedule:
-        #print(ms.memberID,ms.displayName)
         schedArray[position][0] = ms.memberID
         schedArray[position][1] = ms.Shop_Number
         schedArray[position][2] = ms.displayName
@@ -269,9 +264,7 @@ def getMemberSchedule():
             schedArray[position][8] = ms.No_Show
         
         position += 1
-    #print(schedArray[0][2])
-    #print(schedArray[1][4])
-    #print('schedArray - ',schedArray)
+   
     return jsonify(schedArray)
     
 
@@ -807,7 +800,6 @@ def getMemberModalData():
     if member == None:
         print('No record found')
         return
-    #print('email - ', member.eMail)
     cols = 19
     dataArray = [0 for x in range(cols)]
 
@@ -929,7 +921,6 @@ def updateMemberModalData():
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/printMemberSchedule/<string:memberID>/", methods=['GET','POST'])
 def printMemberSchedule(memberID):
-    #print('memberID - ',memberID)
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
@@ -940,8 +931,6 @@ def printMemberSchedule(memberID):
     if lastTraining == None:
         needsTraining = 'TRAINING IS NEEDED'
     else:
-        print(lastTraining,lastAcceptableTrainingDate)
-        #print('type lastTraining - ',type(lastTraining),' type last acceptable ... ',type(lastAcceptableTrainingDate))
         if (lastTraining < lastAcceptableTrainingDate):
             needsTraining = 'TRAINING IS NEEDED'
         else:
