@@ -13,7 +13,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>ver. Jan 1, 2021</h4> 
+                <h4>ver. Jan 26, 2021</h4> 
             </div> 
             
         </div>
@@ -83,9 +83,9 @@
                 <div id="memberBtnsID" style = "display:none">
                     <label style="margin-left:20px; color:white"for="lastMonitorTraining">Last Monitor Training:</label>
                     <input id="lastMonitorTrainingID" type="text" style="width:90px;text-align: center;margin-top:10px" value="">
-                    <button type="button" style="margin-left:5px;width: 120px;height:35px" class="btn-primary btn btn-sm" onclick="openMemberModal()">Member Data</button>
-                    <button id="printMemberScheduleBtn" style="margin-left:10px;width:60px" class="btn btn-primary btn-sm" >PRINT</button>>    
-                    <button id="emailMemberSchedule" style="margin-left:10px;width: 60px" class="btn btn-primary btn-sm">EMAIL</button>
+                    <button type="button" style="margin-left:5px;width: 80px;height:35px;font-size:.6rem" class="btn-primary btn btn-sm" onclick="openMemberModal()">Member Data</button>
+                    <button id="printMemberScheduleBtn" style="margin-left:10px;width:60px;font-size:.75rem" class="btn btn-primary btn-sm" >PRINT</button>>    
+                    <button id="emailMemberSchedule" style="margin-left:10px;width: 60px;font-size:.75rem" class="btn btn-primary btn-sm">EMAIL</button>
                 </div>
                 <span id = "memberID" style = "color:red;display:none;">{{currentMemberID}}</span>  
             </div>
@@ -115,7 +115,7 @@
                     <span id='day1Date'></span>
                     <span id='day1Location' style='margin-left:50px'></span>
                     <button id='day1Notes' class='btn btn-secondary btn-sm' onclick='openNotesRtn(1)'>NOTES</button>
-                    <button id='day1Print' class='btn btn-primary btn-sm'>PRINT</button>
+                    <button id='day1Print' class='btn btn-secondary btn-sm'>PRINT</button>
                     <button id='day1Clear' class='btn btn-secondary btn-sm' onclick ="clearDay1()">CLEAR</button>
                     <input id='day1yyyymmdd' type='hidden' value = ''>
                     <input id='day1shopNumber' type='hidden' value = ''>
@@ -128,8 +128,8 @@
                 <div class='dayHeader'>
                     <span id='day2Date'SETTINGS></span>
                     <span id='day2Location' style='margin-left:50px'></span>
-                    <button id='day2Notes' class='btn btn-primary btn-sm' onclick='openNotesRtn(2)'>NOTES</button>
-                    <button id='day2Print' class='btn btn-primary btn-sm' onclick='printWeeklyMonitorSchedule(2)'>PRINT</button>
+                    <button id='day2Notes' class='btn btn-secondary btn-sm' onclick='openNotesRtn(2)'>NOTES</button>
+                    <button id='day2Print' class='btn btn-secondary btn-sm' onclick='printWeeklyMonitorSchedule(2)'>PRINT</button>
                     <button id='day2Clear' class='btn btn-secondary btn-sm' onclick='clearDay2()'>CLEAR</button>
                     <input id='day2yyyymmdd' type='hidden' value = ''>
                     <input id='day2shopNumber' type='hidden' value = ''>

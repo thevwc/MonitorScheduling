@@ -6,514 +6,520 @@
     --calendar-text:blue;
   }
   
-                        
-  
-.parent {
-    display: grid;
-    grid-template-columns:1.10fr .90fr;
-    grid-template-areas: "hdgArea      hdgArea"
-                         "parent1Area  parent2Area";
-    background-color:lightgray;                   
-}
-.hdg {
-    grid-area: hdgArea;
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:    'titleArea  versionArea'; 
-    height:40px;
-    padding-top: 0px;
-    padding-bottom: 20px;
-    margin-bottom: 10px;
-    align-items:center;
-    justify-content:center; 
-    text-align: center;
-    background-color:navy;
-    color: var(--main-txt-color);
-    border-bottom:white 3px;
-}
-.title {
-    grid-area:titleArea;
-    margin-top:3px;
-}
-.version {
-    grid-area:versionArea;
-    align-self:right;
-}
-.parent1 {
-    display: grid;
-    grid-area: parent1Area;
-    grid-template-columns:1fr 1fr 1fr;
-    gap:.5em;
-    grid-template-areas: "filterArea filterArea filterArea filterArea"
-                         "calArea    calArea    calArea    calArea"
-                         "calArea    calArea    calArea    calArea"
-                         "calArea    calArea    calArea    calArea"
-                         "legendArea legendArea legendArea legendArea";
-    padding-right: 10px;
-    padding-left: 10px;
-    border-left: white 2px;
-}
+/* Laptop - 1280 x 800 */
+@media (min-width: 1280px) {
+
+    .parent {
+        display: grid;
+        grid-template-columns:1.10fr .90fr;
+        grid-template-areas: "hdgArea      hdgArea"
+                            "parent1Area  parent2Area";
+        background-color:lightgray;                   
+    }
+    .hdg {
+        grid-area: hdgArea;
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:    'titleArea  versionArea'; 
+        height:40px;
+        padding-top: 0px;
+        padding-bottom: 0px;
+        margin-bottom: 10px;
+        background-color:navy;
+        color: var(--main-txt-color);
+        border-bottom:white 3px;
+    }
+    .title {
+        grid-area:titleArea;
+        margin-top:3px;
+        text-align:left;
+        padding-left:2em;
+    }
+    .version {
+        grid-area:versionArea;
+        text-align:right;
+        padding-right:2em;
+        padding-top:.25em;
+    }
+    .parent1 {
+        display: grid;
+        grid-area: parent1Area;
+        grid-template-columns:1fr 1fr 1fr;
+        gap:.5em;
+        grid-template-areas: "filterArea filterArea filterArea filterArea"
+                            "calArea    calArea    calArea    calArea"
+                            "calArea    calArea    calArea    calArea"
+                            "calArea    calArea    calArea    calArea"
+                            "legendArea legendArea legendArea legendArea";
+        padding-right: 10px;
+        padding-left: 10px;
+        border-left: white 2px;
+    }
 
 
-.filterSection {
-    grid-area:filterArea;
-    height:auto;
-    padding-top:0px;
-    padding-bottom: 0px;
-    margin-left:10px;
-    justify-content:center;
-    align-items:center; 
-    align-content:center;
-    text-align: center;
-    width:95%;
-    background-color: var(--main-bg-color);
-    color: var(--main-txt-color);
-    border:1px solid navy;
-    border-radius: 10px;
-}
+    .filterSection {
+        grid-area:filterArea;
+        height:auto;
+        padding-top:0px;
+        padding-bottom: 0px;
+        margin-left:10px;
+        justify-content:center;
+        align-items:center; 
+        align-content:center;
+        text-align: center;
+        width:95%;
+        background-color: var(--main-bg-color);
+        color: var(--main-txt-color);
+        border:1px solid navy;
+        border-radius: 10px;
+    }
 
-#settingsIcon {
-    margin-top:3px;
-    margin-left: 30px;
-    height: 30px;
-    font-size:18px;
-}
-select {
-    /* text-size-adjust:100 px; */
-    margin-right:20px;
-    color:blue;
-}
+    #settingsIcon {
+        margin-top:3px;
+        margin-left: 30px;
+        height: 30px;
+        font-size:18px;
+    }
+    select {
+        /* text-size-adjust:100 px; */
+        margin-right:20px;
+        color:blue;
+    }
 
-#calendar-container{
-    grid-area:calArea;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr 1fr;
-    background-color: var(--calendar-background);  
-}
+    #calendar-container{
+        grid-area:calArea;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        grid-template-rows: 1fr 1fr 1fr;
+        background-color: var(--calendar-background);  
+    }
 
-.calendarMonth {
-    padding: 5px;
-    margin: 5px;
-    width: 160px;
-    height: 200px;
-    text-align: center;
-    border: 1px solid black;
-    border-radius: 10px;
-    font-size: 14px;
-    font-family: Arial;
-    background-image: linear-gradient(#fff, #d3d3d3); 
-} 
-#myInput {
-    background-color: white;
-    color:blue;
-}
+    .calendarMonth {
+        padding: 5px;
+        margin: 5px;
+        width: 160px;
+        height: 200px;
+        text-align: center;
+        border: 1px solid black;
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: Arial;
+        background-image: linear-gradient(#fff, #d3d3d3); 
+    } 
+    #myInput {
+        background-color: white;
+        color:blue;
+    }
 
-.monthYearHdg {
-    background-color: navy;
-    color:white;
-}
+    .monthYearHdg {
+        background-color: navy;
+        color:white;
+    }
 
-#legend {
-    margin:0;
-    grid-area:legendArea;
-}
+    #legend {
+        margin:0;
+        grid-area:legendArea;
+    }
 
-#needSM {
-    background-color: blue;
-}
-#needTC {
-    background-color:#00FF00;
-}
-#needBoth {
-    background-color: red;
-}
-#filled {
-    background-color:white;
-}
-#closed {
-    background-color:#2E86C1
-}
-
-
-/* COLUMN 2 (PARENT2 */
-.parent2 {
-    display: grid;
-    grid-area: parent2Area;
-    grid-template-columns:1fr;
-    grid-template-rows:auto minmax(200px,auto) auto minmax(200px, auto) auto auto 1fr;
-    grid-area: 0.5em;
-    grid-template-areas: "nameArea"
-                         "scheduleArea"
-                         "swapArea"
-                         "day1Area"
-                         "day2Area";
-                         /* "memberNoteArea"
-                         "monitorNoteArea";  */
-    background-color:lightgray;
-    padding-left: 20px;
-    padding-right: 20px;
-}
-
-#memberNameSection {
-    height:auto;
-    grid-area:nameArea;
-    width:100%;
-    text-align: center;
-    align-content: center;
-    justify-content: center; 
-    background-color:navy;
-    border:navy solid 1px;
-    border-radius: 10px;
-    padding-bottom:20px;
-    margin-bottom:20px;
-
-}  
-
-#memberNameHdg {
-    text-align: center;
-    background-color: white;
-    color:navy;
-    font-size: 18px;
-    padding:0px;
-    margin:0px;
-    border:navy solid 1px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-}
-.memberName {
-    background-color: white;
-    color:navy;
-    border: navy solid 1px;
-} 
-
-#memberID {
-    display:none;
-}
-#memberOptions {
-    text-align: center;
-    height: 40px;
-    align-content: center;
-    justify-content: center;
-    padding-bottom:20px;
-    background-color:navy;
-    color:white;
-    margin-top:0px;
-    margin-bottom:10px;
-}
+    #needSM {
+        background-color: blue;
+    }
+    #needTC {
+        background-color:#00FF00;
+    }
+    #needBoth {
+        background-color: red;
+    }
+    #filled {
+        background-color:white;
+    }
+    #closed {
+        background-color:#2E86C1
+    }
 
 
-#memberSchedule-container {
-    grid-area: scheduleArea;
-    padding:0px;
-    margin:0px;
-    height:auto;
-    background-color:white;
-    border:navy solid 1px;
-    border-radius: 10px;
-}
+    /* COLUMN 2 (PARENT2 */
+    .parent2 {
+        display: grid;
+        grid-area: parent2Area;
+        grid-template-columns:1fr;
+        grid-template-rows:auto fit-content(200px) auto minmax(200px, auto) auto auto 1fr;
+        grid-area: 0.5em;
+        grid-template-areas: "nameArea"
+                            "scheduleArea"
+                            "swapArea"
+                            "day1Area"
+                            "day2Area";
+                            /* "memberNoteArea"
+                            "monitorNoteArea";  */
+        background-color:lightgray;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    #memberNameSection {
+        height:auto;
+        grid-area:nameArea;
+        width:100%;
+        text-align: center;
+        align-content: center;
+        justify-content: center; 
+        background-color:navy;
+        border:navy solid 1px;
+        border-radius: 10px;
+        padding-bottom:5px;
+        margin-bottom:5px;
+
+    }  
+
+    #memberNameHdg {
+        text-align: center;
+        background-color: white;
+        color:navy;
+        font-size: 18px;
+        padding:0px;
+        margin:0px;
+        border:navy solid 1px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .memberName {
+        background-color: white;
+        color:navy;
+        border: navy solid 1px;
+    } 
+
+    #memberID {
+        display:none;
+    }
+    #memberOptions {
+        text-align: center;
+        height: 40px;
+        align-content: center;
+        justify-content: center;
+        padding-bottom:5px;
+        background-color:navy;
+        color:white;
+        margin-top:0px;
+        margin-bottom:0px;
+    }
 
 
-.memberScheduleHeader {
-    display: grid;
-    grid-template-columns:2fr 2fr 1fr 2fr 1fr;
-    font-size: 16px;
-    align-items:center;
-    justify-content:center; 
-    text-align: center;
-    background-color: navy;
-    border:white solid 1px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
-    color:white;
-    padding:0px;
-    margin-left:0px;
-    margin-right:0px;
-    margin-top:0px;
-    margin-bottom: 0px;
-}
-
-.memberScheduleRow {
-    display: grid;
-    grid-template-columns:2fr 2fr 1fr 2fr 1fr;
-    background-color:white;
-    font-size: 14px;
-    align-items:center;
-    justify-content:center; 
-    text-align: center; 
-    padding:0;
-    margin-left:0px;
-    margin-right: 0px;
-    margin-top:0px;
-    margin-bottom: 0px;
-    border:navy solid 1px;
-}  
-
-/* #memberNotes {
-    display:none;
-    grid-area:memberNoteArea;
-    height:80px;
-    width:100%;
-    background-color: grey;
-    color:white;
-    text-align: center;
-    justify-content: center;
-    align-items: center;
-    padding:10px;
-    margin:0px;
-    border:black solid 1px;
-    border-radius: 5px;
-} */
-
-#swapBtns {
-    grid-area:swapArea;
-    height:40px;
-    background-color: navy;
-    color:white;
-    padding:10px;
-    margin:0px;
-    border:black solid 1px;
-    border-radius: 5px;
-}
-.box {
-    display:flex;
-    align-items: center;
-    justify-content:center;
-}
-
-#day1-container {
-    grid-area:day1Area;
-    background-color: beige;
-    width: 100%;
-    border:1px solid black;
-    border-radius: 10px;
-    margin:0px;
-    padding:10px;
-}
-#day2-container {
-    grid-area:day2Area;
-    width: 100%;
-    background-color: bisque;
-    border:1px solid black;
-    border-radius: 10px;
-    margin:0px;
-    padding:10px;
-}
-
-.dayHeader {
-    display: grid;
-    grid-template-columns:1fr 2fr .5fr .5fr .5fr;
-    border: 1px solid black;
-    font-size: 18px;
-    align-items:center;
-    justify-content:center; 
-    text-align: left;
-    color:navy;
-    margin:0px;
-    padding:0px;
-}
-
-#day1Notes, #day1Print, #day1Clear,#day2Notes, #day2Print, #day2Clear {
-    width: 60px;
-    margin-right:5px;
-}
-.dayDetail {
-    display: grid;
-    grid-template-columns:.5fr 1fr 2fr 1fr .1fr;
-    background-color:linen;
-    color:blue;
-    font-size: 14px;
-    align-items:center;
-    justify-content:center;
-    height: 30px; 
-    text-align: left;
-    padding:0px;
-    margin-top:10px;
-    margin-bottom:0px;
-    margin-left:60px;
-    margin-right:0px;
-}
-
-#swapModalBtn {
-    border: 4px solid blue;
-}
+    #memberSchedule-container {
+        grid-area: scheduleArea;
+        padding:0px;
+        margin:0px;
+        background-color:white;
+        border:navy solid 1px;
+        border-radius: 10px;
+        padding-bottom: 0px;
+        margin-bottom:5px;
+    }
 
 
-/* MODAL FORM FOR MONITOR SCHEDULING WEEK NOTES */
-.bg-modal-notes {
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7);
-    position: absolute;
-    top:0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    display: none;
-} 
-.modal-content-notes {
-    width:800px;
-    height: minmax(200px auto);
-    background-color:white;
-    border-radius: 4px;
-    text-align: center;
-    margin:0px;
-    padding: 20px;
-    position: relative;
-}
-.closeModalNotes {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    height:30px;
-    width:30px;
-    font-size: 30px;
-    line-height: 30px;
-    transform: rotate(45deg);
-    cursor: pointer;
-    background-color: white;
-    color:navy;
-    border-radius:50%; 
-    text-align: center;
-}
-.modal-header-notes {
-    border: 1px solid blue;
-    background-color: navy;
-    color:white;
-}
+    .memberScheduleHeader {
+        display: grid;
+        grid-template-columns:2fr 2fr 1fr 2fr 1fr;
+        font-size: 16px;
+        align-items:center;
+        justify-content:center; 
+        text-align: center;
+        background-color: navy;
+        border:white solid 1px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        color:white;
+        padding:0px;
+        margin-left:0px;
+        margin-right:0px;
+        margin-top:0px;
+        margin-bottom: 0px;
+    }
+    .memberScheduleDetail {
+        overflow-x:auto;
+        overflow-y:auto;
+        height:145px;
+    }
+    .memberScheduleRow {
+        display: grid;
+        grid-template-columns:2fr 2fr 1fr 2fr 1fr;
+        background-color:white;
+        font-size: 14px;
+        align-items:center;
+        justify-content:center; 
+        text-align: center; 
+        padding:0;
+        margin-left:0px;
+        margin-right: 0px;
+        margin-top:0px;
+        margin-bottom: 0px;
+        border:navy solid 1px;
+    }  
 
-#modalBodyNotes {
-    display:grid;
-    grid-template-columns: 1fr 5fr 1fr;
-}
+    /* #memberNotes {
+        display:none;
+        grid-area:memberNoteArea;
+        height:80px;
+        width:100%;
+        background-color: grey;
+        color:white;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        padding:10px;
+        margin:0px;
+        border:black solid 1px;
+        border-radius: 5px;
+    } */
 
-/* MODAL - FOR ALL BOOTSTRAP MODAL FORMS */
-.modal-header button {
-    float: right;
-}
+    #swapBtns {
+        grid-area:swapArea;
+        height:40px;
+        background-color: navy;
+        color:white;
+        padding:10px;
+        margin:0px;
+        border:black solid 1px;
+        border-radius: 5px;
+    }
+    .box {
+        display:flex;
+        align-items: center;
+        justify-content:center;
+    }
 
-.modal-title {
-    width:100%;
-}
+    #day1-container {
+        grid-area:day1Area;
+        background-color: beige;
+        width: 100%;
+        border:1px solid black;
+        border-radius: 10px;
+        margin:0px;
+        padding:10px;
+    }
+    #day2-container {
+        grid-area:day2Area;
+        width: 100%;
+        background-color: bisque;
+        border:1px solid black;
+        border-radius: 10px;
+        margin:0px;
+        padding:10px;
+    }
+
+    .dayHeader {
+        display: grid;
+        grid-template-columns:1fr 2fr .5fr .5fr .5fr;
+        border: 1px solid black;
+        font-size: 18px;
+        align-items:center;
+        justify-content:center; 
+        text-align: left;
+        color:navy;
+        margin:0px;
+        padding:0px;
+    }
+
+    #day1Notes, #day1Print, #day1Clear,#day2Notes, #day2Print, #day2Clear {
+        width: 60px;
+        margin-right:5px;
+    }
+    .dayDetail {
+        display: grid;
+        grid-template-columns:.5fr 1fr 2fr 1fr .1fr;
+        background-color:linen;
+        color:blue;
+        font-size: 14px;
+        align-items:center;
+        justify-content:center;
+        height: 20px; 
+        text-align: left;
+        padding:0px;
+        margin-top:10px;
+        margin-bottom:0px;
+        margin-left:60px;
+        margin-right:0px;
+    }
+    .dayDetail input {
+        height:20px;
+    }
+    .delBtn {
+        font-size:.75rem;
+        height:25px;
+    }
+    #swapModalBtn {
+        border: 4px solid blue;
+    }
 
 
-.modal-content form {
-    margin-left: 100px;
-}
-.modal-content select {
-    /* width: 75%; */
-    display: inline-block;
-    /* margin: 15px auto; */
-    position: relative;
-    cursor: pointer;
-    /* background-color: aqua; */
-}
+    /* MODAL FORM FOR MONITOR SCHEDULING WEEK NOTES */
+    .bg-modal-notes {
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+        position: absolute;
+        top:0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        display: none;
+    } 
+    .modal-content-notes {
+        width:800px;
+        height: minmax(200px auto);
+        background-color:white;
+        border-radius: 4px;
+        text-align: center;
+        margin:0px;
+        padding: 20px;
+        position: relative;
+    }
+    .closeModalNotes {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        height:30px;
+        width:30px;
+        font-size: 30px;
+        line-height: 30px;
+        transform: rotate(45deg);
+        cursor: pointer;
+        background-color: white;
+        color:navy;
+        border-radius:50%; 
+        text-align: center;
+    }
+    .modal-header-notes {
+        border: 1px solid blue;
+        background-color: navy;
+        color:white;
+    }
 
-.modal-footer {
-    margin:10px;
-    padding:0px;
-}
+    #modalBodyNotes {
+        display:grid;
+        grid-template-columns: 1fr 5fr 1fr;
+    }
 
-/* The Close Button */
-.close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 42px;
-    font-weight: bold;
-  }
-  
-.close:hover,
-.close:focus {
-    color:white;
-    text-decoration: none;
-    cursor: pointer;
-  }
+    /* MODAL - FOR ALL BOOTSTRAP MODAL FORMS */
+    .modal-header button {
+        float: right;
+    }
+
+    .modal-title {
+        width:100%;
+    }
 
 
-/* CSS FOR MEMBER NAME SECTION */
-.nameID {
-    color:green;
-    border:black 1px;
-}
-.nameID :hover{
-    background-color:yellow;
-}
-#findMember {
-    background-color: lime;
-    width: 200px;
-} 
+    .modal-content form {
+        margin-left: 100px;
+    }
+    .modal-content select {
+        /* width: 75%; */
+        display: inline-block;
+        /* margin: 15px auto; */
+        position: relative;
+        cursor: pointer;
+        /* background-color: aqua; */
+    }
 
-#selectpicker {
-    width:200px;
-    height:40px;
+    .modal-footer {
+        margin:10px;
+        padding:0px;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 42px;
+        font-weight: bold;
+    }
+    
+    .close:hover,
+    .close:focus {
+        color:white;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+
+    /* CSS FOR MEMBER NAME SECTION */
+    .nameID {
+        color:green;
+        border:black 1px;
+    }
+    .nameID :hover{
+        background-color:yellow;
+    }
+    #findMember {
+        background-color: lime;
+        width: 200px;
+    } 
+
+    #selectpicker {
+        width:200px;
+        height:40px;
+
+    }
+
+    /* CSS FOR ACTION/REASON MODAL FORM */
+    #reasonModalID .modal-header {
+        background-color: green;
+        color:white;
+    }
+    #actionID #reasonID {
+        width: 600px;
+        height: minmax(20px auto);
+        border: 1px solid navy;
+        background-color: white;
+
+    }
+    #actionID {
+        color:green;
+    }
+
+    #reasonID {
+        color: blue;
+    }
+
+    /* CSS FOR MEMBER DATA MODAL */
+    #memberModalID {
+        background-color: lightgray;
+        color:navy;
+    }
+    #memberModalID .modal-header {
+        background-color: green;
+        color:white;
+        text-align: center;
+    }
+
+    #memberModalID checkbox {
+        border: 1px solid black;
+        background-color: navy;
+        color:white;
+    }
+    .monthsInVillages {
+        border:1px solid navy;
+    }
+    .monthNames {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        margin-left:17px;
+        
+    }
+    .monthNames label {
+        width:15px;
+    }
+    .monthValues {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+        margin-left:0px;
+    }
+    .monthNames input {
+        width:15px;
+    }
 
 }
-
-/* CSS FOR ACTION/REASON MODAL FORM */
-#reasonModalID .modal-header {
-    background-color: green;
-    color:white;
-}
-#actionID #reasonID {
-    width: 600px;
-    height: minmax(20px auto);
-    border: 1px solid navy;
-    background-color: white;
-
-}
-#actionID {
-    color:green;
-}
-
-#reasonID {
-    color: blue;
-}
-
-/* CSS FOR MEMBER DATA MODAL */
-#memberModalID {
-    background-color: lightgray;
-    color:navy;
-}
-#memberModalID .modal-header {
-    background-color: green;
-    color:white;
-    text-align: center;
-}
-
-#memberModalID checkbox {
-    border: 1px solid black;
-    background-color: navy;
-    color:white;
-}
-.monthsInVillages {
-    border:1px solid navy;
-}
-.monthNames {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    margin-left:17px;
+@media (min-width: 1440px) {
     
 }
-.monthNames label {
-    width:15px;
-}
-.monthValues {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    margin-left:0px;
-}
-.monthNames input {
-    width:15px;
-}
-
-/* .linkBtn {
-    font: bold 11px Arial;
-    text-decoration: none;
-    background-color: #EEEEEE;
-    color: #333333;
-    padding: 2px 6px 2px 6px;
-    border-top: 1px solid #CCCCCC;
-    border-right: 1px solid #333333;
-    border-bottom: 1px solid #333333;
-    border-left: 1px solid #CCCCCC;
-} */

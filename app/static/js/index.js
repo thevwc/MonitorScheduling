@@ -119,13 +119,6 @@ window.addEventListener('unload', function(event) {
     //localStorage.removeItem('firstTimeSwitch');
 });
 
-
-// FIRST TIME ROUTINES
-// IS THIS THE FIRST TIME ON THIS PAGE?
-// firstTimeThrough = localStorage.getItem('firstTimeSwitch')
-//if (firstTimeThrough == null) {
-//localStorage.setItem('firstTimeSwitch',false)
-
 // HIDE CONFIRMATION MODAL
 $('#confirmAction').modal('hide')
 
@@ -161,36 +154,43 @@ populateCalendar(yearFilter,shopFilter)
 
 // IF RETURNING TO THIS PAGE ...
 
-// IS THERE A CURRENT MEMBER?
+// IS THERE A MEMBER ID IN THE URL?
 if (pathArray.length >= 3) {
     if (pathArray[2] != null & pathArray[2] != '') {
         currentMemberID = pathArray[2]
         localStorage.setItem('currentMemberID',currentMemberID)
     }
     else {
+        // IS THERE A MEMBER ID STORED IN LOCAL STORAGE
+        if (localStorage.getItem('currentMemberID')) {
+            currentMemberID = localStorage.getItem('currentMemberID')
+        }
         currentMemberID = ''
     }
 }
 
 // IS THE PAGE BEING REFRESHED? TAKE USER BACK TO DATA THEY WERE WORKING WITH.
-if (currentMemberID == '' | currentMemberID == null) {
-    currentMemberID = localStorage.getItem('currentMemberID')
+if (currentMemberID != '' && currentMemberID != null) {
     //  CHECK FOR A SAVED NAME
-    currentMemberName = localStorage.getItem('currentMemberName')
-    if (currentMemberName != null) {
+    if (localStorage.getItem('currentMemberName')) {
+        currentMemberName = localStorage.getItem('currentMemberName')
         document.getElementById('memberNameHdg').innerHTML = currentMemberName
+        // DISPLAY CURRENT MEMBER'S SCHEDULE
+        populateMemberSchedule(currentMemberID)
+        document.getElementById('memberBtnsID').style.display='block'
     }
-    // DISPLAY CURRENT MEMBER'S SCHEDULE
-    populateMemberSchedule(currentMemberID)
+    else {
+        currentMemberName = ''
+    }
+    
 }
 
-clicked_id = localStorage.getItem('clicked_id')
-console.log('test for localStorage clicked_id - ' + clicked_id)
-if (clicked_id) {
-    dayClicked(clicked_id)
+dayClickedID = localStorage.getItem('dayClickedID')
+console.log('test for localStorage dayClickedID - ' + dayClickedID)
+if (dayClickedID) {
+    dayClicked(dayClickedID)
 }
 
-//  console.log('end of page loading ...')
 
 
 // ------------------------------------------------------------------------------------------------------
@@ -208,6 +208,8 @@ function shopChanged() {
     shopFilter = this.value  //document.getElementById('shop').value
     localStorage.setItem('shopFilter',this.value)
     enableRefreshBtn()
+    refreshCalendarRtn()
+
 }
 
 
@@ -263,10 +265,10 @@ function enableRefreshBtn() {
 }
 
 
-function dayClicked(clicked_id) {
-    // SAVE clicked_id FOR REFRESHING PAGE ON PAGE LOAD
-    console.log('clicked id - '+clicked_id)
-    localStorage.setItem('clicked_id',clicked_id)
+function dayClicked(dayClickedID) {
+    // SAVE dayClickedID FOR REFRESHING PAGE ON PAGE LOAD
+    console.log('clicked id - '+dayClickedID)
+    localStorage.setItem('dayClickedID',dayClickedID)
     // send POST request with year, shop, and duty
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/getDayAssignments"); 
@@ -275,12 +277,13 @@ function dayClicked(clicked_id) {
         if (this.readyState == 4 && this.status == 200) {
             // PROCESS RESPONSE FROM REQUEST
             sched = JSON.parse(this.response)
-            yyyymmdd = clicked_id.slice(1,9)
+            yyyymmdd = dayClickedID.slice(1,9)
             dayNumber = sched[0][7]
             if (dayNumber == 0) {
                 dayNumber = dayOfYear(yyyymmdd)
             }
             // CONVERT SHOP ABBREV TO SHOP NUMBER
+            
             if (shopFilter == 'BOTH') {
                 shopNumber = 0
             }
@@ -294,24 +297,24 @@ function dayClicked(clicked_id) {
                     alert ('Error in shopFilter setting.')
                     return
                 }
-
+            
             // IF SWAP IN PROGRESS THEN SET scheduleNumber TO THE FIRST EMPTY DAY
             if (swapInProgress) {
                 if (swap1ID == '') {
                     scheduleNumber = 1
-                    swap1ID = clicked_id
+                    swap1ID = dayClickedID
                     swapAsgmnt1ID = ''
                 }
                 else if (swap2ID == '') {
                     scheduleNumber = 2
-                    swap2ID = clicked_id
+                    swap2ID = dayClickedID
                     swapAsgmnt2ID = ''
                 }
                 else {
                     alert('Only two days may be selected. Press CANCEL SWAP to begin again.')
                     return
                 }  
-                buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,clicked_id)
+                buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,dayClickedID)
                 return
             }
 
@@ -319,19 +322,23 @@ function dayClicked(clicked_id) {
             if (!swapInProgress) {
                 if (shopFilter == 'BOTH') {
                     scheduleNumber = 1
-                    buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,clicked_id)
+                    buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,dayClickedID)
                     scheduleNumber = 2
-                    buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,clicked_id)
-                }
-                else if (shopFilter == 'RA'){
-                    scheduleNumber = 1
-                    buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,clicked_id)
+                    buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,dayClickedID)
                 }
                 else {
-                    scheduleNumber = 2
-                    buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,clicked_id)
+                    scheduleNumber = 1
+                    buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,dayClickedID)
                 }
-                return
+                // else if (shopFilter == 'RA'){
+                //     scheduleNumber = 1
+                //     buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,dayClickedID)
+                // }
+                // else {
+                //     scheduleNumber = 2
+                //     buildDayTable(scheduleNumber,2,sched,yyyymmdd,dayNumber,dayClickedID)
+                // }
+                // return
             }
 
         }
@@ -348,7 +355,7 @@ function dayClicked(clicked_id) {
     else if (shopFilter == 'BW') {
         shopNumber = '2'
     }
-    var data = {shopNumber:shopNumber,dayID:clicked_id}; //send date selected to server;
+    var data = {shopNumber:shopNumber,dayID:dayClickedID}; //send date selected to server;
     xhttp.send(JSON.stringify(data));
 }
 
@@ -756,7 +763,8 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
     // INSERT DATE INTO APPROPRIATE SCHEDULE HEADING
     if (scheduleNumber == 1) {
         document.getElementById('day1Date').innerHTML = sched[0][1]
-        day1Title = "Monitors at " + shopNames[shopNumberToDisplay-1]
+        day1Title = shopNames[shopNumberToDisplay-1]
+        //alert('day1Title - '+day1Title + ' shopNumberToDisplay - '+ shopNumberToDisplay)
         document.getElementById('day1Location').innerHTML = day1Title
         
         prt = document.getElementById("day1Print")
@@ -783,7 +791,7 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
         document.getElementById('day2Clear').style.display='block'
 
         document.getElementById('day2Date').innerHTML = sched[0][1] 
-        day2Title = "Monitors at " + shopNames[shopNumberToDisplay-1]
+        day2Title = shopNames[shopNumberToDisplay-1]
         document.getElementById('day2Location').innerHTML = day2Title
         
         // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
@@ -1069,6 +1077,9 @@ function memberSelectedRtn() {
 }
   
 function populateMemberSchedule(memberID) {
+    if (memberID == null) {
+        return
+    }
     console.log('9. populateMemberSchedule - '+memberID)
     // Ajax request for last training date and monitor schedule for current year forward
     var xhttp = new XMLHttpRequest();
@@ -1086,11 +1097,9 @@ function populateMemberSchedule(memberID) {
             prt.setAttribute("onclick",lnk)
 
             // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
-            console.log('IDENTIFY ...')
             memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
 
             // REMOVE CHILD RECORDS OF memberScheduleDetailID
-            console.log('REMOVE CHILD ...')
             while (memberScheduleDetailID.firstChild) {
                 memberScheduleDetailID.removeChild(memberScheduleDetailID.lastChild);
             }
@@ -1393,7 +1402,7 @@ function clearDay1() {
     document.getElementById('day1Clear').style.display='none'
 
     // REMOVE STORED VALUE
-    localStorage.removeItem('clicked_id')
+    localStorage.removeItem('dayClickedID')
 }
 
 function clearDay2() {

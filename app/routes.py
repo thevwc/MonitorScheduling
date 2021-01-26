@@ -14,13 +14,14 @@ import datetime as dt
 from datetime import date, datetime, timedelta
 from pytz import timezone
 
-@app.route('/', defaults={'villageID':None,'staffID':None}, methods=['GET','POST'])
-@app.route('/index/', defaults={'villageID':None,'staffID':None}, methods=['GET','POST'])
-@app.route('/index/<villageID>/<staffID>', methods=['GET','POST'])
+@app.route('/', defaults={'staffID':None,'villageID':None}, methods=['GET','POST'])
+@app.route('/index/', defaults={'staffID':None,'villageID':None}, methods=['GET','POST'])
+@app.route('/index/<staffID>/<villageID>', methods=['GET','POST'])
 @app.route('/index/<staffID>', defaults={'villageID':None}, methods=['GET','POST'])
 @app.route('/index/<villageID>', defaults={'staffID':None}, methods=['GET','POST'])
-def index(villageID,staffID):
-   
+def index(staffID,villageID):
+    print('staffID - ',staffID)
+    print('villageID - ',villageID)
     # POST REQUEST
     if request.method == 'POST':
         if not request.get_json() == None:
@@ -194,14 +195,14 @@ def getDayAssignments():
 
     # STORE SHOP NUMBER, DATE SCHEDULED, AND DAY NUMBER IN POSITION 0
     schedArray[0][0] = shopNumber
-    schedArray[0][1] = schedDateToDisplay.strftime("%B %-d, %Y")
+    schedArray[0][1] = schedDateToDisplay.strftime("%b %-d, %Y")
     schedArray[0][7] = dayNumber
 
     # BUILD ARRAY WITH ONE ASSIGNMENT PER ROW (POSITION)
     for s in schedule:
         position += 1
         schedArray[position][0] = s.Shop_Number
-        schedArray[position][1] = s.Date_Scheduled.strftime("%B %-d, %Y")
+        schedArray[position][1] = s.Date_Scheduled.strftime("%b %-d, %Y")
         schedArray[position][2] = s.AM_PM
         schedArray[position][3] = s.Duty
         schedArray[position][4] = s.First_Name + " " + s.Last_Name
@@ -237,7 +238,7 @@ def getMemberSchedule():
     rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
     cols = 9 # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
-
+    #print('schedArray -',schedArray)
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "Last_Name + ', ' + First_Name + '  (' + tblMember_Data.Member_ID + ')' as displayName, "
     sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, Date_Scheduled, AM_PM, Duty, No_Show, Shop_Number "
@@ -264,7 +265,7 @@ def getMemberSchedule():
             schedArray[position][8] = ms.No_Show
         
         position += 1
-   
+    #print('schedArray - ',schedArray)
     return jsonify(schedArray)
     
 
@@ -992,7 +993,7 @@ def printMonitorScheduleWeek():
     satDateDAT = dateScheduledDat + timedelta(days=6)
     satDate = satDateDAT.strftime('%m-%d-%Y')
 
-    weekOfHdg = beginDateDAT.strftime('%B %-d, %Y')
+    weekOfHdg = beginDateDAT.strftime('%b %-d, %Y')
     
     # RETRIEVE SCHEDULE FOR SPECIFIC WEEK
     #est = timezone('EST')
