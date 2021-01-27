@@ -109,7 +109,6 @@ document.getElementById("saveReasonID").addEventListener("click",closeReasonModa
 document.getElementById("memberModalID").addEventListener("change",memberModalChange)
 document.getElementById("saveMemberModalID").addEventListener("click",memberModalSave)
 
-//$('#reasonModalID').on('hidden.bs.modal',closeReasonModal)
 document.querySelector('.closeModalNotes').addEventListener('click', closeNotesRtn)
 $('#reasonModalID').on('shown.bs.modal', function () {
     $('#reasonDescID').trigger('focus')
@@ -205,11 +204,10 @@ function yearChanged() {
 }
 
 function shopChanged() {
-    shopFilter = this.value  //document.getElementById('shop').value
+    shopFilter = this.value
     localStorage.setItem('shopFilter',this.value)
     enableRefreshBtn()
     refreshCalendarRtn()
-
 }
 
 
@@ -1096,6 +1094,11 @@ function populateMemberSchedule(memberID) {
             lnk = "window.location.href='/printMemberSchedule/"+ memberID + "'"
             prt.setAttribute("onclick",lnk)
 
+            // SET LINK FOR eMail BUTTON
+            prt = document.getElementById("eMailMemberScheduleBtn")
+            lnk = "window.location.href='/eMailMemberSchedule/"+ memberID + "'"
+            prt.setAttribute("onclick",lnk)
+
             // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
             memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
 
@@ -1269,9 +1272,11 @@ function assignedShiftClicked(nameID) {
     }
     // HIGHLIGHT NAME SELECTED
     selectedName = document.getElementById(nameID)
-    //selectedName.style.backgroundColor = 'yellow'
+    selectedName.style.backgroundColor = 'yellow'
     
     if (swapInProgress) {
+        console.log('swapAssgmnt1ID - '+swapAsgmnt1ID)
+        console.log('swapAssgmnt2ID - '+swapAsgmnt2ID)
         if (swapAsgmnt1ID == '') {
             swapAsgmnt1ID = nameID.slice(0,9)
         }
