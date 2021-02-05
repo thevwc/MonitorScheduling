@@ -4,7 +4,7 @@ from flask import session, render_template, flash, redirect, url_for, request, j
 from flask_bootstrap import Bootstrap
 from werkzeug.urls import url_parse
 from app.models import ShopName, Member, MemberActivity, MonitorSchedule, MonitorScheduleTransaction,\
-MonitorWeekNote, CoordinatorsSchedule, ControlVariables
+MonitorWeekNote, CoordinatorsSchedule, ControlVariables, MemberTransactions
 from app import app
 from app import db
 from sqlalchemy import func, case, desc, extract, select, update, text
@@ -14,14 +14,90 @@ import datetime as dt
 from datetime import date, datetime, timedelta
 from pytz import timezone
 
-@app.route('/', defaults={'staffID':None,'villageID':None}, methods=['GET','POST'])
-@app.route('/index/', defaults={'staffID':None,'villageID':None}, methods=['GET','POST'])
-@app.route('/index/<staffID>/<villageID>', methods=['GET','POST'])
-@app.route('/index/<staffID>', defaults={'villageID':None}, methods=['GET','POST'])
-@app.route('/index/<villageID>', defaults={'staffID':None}, methods=['GET','POST'])
-def index(staffID,villageID):
-    print('staffID - ',staffID)
-    print('villageID - ',villageID)
+#app = Flask(__name__)
+
+app.secret_key = "anyrandomstring"
+ 
+# @app.route('/', defaults={'villageID':None}, methods=['GET','POST'])
+# @app.route('/index/', defaults={'villageID':None}, methods=['GET','POST'])
+# @app.route('/index/<villageID>', methods=['GET','POST'])
+@app.route('/', methods=['GET','POST'])
+@app.route('/index/',methods=['GET','POST'])
+def index():
+    villageID = request.args.get('villageID')
+   
+    # GET MEMBER NAME
+    member = db.session.query(Member).filter(Member.Member_ID == villageID).first()
+    if member:
+        displayName = member.First_Name
+        if member.NickName != '':
+            displayName += ' (' + member.NickName + ')'
+        displayName += ' ' + member.Last_Name
+    else:
+        displayName = ''
+
+    # staffID
+    staffID = getStaffID()
+   
+
+    # shopID
+    try:
+        shopID = session['shopID']
+    except:
+        # msg='Missing shop location; cannot continue.'
+        # flash(msg,'danger')
+        # return msg
+        shopID = 'RA'   # set here for testing only
+
+    if shopID == 'RA':
+        shopNumber = 1
+    else:
+        if shopID == 'BW':
+            shopNumber = 2
+        else:
+            msg = "The shopID of " + shopID + " is not valid; cannot continue."
+            flash (msg,'danger')
+   
+
+    # staffName
+    # GET STAFF MEMBER NAME AND PRIVILEDGES (staffName is also available as session variable)
+    staffMember = db.session.query(Member).filter(Member.Member_ID == staffID).first()
+    if staffMember != None:
+        staffName = staffMember.First_Name
+        if staffMember.NickName != None:
+            staffName += ' (' + staffMember.NickName + ')'
+        staffName += ' ' +  staffMember.Last_Name
+    else:
+        msg = "No match for staffID " + villageID + "; cannot continue."
+        flash(msg,"danger")
+        return msg
+
+    
+    # GET POSITION OF USER - Staff, DBA, Manager
+    # isDBA, isManager, isStaff are not boolean because we cannot pass boolean values to client???
+    if (staffMember.DBA):
+        isDBA = 'True'
+    else:
+        isDBA = 'False'
+
+    if (staffMember.Manager):
+        isManager = 'True'
+    else:
+        isManager = 'False'
+
+    if (staffMember.Office_Staff):
+        isStaff = 'True'
+    else:
+        isStaff = 'False'
+    
+    if (isDBA == 'False' and isManager == 'False' and isStaff == 'False') :
+        msg = "This user is not authorized for this application."
+        flash (msg,'danger')
+        return msg               
+    
+
+
+
     # POST REQUEST
     if request.method == 'POST':
         if not request.get_json() == None:
@@ -31,10 +107,6 @@ def index(staffID,villageID):
             else:
                 villageID = None
 
-            if parameters and 'staffID' in parameters:
-                 staffID=parameters['staffID']
-            else:
-                staffID = None
             if parameters and 'year' in parameters:
                  yearFilter=parameters['year']
             else:
@@ -127,7 +199,7 @@ def index(staffID,villageID):
         position += 1
         lastFirst = n.Last_Name + ', ' + n.First_Name + ' (' + n.Member_ID + ')'
         nameArray.append(lastFirst)
-    return render_template("index.html",nameList=nameArray,memberID='000000',displayName='')
+    return render_template("index.html",nameList=nameArray,memberID=villageID,displayName=displayName,staffName=staffName,shopID=shopID)
    
 
 @app.route('/refreshCalendar', methods=['POST'])
@@ -238,7 +310,7 @@ def getMemberSchedule():
     rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
     cols = 9 # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
-    #print('schedArray -',schedArray)
+   
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "Last_Name + ', ' + First_Name + '  (' + tblMember_Data.Member_ID + ')' as displayName, "
     sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, Date_Scheduled, AM_PM, Duty, No_Show, Shop_Number "
@@ -265,7 +337,7 @@ def getMemberSchedule():
             schedArray[position][8] = ms.No_Show
         
         position += 1
-    #print('schedArray - ',schedArray)
+    
     return jsonify(schedArray)
     
 
@@ -283,10 +355,6 @@ def deleteMonitorAssignment():
     recordID = parameters['recordID']
     if recordID == None:
         return "ERROR - Missing recordID."
-    
-    staffID = parameters['staffID']
-    if staffID == None: 
-        return "ERROR - Missing staffID."
   
 
     # RETRIEVE RECORD TO BE DELETED
@@ -307,7 +375,7 @@ def deleteMonitorAssignment():
         return "ERROR - Delete of assignment failed."
 
     # ADD ENTRY TO MONITOR SCHEDULE TRANSACTION LOG
-    response=LogMonitorScheduleTransaction('DELETE',memberID,dateScheduled,ampm,duty,staffID,shopNumber)
+    response=LogMonitorScheduleTransaction('DELETE',memberID,dateScheduled,ampm,duty,shopNumber)
     if response == 0:
         return "ERROR - Could NOT log DELETE transaction."
 
@@ -316,7 +384,6 @@ def deleteMonitorAssignment():
     memberName = mbr.First_Name + ' ' + mbr.Last_Name + ' (' + memberID + ')'
     dateScheduledSTR = dateScheduled.strftime('%m-%d-%Y')
     actionDesc = "DELETE " + memberName + ' ' + dateScheduledSTR + ' ' + ampm + ' ' + duty
-   
     return (actionDesc) 
        
     
@@ -345,16 +412,16 @@ def addMonitorAssignment():
     Duty = parameters['Duty']
     if (Duty == None):
         return "ERROR - Missing Duty parameter."
-    staffID = parameters['staffID']
-    if staffID == None: 
-        return "ERROR - Missing staffID."
+    
 
     #  DOES MEMBER HAVE ANOTHER ASSIGNMENT AT ANOTHER LOCATION FOR THIS TIME
-    assignmentExists = MonitorSchedule.query.filter_by(Member_ID=memberID,
-        Date_Scheduled = schedDate,
-        AM_PM = Shift).first()
+    assignmentExists = db.session.query(MonitorSchedule)\
+        .filter(MonitorSchedule.Member_ID == memberID)\
+        .filter(MonitorSchedule.Date_Scheduled == schedDate)\
+        .filter(MonitorSchedule.AM_PM == Shift)\
+        .first()
     if assignmentExists:
-        return 'This member has another assignment at this time.'
+        return 'ERROR - This member has another assignment at this time.'
 
     #  ADD VIA RAW SQL
     sqlInsert = "INSERT INTO tblMonitor_Schedule (Member_ID, Date_Scheduled, AM_PM, Shop_Number,Duty)"
@@ -368,7 +435,7 @@ def addMonitorAssignment():
         return "ERROR - Assignment could NOT be added."
 
     # ADD ENTRY TO MONITOR SCHEDULE TRANSACTION LOG
-    response=LogMonitorScheduleTransaction('ADD',memberID,schedDate,Shift,Duty,staffID,shopNumber)
+    response=LogMonitorScheduleTransaction('ADD',memberID,schedDate,Shift,Duty,shopNumber)
     if response == 0:
         return "ERROR - Could NOT log transaction."
 
@@ -385,18 +452,18 @@ def swapMonitorAssignments():
     if parameters == None:
         return "ERROR - Missing all parameters."
 
-    schedDate = parameters['schedDate1']
-    if (schedDate == None):
+    parSchedDate1 = parameters['schedDate1']
+    if (parSchedDate1 == None):
         return "ERROR - Missing schedDate1 parameter."
-    schedDate1 = datetime.strptime(schedDate,'%Y%m%d')
+    schedDate1 = datetime.strptime(parSchedDate1,'%Y%m%d')
     schedDateSTR1 = schedDate1.strftime('%m-%d-%Y')
     dayOfWeek1 = schedDate1.weekday()
     weekOf1 = schedDate1 - timedelta(dayOfWeek1 + 1)
     
-    schedDate = parameters['schedDate2']
-    if (schedDate == None):
+    parSchedDate2 = parameters['schedDate2']
+    if (parSchedDate2 == None):
         return "ERROR - Missing schedDate2 parameter."
-    schedDate2 = datetime.strptime(schedDate,'%Y%m%d')
+    schedDate2 = datetime.strptime(parSchedDate2,'%Y%m%d')
     schedDateSTR2 = schedDate2.strftime('%m-%d-%Y')
     dayOfWeek2 = schedDate2.weekday()
     weekOf2 = schedDate2 - timedelta(dayOfWeek2 + 1)
@@ -433,9 +500,6 @@ def swapMonitorAssignments():
     if (shopNumber == None):
         return "ERROR - Missing shopNumber parameter."
 
-    staffID = parameters['staffID']
-    if (staffID == None):
-        return "ERROR - Missing staffID parameter."
     
     if (recordID1 == '0') and (recordID2 == '0'):
         return "ERROR - You cannot swap two OPEN assignments."
@@ -462,16 +526,15 @@ def swapMonitorAssignments():
 
 
     # CHECK FOR POTENTIAL CONFLICTS WITH EACH ASSIGNMENT
-    if schedDate1 != schedDate2 or shift1 != shift2:
-        if conflicts(memberID2,schedDate1,shift1) > 0:
-            msg = "ERROR - " + memberName2 + " has a conflict at "
-            msg += schedDate1.strftime('%m-%d-%Y') + " " + shift1
-            return msg
-            
-        if conflicts(memberID1,schedDate2,shift2) > 0:
-            msg = "ERROR  - " + memberName1 + " has a conflict at "
-            msg += schedDate2.strftime('%m-%d-%Y') + " " + shift2
-            return msg
+    if conflicts(memberID2,schedDate1,shift1) > 0:
+        msg = "ERROR - " + memberName2 + " has a conflict at "
+        msg += schedDate1.strftime('%m-%d-%Y') + " " + shift1
+        return msg
+        
+    if conflicts(memberID1,schedDate2,shift2) > 0:
+        msg = "ERROR  - " + memberName1 + " has a conflict at "
+        msg += schedDate2.strftime('%m-%d-%Y') + " " + shift2
+        return msg
         
 
     # IS THIS A SWAP AND NOT A MOVE TO AN EMPTY SLOT?
@@ -491,16 +554,16 @@ def swapMonitorAssignments():
             return "ERROR - Swap could NOT be completed."
 
         # WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
-        response=LogMonitorScheduleTransaction('RMV-SWP',memberID1,schedDate1,shift1,duty1,staffID,shopNumber)
+        response=LogMonitorScheduleTransaction('RMV-SWP',memberID1,schedDate1,shift1,duty1,shopNumber)
         if response == '0':
             return "ERROR - Could NOT log transaction."
-        response=LogMonitorScheduleTransaction('RMV-SWP',memberID2,schedDate2,shift2,duty2,staffID,shopNumber)
+        response=LogMonitorScheduleTransaction('RMV-SWP',memberID2,schedDate2,shift2,duty2,shopNumber)
         if response == '0':
             return "ERROR - Could NOT log transaction."
-        response=LogMonitorScheduleTransaction('ADD-SWP',memberID1,schedDate1,shift1,duty1,staffID,shopNumber)
+        response=LogMonitorScheduleTransaction('ADD-SWP',memberID1,schedDate1,shift1,duty1,shopNumber)
         if response == '0':
             return "ERROR - Could NOT log transaction."
-        response=LogMonitorScheduleTransaction('ADD-SWP',memberID2,schedDate2,shift2,duty2,staffID,shopNumber)
+        response=LogMonitorScheduleTransaction('ADD-SWP',memberID2,schedDate2,shift2,duty2,shopNumber)
         if response == '0':
             return "ERROR - Could NOT log transaction."
                 
@@ -531,10 +594,10 @@ def swapMonitorAssignments():
 
 
         #  WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
-        response=LogMonitorScheduleTransaction('RMV-MV',memberID1,schedDate1,shift1,duty1,staffID,shopNumber)
+        response=LogMonitorScheduleTransaction('RMV-MV',memberID1,schedDate1,shift1,duty1,shopNumber)
         if response == '0':
             return "ERROR - Could NOT log transaction."
-        response=LogMonitorScheduleTransaction('ADD-MV',memberID1,schedDate2,shift2,duty2,staffID,shopNumber)
+        response=LogMonitorScheduleTransaction('ADD-MV',memberID1,schedDate2,shift2,duty2,shopNumber)
         if response == '0':
             return "ERROR - Could NOT log transaction."
         
@@ -564,10 +627,10 @@ def swapMonitorAssignments():
             return "ERROR - Delete of assignment failed."
 
         #  WRITE TO MONITOR_SCHEDULE_TRANSACTIONS
-        response=LogMonitorScheduleTransaction('RMV-MV',memberID2,schedDate2,shift2,duty2,staffID,shopNumber)
+        response=LogMonitorScheduleTransaction('RMV-MV',memberID2,schedDate2,shift2,duty2,shopNumber)
         if response == '0':
             return "ERROR - Could NOT log transaction."
-        response=LogMonitorScheduleTransaction('ADD-MV',memberID2,schedDate1,shift1,duty1,staffID,shopNumber)
+        response=LogMonitorScheduleTransaction('ADD-MV',memberID2,schedDate1,shift1,duty1,shopNumber)
         if response == '0':
             return "ERROR - Could NOT log transaction."
 
@@ -587,9 +650,10 @@ def conflicts(memberID,dateScheduled,shift):
         .filter(MonitorSchedule.Member_ID==memberID)\
         .filter(MonitorSchedule.Date_Scheduled==dtSched)\
         .filter(MonitorSchedule.AM_PM==shift).scalar()
+
     return assignmentCount 
     
-def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,duty,staffID,shopNumber):
+def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,duty,shopNumber):
     # VALID TRANSACTION TYPES ARE ADD, ADD-MV, ADD-SWP, DELETE, DELETE NS, RMV-MV, RMV-SWP
     est = timezone('EST')
     transactionDate = datetime.now(est)
@@ -607,7 +671,8 @@ def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,d
     dayOfWeek = datDateScheduled.weekday()
     weekOf = datDateScheduled - timedelta(dayOfWeek + 1)
     strWeekOf = weekOf.strftime('%m-%d-%Y')
-    
+    staffID = getStaffID()
+
     # BUILD THE SQL INSERT STATEMENT FOR POSTING TO THE MONITOR SCHEDULE TRANSACTION TABLE
     sqlInsert = "INSERT INTO tblMonitor_Schedule_Transactions (Transaction_Date,WeekOf,Staff_ID,"
     sqlInsert += "Member_ID,Transaction_Type,Date_Scheduled, AM_PM,Duty,ShopNumber) VALUES("
@@ -625,6 +690,9 @@ def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,d
 
 @app.route('/logMonitorScheduleNote', methods=['GET','POST'])
 def logMonitorScheduleNote():
+    # GET STAFF ID
+    staffID = getStaffID()
+
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -654,9 +722,7 @@ def logMonitorScheduleNote():
     if swapDate2 == None:
         return "ERROR - Missing swapDate2."
     
-    staffID = parameters['staffID']
-    if staffID == None:
-        return "ERROR - Missing staffID."
+    staffID = getStaffID()
 
     shopNumber = parameters['shopNumber']
     if shopNumber == None:
@@ -680,7 +746,7 @@ def logMonitorScheduleNote():
         dayOfWeek1 = deleteAsgmntDtDAT.weekday()
         weekOf1 = deleteAsgmntDtDAT - timedelta(dayOfWeek1 + 1)
         weekOf1STR = weekOf1.strftime('%m-%d-%Y')
-    
+      
     #est = timezone('EST')
     today=date.today()
     todaySTR = today.strftime('%m-%d-%Y')
@@ -818,12 +884,18 @@ def getMemberModalData():
     dataArray[10] = member.Oct_resident
     dataArray[11] = member.Nov_resident
     dataArray[12] = member.Dec_resident
-
     dataArray[13] = member.Certified
     dataArray[14] = member.Certified_2
 
-    dataArray[15] = member.Last_Monitor_Training.strftime("%-m/%-d/%Y")
-    dataArray[16] = member.Requires_Tool_Crib_Duty
+    if (member.Last_Monitor_Training != None and member.Last_Monitor_Training != ''):
+        dataArray[15] = member.Last_Monitor_Training.strftime("%Y-%m-%d")
+    else:
+        dataArray[15] = ''
+     
+    if (member.Requires_Tool_Crib_Duty):
+        dataArray[16] = 'True'
+    else:
+        dataArray[16] = 'False'
 
     dataArray[17] = member.Monitor_Duty_Notes
     dataArray[18] = member.Member_Notes
@@ -834,17 +906,36 @@ def getMemberModalData():
 # ROUTINE TO UPDATE MEMBER DATA FROM MODAL FORM
 @app.route('/updateMemberModalData', methods=['GET','POST'])
 def updateMemberModalData():
+    staffID = getStaffID()
+    staffRecord = db.session.query(Member).filter(Member.Member_ID == staffID).first()
+    isDBA = False
+    isManager = False
+    if staffRecord:
+        isDBA = staffRecord.DBA
+        isManager = staffRecord.Manager
+    if isDBA or isManager:
+        isAuthorized = True
+    else:
+        isAuthorized = False
+
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
     if request.get_json() == None:
         return "ERROR - Missing member number."
     parameters = request.get_json()
-    
+   
+    lastTraining = parameters['lastTraining']
+    if lastTraining == None:
+        return "ERROR - Missing lastTraining."
+
     memberID = parameters['memberID']
+    
     if memberID == None:
         return "ERROR - Missing memberID."
     
+    needsToolCrib = parameters["needsToolCrib"]
+   
     monitorNotes = parameters['monitorNotes']
     if monitorNotes == None:
         return "ERROR - Missing monitorNotes."
@@ -854,6 +945,7 @@ def updateMemberModalData():
         return "ERROR - Missing memberNotes."
 
     jan = parameters['jan']
+    
     if jan == None:
         return "ERROR - Missing jan."
     feb = parameters['feb']
@@ -890,33 +982,115 @@ def updateMemberModalData():
     if dec == None:
         return "ERROR - Missing dec."
 
-    try:
-        member = db.session.query(Member).filter(Member.Member_ID==memberID).first()
-        if member == None:
-            return "ERROR - Member ID " + memberID + " could not be found in the database."
+    
+    member = db.session.query(Member).filter(Member.Member_ID==memberID).first()
+    if member == None:
+        return "ERROR - Member ID " + memberID + " could not be found in the database."
+    # SET fieldsChanged TO ZERO 
+    fieldsChanged = 0
 
-        # UPDATE MEMBER RECORD
-        member.Monitor_Duty_Notes = monitorNotes
+    # UPDATE MEMBER RECORD
+    if lastTraining != member.Last_Monitor_Training:
+        logChange('Last Monitor Training',memberID,lastTraining,member.Last_Monitor_Training)
+        member.Last_Monitor_Training = lastTraining
+        fieldsChanged += 1
+
+    if ((needsToolCrib == 'True' and member.Requires_Tool_Crib_Duty != True)
+    or (needsToolCrib == 'False' and member.Requires_Tool_Crib_Duty)):    
+        # Requires_Tool_Crib_Duty HAS CHANGED
+        if (needsToolCrib == 'True'):
+            newValue = 1
+        else:
+            newValue = 0
+
+        logChange('Requires TC Duty',memberID,newValue,member.Requires_Tool_Crib_Duty)
+        if (needsToolCrib == 'True'):
+            member.Requires_Tool_Crib_Duty = True
+        else:
+            member.Requires_Tool_Crib_Duty = False
+
+        fieldsChanged += 1
+  
+    if isAuthorized:
+        if member.Monitor_Duty_Notes != monitorNotes:
+            logChange('Monitor Duty Notes',memberID,monitorNotes,member.Monitor_Duty_Notes)
+            member.Monitor_Duty_Notes = monitorNotes
+            fieldsChanged += 1
+   
+    if member.Member_Notes != memberNotes:
+        logChange('Member Notes',memberID,memberNotes,member.Member_Notes)
         member.Member_Notes = memberNotes
+        fieldsChanged += 1
+    
+
+    if member.Jan_resident != jan:
+        logChange('Jan',memberID,jan,member.Jan_resident)
         member.Jan_resident = jan
+        fieldsChanged += 1
+
+    if member.Feb_resident != feb:
+        logChange('Feb',memberID,feb,member.Feb_resident)
         member.Feb_resident = feb
+        fieldsChanged += 1
+
+    if member.Mar_resident != mar:
+        logChange('Mar',memberID,mar,member.Mar_resident)
         member.Mar_resident = mar
+        fieldsChanged += 1
+
+    if member.Apr_resident != apr:
+        logChange('Apr',memberID,apr,member.Apr_resident)
         member.Apr_resident = apr
+        fieldsChanged += 1
+
+    if member.May_resident != may:
+        logChange('May',memberID,may,member.May_resident)
         member.May_resident = may
+        fieldsChanged += 1
+
+    if member.Jun_resident != jun:
+        logChange('Jun',memberID,jun,member.Jun_resident)
         member.Jun_resident = jun
+        fieldsChanged += 1
+
+    if member.Jul_resident != jul:
+        logChange('Jul',memberID,jul,member.Jul_resident)
         member.Jul_resident = jul
+        fieldsChanged += 1
+
+    if member.Aug_resident != aug:
+        logChange('Aug',memberID,aug,member.Aug_resident)
         member.Aug_resident = aug
+        fieldsChanged += 1
+
+    if member.Sep_resident != sep:
+        logChange('Sep',memberID,sep,member.Sep_resident)
         member.Sep_resident = sep
+        fieldsChanged += 1
+
+    if member.Oct_resident != oct:
+        logChange('Oct',memberID,oct,member.Oct_resident)
         member.Oct_resident = oct
+        fieldsChanged += 1
+
+    if member.Nov_resident != nov:
+        logChange('Nov',memberID,nov,member.Nov_resident)
         member.Nov_resident = nov
+        fieldsChanged += 1
+
+    if member.Dec_resident != dec:
+        logChange('Dec',memberID,dec,member.Dec_resident)
         member.Dec_resident = dec
-        #db.session.Save
+        fieldsChanged += 1
+
+    try:
         db.session.commit()
     except:
         db.session.rollback()
         return "ERROR - Save has failed."
     finally:
         return "SUCCESS - Data has been saved."
+
 
 
 # PRINT MEMBER MONITOR DUTY SCHEDULE
@@ -949,12 +1123,12 @@ def printMemberSchedule(memberID):
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "First_Name + ' ' + Last_Name as displayName, tblShop_Names.Shop_Name, "
     sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, "
-    sqlSelect += " format(Date_Scheduled,'M/d/yyyy') as DateScheduled, AM_PM, Duty, No_Show, tblMonitor_Schedule.Shop_Number "
+    sqlSelect += " format(Date_Scheduled,'MMM d, yyyy') as DateScheduled, AM_PM, Duty, No_Show, tblMonitor_Schedule.Shop_Number "
     sqlSelect += "FROM tblMember_Data "
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
     sqlSelect += "LEFT JOIN tblShop_Names ON tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' and Date_Scheduled >= '"
-    sqlSelect += beginDateSTR + "' ORDER BY Date_Scheduled, AM_PM, Duty"
+    sqlSelect += beginDateSTR + "' ORDER BY Date_Scheduled desc, AM_PM, Duty"
 
     schedule = db.engine.execute(sqlSelect)
     
@@ -998,9 +1172,7 @@ def printMonitorScheduleWeek():
     # RETRIEVE SCHEDULE FOR SPECIFIC WEEK
     #est = timezone('EST')
     todays_date = date.today()
-    #print('est - ',todays_date)
     todays_dateSTR = todays_date.strftime('%-m-%-d-%Y')
-    #print('est STR - ',todays_dateSTR)
 
     # GET COORDINATOR ID FROM COORDINATOR TABLE
     coordinatorRecord = db.session.query(CoordinatorsSchedule)\
@@ -1209,3 +1381,37 @@ def printMonitorScheduleWeek():
     weekOfHdg=weekOfHdg,\
     monDate=monDate,tueDate=tueDate,wedDate=wedDate,thuDate=thuDate,friDate=friDate,satDate=satDate)
     
+
+def logChange(colName,memberID,newData,origData):
+    staffID = getStaffID()
+    if staffID == None or staffID == '':
+        flash('Missing staffID in logChange routine.','danger')
+        staffID = '111111'
+
+    #  GET UTC TIME
+    est = timezone('EST')
+    # Write data changes to tblMember_Data_Transactions
+    try:
+        newTransaction = MemberTransactions(
+            Transaction_Date = datetime.now(est),
+            Member_ID = memberID,
+            Staff_ID = staffID,
+            Original_Data = origData,
+            Current_Data = newData,
+            Data_Item = colName,
+            Action = 'UPDATE'
+        )
+        db.session.add(newTransaction)
+        return
+        db.session.commit()
+    except SQLAlchemyError as e:
+        error = str(e.__dict__['orig'])
+        flash('Transaction could not be logged.\n'+error,'danger')
+        db.session.rollback()
+
+def getStaffID():
+    if 'staffID' in session:
+        staffID = session['staffID']
+    else:
+        staffID = '604875'
+    return staffID

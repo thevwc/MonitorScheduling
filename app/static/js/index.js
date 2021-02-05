@@ -24,9 +24,8 @@ const colors = {
 };
 
 // Declare global variables)
-var staffID = ''
 var currentMemberID = ''
-var currentMemberName = ''  // This var is used when refreshing the page.
+//var currentMemberName = ''  // This var is used when refreshing the page.
 var startUpYear = ''
 var yearFilter = ''
 var clientLocation = ''  // Client location is where this app is being used; if is the startup point for shop filter
@@ -47,30 +46,6 @@ var swapAsgmnt2ID = ''
 var deleteAsgmntDt = ''
 var curShopNumber = ''
 
-// GET STAFF ID FROM URL IF AVAILABLE, OTHERWISE FROM LOCALSTORAGE, NEXT FROM PROMPT
-const params = new URLSearchParams(window.location.search)
-var pathArray = window.location.pathname.split('/');
-if (pathArray.length = 4) {
-    if (pathArray[3] != null & pathArray[3] != '') {
-        staffID = pathArray[3]
-        localStorage.setItem('staffID',staffID)
-    }
-    else {
-        staffID = ''
-    }
-}
-
-if (staffID == '' | staffID == null) {
-    // CHECK LOCAL STORAGE FOR STAFF ID
-    if (!localStorage.getItem('staffID')) {
-        staffID = prompt('Staff ID - ','xxxxxx')
-        localStorage.setItem('staffID',staffID)
-    }
-    else {
-        staffID = localStorage.getItem('staffID')
-    }
-}
-
 // IS THERE A STARTUP YEAR STORED IN LOCALSTORAGE, IF NOT USE CURRENT YEAR
 // START UP YEAR IS THE MIDDLE VALUE OF THE THREE YEARS LISTED IN THE DROPDOWN LIST
 startUpYear = localStorage.getItem('startUpYear')
@@ -86,19 +61,33 @@ setStartUpYear(startUpYear)
 setupYearFilter(startUpYear)
 
 // WHICH SHOP LOCATION? IS THERE A LOCATION STORED IN LOCALSTORAGE?
-if (!localStorage.getItem('clientLocation')) {
-    clientLocation = prompt("Location - 'RA' or 'BW",'xx')
-    clientLocation = clientLocation.toUpperCase()
-    if (clientLocation != 'RA' & clientLocation != 'BW'){
-        clientLocation = 'BOTH'
-    }
-    localStorage.setItem('clientLocation',clientLocation)
+clientLocation = document.getElementById('shopID').value
+if (clientLocation != 'RA' & clientLocation != 'BW'){
+    alert('Missing shopID; cannot continue.')
 }
-else {
-    clientLocation = localStorage.getItem('clientLocation')
-}
+
 // SET UP SHOP FILTER LIST
 setShopFilter(clientLocation)
+// Set modal form location to current settings
+document.getElementById("shopDefault").selectedIndex = curShopNumber
+// switch(currentLocation){
+//     case 'RA':
+//         document.getElementById("shopDefault").selectedIndex = 1; //Option Rolling Acres
+//         break;
+//     case 'BW':
+//         document.getElementById("shopDefault").selectedIndex = 2; //Option Rolling Acres
+//         break;
+//     default:
+//         document.getElementById("shopDefault").selectedIndex = 0; //Option 'Select a Shop'
+// }
+
+// CHECK FOR A CURRENT MEMBER ID; IF FOUND DISPLAY NAME AND SCHEDULE
+currentMemberID = document.getElementById('memberID').innerHTML 
+//alert('currentMemberID - '+currentMemberID)
+if (currentMemberID.length == 6) {
+    populateMemberSchedule(currentMemberID)
+}
+
 
 // DEFINE EVENT LISTENERS
 document.getElementById("yearToDisplay").addEventListener("change", yearChanged);
@@ -106,28 +95,30 @@ document.getElementById("shopToDisplay").addEventListener("change", shopChanged)
 document.getElementById("refreshCalendarBtn").addEventListener("click",refreshCalendarRtn)
 document.getElementById("selectpicker").addEventListener("change",memberSelectedRtn)
 document.getElementById("saveReasonID").addEventListener("click",closeReasonModal)
-document.getElementById("memberModalID").addEventListener("change",memberModalChange)
+//document.getElementById("memberModalID").addEventListener("change",memberModalChange)
 document.getElementById("saveMemberModalID").addEventListener("click",memberModalSave)
 
 document.querySelector('.closeModalNotes').addEventListener('click', closeNotesRtn)
 $('#reasonModalID').on('shown.bs.modal', function () {
     $('#reasonDescID').trigger('focus')
   })
-window.addEventListener('unload', function(event) {
-    localStorage.removeItem('currentMemberID')
-    //localStorage.removeItem('firstTimeSwitch');
-});
+// window.addEventListener('unload', function(event) {
+//     localStorage.removeItem('currentMemberID')
+//     //localStorage.removeItem('firstTimeSwitch');
+// });
 
 // HIDE CONFIRMATION MODAL
-$('#confirmAction').modal('hide')
+//$('#confirmAction').modal('hide')
 
 // HIDE DAY 1 AND 2 BUTTONS
-document.getElementById('day1Notes').style.display='none'
-document.getElementById('day1Print').style.display='none'
-document.getElementById('day1Clear').style.display='none'
-document.getElementById('day2Notes').style.display='none'
-document.getElementById('day2Print').style.display='none'
-document.getElementById('day2Clear').style.display='none'
+clearDay1()
+clearDay2()
+// document.getElementById('day1Notes').style.display='none'
+// document.getElementById('day1Print').style.display='none'
+// document.getElementById('day1Clear').style.display='none'
+// document.getElementById('day2Notes').style.display='none'
+// document.getElementById('day2Print').style.display='none'
+// document.getElementById('day2Clear').style.display='none'
 
 // SET 'CANCEL SWAP' AND 'MAKE SWAP' BUTTONS TO DISABLED
 document.getElementById('cancelSwap').disabled = true
@@ -154,38 +145,37 @@ populateCalendar(yearFilter,shopFilter)
 // IF RETURNING TO THIS PAGE ...
 
 // IS THERE A MEMBER ID IN THE URL?
-if (pathArray.length >= 3) {
-    if (pathArray[2] != null & pathArray[2] != '') {
-        currentMemberID = pathArray[2]
-        localStorage.setItem('currentMemberID',currentMemberID)
-    }
-    else {
-        // IS THERE A MEMBER ID STORED IN LOCAL STORAGE
-        if (localStorage.getItem('currentMemberID')) {
-            currentMemberID = localStorage.getItem('currentMemberID')
-        }
-        currentMemberID = ''
-    }
-}
+// if (pathArray.length >= 3) {
+//     if (pathArray[2] != null & pathArray[2] != '') {
+//         currentMemberID = pathArray[2]
+//         localStorage.setItem('currentMemberID',currentMemberID)
+//     }
+//     else {
+//         // IS THERE A MEMBER ID STORED IN LOCAL STORAGE
+//         if (localStorage.getItem('currentMemberID')) {
+//             currentMemberID = localStorage.getItem('currentMemberID')
+//         }
+//         currentMemberID = ''
+//     }
+// }
 
 // IS THE PAGE BEING REFRESHED? TAKE USER BACK TO DATA THEY WERE WORKING WITH.
-if (currentMemberID != '' && currentMemberID != null) {
-    //  CHECK FOR A SAVED NAME
-    if (localStorage.getItem('currentMemberName')) {
-        currentMemberName = localStorage.getItem('currentMemberName')
-        document.getElementById('memberNameHdg').innerHTML = currentMemberName
-        // DISPLAY CURRENT MEMBER'S SCHEDULE
-        populateMemberSchedule(currentMemberID)
-        document.getElementById('memberBtnsID').style.display='block'
-    }
-    else {
-        currentMemberName = ''
-    }
+// if (currentMemberID != '' && currentMemberID != null) {
+//     //  CHECK FOR A SAVED NAME
+//     if (localStorage.getItem('currentMemberName')) {
+//         currentMemberName = localStorage.getItem('currentMemberName')
+//         document.getElementById('memberNameHdg').innerHTML = currentMemberName
+//         // DISPLAY CURRENT MEMBER'S SCHEDULE
+//         populateMemberSchedule(currentMemberID)
+//         document.getElementById('memberBtnsID').style.display='block'
+//     }
+//     else {
+//         currentMemberName = ''
+//     }
     
-}
+// }
 
 dayClickedID = localStorage.getItem('dayClickedID')
-console.log('test for localStorage dayClickedID - ' + dayClickedID)
 if (dayClickedID) {
     dayClicked(dayClickedID)
 }
@@ -265,7 +255,6 @@ function enableRefreshBtn() {
 
 function dayClicked(dayClickedID) {
     // SAVE dayClickedID FOR REFRESHING PAGE ON PAGE LOAD
-    console.log('clicked id - '+dayClickedID)
     localStorage.setItem('dayClickedID',dayClickedID)
     // send POST request with year, shop, and duty
     var xhttp = new XMLHttpRequest();
@@ -695,18 +684,7 @@ $('#settingsModal').on('show.bs.modal', function () {
     }
     document.getElementById('yearDefault').value = startUpYr
 
-    // Set modal form location to current settings
-    currentLocation = localStorage.getItem('clientLocation')
-    switch(currentLocation){
-        case 'RA':
-            document.getElementById("shopDefault").selectedIndex = 1; //Option Rolling Acres
-            break;
-        case 'BW':
-            document.getElementById("shopDefault").selectedIndex = 2; //Option Rolling Acres
-            break;
-        default:
-            document.getElementById("shopDefault").selectedIndex = 0; //Option 'Select a Shop'
-    }
+    
 })
 
 
@@ -762,7 +740,6 @@ function buildDayTable(scheduleNumber, shopNumberToDisplay,sched,yyyymmdd,dayNum
     if (scheduleNumber == 1) {
         document.getElementById('day1Date').innerHTML = sched[0][1]
         day1Title = shopNames[shopNumberToDisplay-1]
-        //alert('day1Title - '+day1Title + ' shopNumberToDisplay - '+ shopNumberToDisplay)
         document.getElementById('day1Location').innerHTML = day1Title
         
         prt = document.getElementById("day1Print")
@@ -1059,16 +1036,14 @@ function createScheduleDetail (scheduleNumber,ShopNumber,yyyymmdd,Shift,Duty,Nam
 
 function memberSelectedRtn() {
     selectedMember = this.value
-    console.log('selectedMember - '+selectedMember)
-
+   
     document.getElementById('memberNameHdg').innerHTML = selectedMember
-    localStorage.setItem('currentMemberName',selectedMember)
+    //localStorage.setItem('currentMemberName',selectedMember)
     lastEight = selectedMember.slice(-8)
     currentMemberID= lastEight.slice(1,7)
-    console.log('currentMemberID in memberSelectedRtn - '+currentMemberID)
+   
     // STORE MEMBER ID  
     localStorage.setItem('currentMemberID',currentMemberID)
-    console.log('call populateMemberSchedule using - '+ currentMemberID)
     populateMemberSchedule(currentMemberID)
     document.getElementById('selectpicker').value=''
     document.getElementById('memberBtnsID').style.display='block'
@@ -1078,7 +1053,7 @@ function populateMemberSchedule(memberID) {
     if (memberID == null) {
         return
     }
-    console.log('9. populateMemberSchedule - '+memberID)
+    
     // Ajax request for last training date and monitor schedule for current year forward
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/getMemberSchedule"); 
@@ -1095,9 +1070,9 @@ function populateMemberSchedule(memberID) {
             prt.setAttribute("onclick",lnk)
 
             // SET LINK FOR eMail BUTTON
-            prt = document.getElementById("eMailMemberScheduleBtn")
-            lnk = "window.location.href='/eMailMemberSchedule/"+ memberID + "'"
-            prt.setAttribute("onclick",lnk)
+            //prt = document.getElementById("eMailMemberScheduleBtn")
+            //lnk = "window.location.href='/eMailMemberSchedule/"+ memberID + "'"
+            //prt.setAttribute("onclick",lnk)
 
             // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
             memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
@@ -1109,16 +1084,14 @@ function populateMemberSchedule(memberID) {
    
             // STEP THROUGH ARRAY PASSED IN FROM SERVER AND BUILD MEMBERS SCHEDULE
             // IF THE ASSIGNMENT DATE IS PRIOR TO TODAY, MAKE FONT GREEN, OTHERWISE RED
-            console.log('11. DATA RETURNED FROM SERVER ...')
+
             for ( var y=0; y<numberOfElements; y++ ) {
                 // IS THE ARRAY EMPTY?
                 if (sched[y][0] == 0) {
-                    console.log(' 12. array is empty')
                     break 
                 }
 
                 // DOES THE MEMBER HAVE ANY ASSIGNMENTS?
-                console.log('11.5 date scheduled - '+sched[y][4])
                 if (sched[y][4] == 0) {
                     return
                 }
@@ -1186,25 +1159,39 @@ function populateMemberSchedule(memberID) {
                 spanDuty.innerHTML = duty
                 mbrRowDiv.appendChild(spanDuty)
 
-                var spanNoShow = document.createElement("span")
-                spanNoShow.classList.add("memberScheduleCol")
-                spanNoShow.innerHTML = noShow
-                mbrRowDiv.appendChild(spanNoShow)
+                // var labelNoShow = document.createElement("label")
+                // labelNoShow.classList.add("memberScheduleCol")
+                // labelNoShow.classList.add("container")
+                // mbrRowDiv.appendChild(labelNoShow)
+
+                var inputNoShow = document.createElement("input")
+                inputNoShow.type='checkbox'
+                inputNoShow.setAttribute("onclick","return false")
+                if (noShow){
+                    inputNoShow.checked="checked"
+                }
+                //labelNoShow.appendChild(inputNoShow)
+                mbrRowDiv.appendChild(inputNoShow)
+
+                // var spanNoShow=document.createElement("span")
+                // spanNoShow.classList.add("checkmark")
+                // labelNoShow.appendChild(spanNoShow)
+
             
             }  // END OF FOR LOOP  
             return
         }  // END OF READY STATE TEST
     }   // END IF READYSTATE ...
     var data = {memberID:memberID}; //send memberID selected to server;
-    console.log('10. SEND DATA TO SERVER ...' + memberID)
     xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
 
 
-function confirmAdd(memberID) {
-    answer = confirm("Make this assignment for Village ID " + memberID + "?");
-    return answer
-}
+// function confirmAdd(memberID) {
+//     answer = confirm("Make this assignment for Village ID " + memberID + "?");
+//     return answer
+// }
+
 // USER CLICKED ON A BLANK, IE, UNASSIGNED SHIFT SLOT
 // ADD A RECORD TO THE TABLE tblMonitor_Schedule
 
@@ -1256,9 +1243,9 @@ function unAssignedShiftClicked(nameID,scheduleNumber) {
         dateScheduled=document.getElementById('day2yyyymmdd').value
     }
 
-    if (!confirmAdd(currentMemberID)) {
-        return
-    }
+    // if (!confirmAdd(currentMemberID)) {
+    //     return
+    // }
     addAssignment(currentMemberID,dateScheduled,Shift,shopNumber,Duty,nameID)
 }
 
@@ -1275,8 +1262,6 @@ function assignedShiftClicked(nameID) {
     selectedName.style.backgroundColor = 'yellow'
     
     if (swapInProgress) {
-        console.log('swapAssgmnt1ID - '+swapAsgmnt1ID)
-        console.log('swapAssgmnt2ID - '+swapAsgmnt2ID)
         if (swapAsgmnt1ID == '') {
             swapAsgmnt1ID = nameID.slice(0,9)
         }
@@ -1306,6 +1291,7 @@ function confirmDelete() {
 function delAssignment(id) {
     idPrefix = id.slice(0,9)
     selectedName = document.getElementById(idPrefix + 'name')
+    memberID = document.getElementById('memberID').innerHTML
     //selectedName.style.backgroundColor = 'yellow'
     if (!confirmDelete()) {
         selectedName.style.backgroundColor = 'white'
@@ -1329,6 +1315,8 @@ function delAssignment(id) {
             document.getElementById(idPrefix + 'name').value = ''
             // PROMPT FOR REASON; THE MODAL FORM WILL CALL THE ROUTINE TO LOG THE MONITOR SCHEDULE NOTE
             openReasonModal(msg)
+
+            populateMemberSchedule(memberID)
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
     
@@ -1336,7 +1324,7 @@ function delAssignment(id) {
     
     recordID = document.getElementById(idPrefix+"recordID").value
     deleteAsgmntDt = document.getElementById(idPrefix+"schedDateID").value
-    var data = {recordID:recordID,staffID:staffID};
+    var data = {recordID:recordID};
     xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
 
@@ -1352,7 +1340,8 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
             // DISPLAY RESPONSE FROM REQUEST
             msg = this.response
             if (msg.slice(0,5) == 'ERROR') {
-                alert(msg)
+                modalAlert('ADD ASSIGNMENT',msg)
+                //alert(msg)
                 return
             }
             // DISPLAY THE NAME
@@ -1381,25 +1370,23 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
             populateMemberSchedule(memberID)
             
             // SHOW SUCCESS MSG
-            alert(msg)
+            //alert(msg)
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
 
     // SEND PARAMETERS FOR ADDING AN ASSIGNMENT
     schedDate = document.getElementById('day1yyyymmdd').value
-    var data = {memberID:memberID,schedDate:DateScheduled,Shift:Shift,shopNumber:shopNumber,Duty:Duty,staffID:staffID}
+    var data = {memberID:memberID,schedDate:DateScheduled,Shift:Shift,shopNumber:shopNumber,Duty:Duty}
 xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
 
 
 
 function clearDay1() {
-    console.log('clearDay1 rtn')
     while (day1Detail.firstChild) {
         day1Detail.removeChild(day1Detail.lastChild);
     }
-    day1Date = document.getElementById('day1Date')
-    day1Date.innerHTML=''
+    document.getElementById('day1Date').innerHTML = ''
     document.getElementById('day1Location').innerHTML=''
     // HIDE BUTTONS
     document.getElementById('day1Notes').style.display='none'
@@ -1431,16 +1418,16 @@ function printDay(dayNumber) {
 
 
 
-var modalConfirm = function(callback){
-    $('#confirmYes').on('click', function() {
-        callback = true;
-        $('#confirmAction').modal(hide);
-    })
-    $('#confirmNo').on('click', function() {
-        callback = false;
-        $('#confirmAction').modal(hide);
-    })
-}
+// var modalConfirm = function(callback){
+//     $('#confirmYes').on('click', function() {
+//         callback = true;
+//         $('#confirmAction').modal(hide);
+//     })
+//     $('#confirmNo').on('click', function() {
+//         callback = false;
+//         $('#confirmAction').modal(hide);
+//     })
+// }
 
 function dayOfYear(dateToConvert) {
     var start = new Date(dateToConvert.getFullYear(),0,0);
@@ -1517,9 +1504,11 @@ function makeSwap() {
                 name1.value = name2.value
                 name2.value = nameSave
                 openReasonModal(msg)
+                cancelSwap()
             }
             else {
                 alert(msg)
+                cancelSwap()
                 return
             } 
         }  // END OF READY STATE TEST
@@ -1552,7 +1541,7 @@ function makeSwap() {
     }
     var data = {schedDate1:schedDate1,schedDate2:schedDate2,shift1:shift1,shift2:shift2,
     recordID1:recordID1,recordID2:recordID2,memberID1:memberID1,memberID2:memberID2,
-    duty1:duty1,duty2:duty2,shopNumber:shopNumber,staffID:staffID};
+    duty1:duty1,duty2:duty2,shopNumber:shopNumber};
     xhttp.send(JSON.stringify(data)); 
     // END xhttp FUNCTION
 
@@ -1666,7 +1655,7 @@ function closeReasonModal() {
         return
     }
 
-    // SEND ACTION AND REASON TO SERVER WITH DATES, STAFFID, AND SHOPNUMBER
+    // SEND ACTION AND REASON TO SERVER WITH DATES, AND SHOPNUMBER
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/logMonitorScheduleNote"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
@@ -1691,8 +1680,8 @@ function closeReasonModal() {
         swapDate1 = ''
         swapDate2 = ''
     }
-    // NOTE - staffID, deleteAsgmntDt, swapAsgmnt1ID, and swapAsgmnt2ID are GLOBAL variables
-    var data = {actionDesc:actionDesc,reasonDesc:reasonDesc,staffID:staffID,deleteAsgmntDt:deleteAsgmntDt,swapDate1:swapDate1,swapDate2:swapDate2,shopNumber:curShopNumber};
+    // NOTE -deleteAsgmntDt, swapAsgmnt1ID, and swapAsgmnt2ID are GLOBAL variables
+    var data = {actionDesc:actionDesc,reasonDesc:reasonDesc,deleteAsgmntDt:deleteAsgmntDt,swapDate1:swapDate1,swapDate2:swapDate2,shopNumber:curShopNumber};
     xhttp.send(JSON.stringify(data));
 }  // END OF CLOSE NOTES ROUTINE                 
 
@@ -1720,8 +1709,9 @@ function openMemberModal() {
             alert(msg)
             return
         }
+    
         dataArray = response 
-
+       
         document.getElementById("janID").checked = dataArray[1]
         document.getElementById("febID").checked = dataArray[2]
         document.getElementById("marID").checked = dataArray[3]
@@ -1734,16 +1724,12 @@ function openMemberModal() {
         document.getElementById("octID").checked = dataArray[10]
         document.getElementById("novID").checked = dataArray[11]
         document.getElementById("decID").checked = dataArray[12]
-
         document.getElementById("certifiedRA").checked = dataArray[13]
         document.getElementById("certifiedBW").checked = dataArray[14]
-        
         document.getElementById("lastTrainingDateID").value = dataArray[15]
-        document.getElementById("needsToolCribID").checked = dataArray[16]
-
+        document.getElementById("needsToolCribID").value = dataArray[16]
         document.getElementById("memberNotesID").value = dataArray[17]
         document.getElementById("monitorDutyNotesID").value = dataArray[18]
-        document.getElementById("saveMemberModalID").disabled = true
         
         $('#memberModalID').modal('show')
     }  // END OF READY STATE RESPONSE
@@ -1754,12 +1740,14 @@ function openMemberModal() {
 }  // END OF OPEN MEMBER MODAL ROUTINE    
 
 // ROUTINE FOR MEMBER DATA CHANGE
-function memberModalChange() {
-    document.getElementById("saveMemberModalID").disabled = false 
-}
+// function memberModalChange() {
+//     document.getElementById("saveMemberModalID").disabled = false 
+// }
 
 // ROUTINE FOR MEMBER DATA SAVE
 function memberModalSave() {
+    lastTraining = document.getElementById('lastTrainingDateID').value
+    needsToolCrib = document.getElementById('needsToolCribID').value
     monitorNotes=document.getElementById("memberNotesID").value
     memberNotes=document.getElementById("monitorDutyNotesID").value
     jan= document.getElementById("janID").checked
@@ -1787,10 +1775,13 @@ function memberModalSave() {
                 return 
             }
             alert(msg)
+            $('#memberModalID').modal('hide')
+           
         }  // END OF READY STATE RESPONSE
     }  // END OF ONREADYSTATECHANGE
 // SEND DATA TO SERVER
-var data = {memberID:currentMemberID,monitorNotes:monitorNotes,memberNotes:memberNotes,jan:jan,feb:feb,mar:mar,apr:apr,may:may,jun:jun,jul:jul,aug:aug,sep:sep,oct:oct,nov:nov,dec:dec};
+var data = {memberID:currentMemberID,lastTraining:lastTraining,monitorNotes:monitorNotes,memberNotes:memberNotes,
+    jan:jan,feb:feb,mar:mar,apr:apr,may:may,jun:jun,jul:jul,aug:aug,sep:sep,oct:oct,nov:nov,dec:dec,needsToolCrib:needsToolCrib};
 xhttp.send(JSON.stringify(data));
 }  // END OF MEMBER MODAL SAVE ROUTINE   
 
@@ -1828,3 +1819,14 @@ function printWeeklyMonitorSchedule(dayNumber) {
     var data = {dateScheduled:dateScheduled,shopNumber:shopNumber};
     xhttp.send(JSON.stringify(data));
 }  // END OF OPEN MEMBER MODAL ROUTINE      
+
+function modalAlert(title,msg) {
+	//alert("Title - " + title + '\n Message - '+msg)
+	document.getElementById("modalTitle").innerHTML = title
+	document.getElementById("modalBody").innerHTML= msg
+	$('#myAlertModal').modal('show')
+}
+	
+function closeAlertModal() {
+	$('#myAlertModal').modal('hide')
+}
