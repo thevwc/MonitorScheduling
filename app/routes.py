@@ -1096,6 +1096,7 @@ def updateMemberModalData():
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/printMemberSchedule/<string:memberID>/", methods=['GET','POST'])
 def printMemberSchedule(memberID):
+    print('printMemberSchedule - ',memberID)
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name

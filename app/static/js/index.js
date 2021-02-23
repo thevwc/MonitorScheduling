@@ -83,7 +83,6 @@ document.getElementById("shopDefault").selectedIndex = curShopNumber
 
 // CHECK FOR A CURRENT MEMBER ID; IF FOUND DISPLAY NAME AND SCHEDULE
 currentMemberID = document.getElementById('memberID').innerHTML 
-//alert('currentMemberID - '+currentMemberID)
 if (currentMemberID.length == 6) {
     populateMemberSchedule(currentMemberID)
 }
@@ -97,7 +96,7 @@ document.getElementById("selectpicker").addEventListener("change",memberSelected
 document.getElementById("saveReasonID").addEventListener("click",closeReasonModal)
 //document.getElementById("memberModalID").addEventListener("change",memberModalChange)
 document.getElementById("saveMemberModalID").addEventListener("click",memberModalSave)
-
+//document.getElementById("printMemberScheduleBtn").addEventListener("click",printMemberScheduleRtn)
 document.querySelector('.closeModalNotes').addEventListener('click', closeNotesRtn)
 $('#reasonModalID').on('shown.bs.modal', function () {
     $('#reasonDescID').trigger('focus')
@@ -133,7 +132,7 @@ swap2ID = ''
 setShopFilter(shopFilter)
 
 // Disable the 'Refresh Calendar' button
-document.getElementById("refreshCalendarBtn").disabled = true;
+//document.getElementById("refreshCalendarBtn").disabled = true;
 
 // Build initial calendar based on default settings OR get settings from cookies
 buildYear(yearFilter); 
@@ -353,10 +352,17 @@ function refreshCalendarRtn() {
     shopFilter = shopSelected.value
     buildYear(yearFilter);
     populateCalendar(yearFilter,shopFilter)  //,dutyFilter)
-    document.getElementById("refreshCalendarBtn").disabled = true;
+    //document.getElementById("refreshCalendarBtn").disabled = true;
     //cancelSwap()
     // REFRESH MEMBERS SCHEDULE
-    
+    currentMemberID = localStorage.getItem('currentMemberID')
+    console.log('currentMemberID - '+currentMemberID) 
+    if (currentMemberID.length == 6) { 
+        document.getElementById('memberNameHdg').innerHTML = localStorage.getItem('currentMemberName')     
+        populateMemberSchedule(currentMemberID)
+        //document.getElementById('selectpicker').value=''
+        document.getElementById('memberBtnsID').style.display='block'
+    }   
     //console.log('before call to populate - ' + currentMemberID)
     //populateMemberSchedule(currentMemberID)    
     //}
@@ -1036,9 +1042,8 @@ function createScheduleDetail (scheduleNumber,ShopNumber,yyyymmdd,Shift,Duty,Nam
 
 function memberSelectedRtn() {
     selectedMember = this.value
-   
     document.getElementById('memberNameHdg').innerHTML = selectedMember
-    //localStorage.setItem('currentMemberName',selectedMember)
+    localStorage.setItem('currentMemberName',selectedMember)
     lastEight = selectedMember.slice(-8)
     currentMemberID= lastEight.slice(1,7)
    
@@ -1829,4 +1834,14 @@ function modalAlert(title,msg) {
 	
 function closeAlertModal() {
 	$('#myAlertModal').modal('hide')
+}
+
+function refreshMemberSchedule() {
+    currentMemberID = document.getElementById('memberID').innerHTML 
+    if (currentMemberID.length == 6) {      
+        populateMemberSchedule(currentMemberID)
+    }   
+}
+function printMemberScheduleRtn() {
+
 }
