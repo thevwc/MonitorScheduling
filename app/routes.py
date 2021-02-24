@@ -360,7 +360,7 @@ def deleteMonitorAssignment():
     # RETRIEVE RECORD TO BE DELETED
     assignment = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID==recordID).first()
     if assignment == None:
-        return "ERROR - Record no longer exists."
+        return "ERROR - Record does not exist."
 
     memberID=assignment.Member_ID
     dateScheduled=assignment.Date_Scheduled
@@ -729,7 +729,7 @@ def logMonitorScheduleNote():
         return "ERROR - Missing shopNumber."
 
     note = actionDesc + '\n' + reasonDesc
-
+   
     if actionDesc[0:4] == 'SWAP' or actionDesc[0:4] == 'MOVE':
         swapDate1DAT = datetime.strptime(swapDate1,'%Y%m%d')
         dayOfWeek1 = swapDate1DAT.weekday()
@@ -755,7 +755,7 @@ def logMonitorScheduleNote():
     try:
         sqlInsert1 = "INSERT INTO monitorWeekNotes (Author_ID, Date_Of_Change,Schedule_Note,WeekOf,Shop_Number) "
         sqlInsert1 += " VALUES ('" + staffID + "','" + todaySTR + "','" + note + "','" + weekOf1STR + "','" + shopNumber + "')"
-        #result1 = db.engine.execute(text(sqlInsert1).execution_options(autocommit=True))
+
         result1 = db.engine.execute(sqlInsert1)
         if (result1.rowcount == 0):
             return "ERROR - Assignment could NOT be added to monitorWeekNotes."
@@ -1096,7 +1096,6 @@ def updateMemberModalData():
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/printMemberSchedule/<string:memberID>/", methods=['GET','POST'])
 def printMemberSchedule(memberID):
-    print('printMemberSchedule - ',memberID)
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
@@ -1187,12 +1186,13 @@ def printMonitorScheduleWeek():
         memberRecord = db.session.query(Member).filter(Member.Member_ID==coordinatorID).first()
         if memberRecord == None:
             coordinatorsName = '(' + str(coordinatorID) + ')'
+            coordinatorsEmail = ''
         else:
             if memberRecord.NickName != '':
                 coordinatorsName = memberRecord.First_Name + ' ' + memberRecord.Last_Name + ' (' + memberRecord.NickName + ')'
             else:
                 coordinatorsName = memberRecord.First_Name + ' ' + memberRecord.Last_Name + ')'
-    coordinatorsEmail = memberRecord.eMail
+            coordinatorsEmail = memberRecord.eMail
 
     shopRecord = db.session.query(ShopName).filter(ShopName.Shop_Number==shopNumber).first()
     shopName = shopRecord.Shop_Name
@@ -1212,7 +1212,9 @@ def printMonitorScheduleWeek():
     sqlSMAM += "AND tblMonitor_Schedule.Date_Scheduled <= '" + endDateSTR + "' "
     sqlSMAM += "GROUP BY tblMonitor_Schedule.Date_Scheduled ORDER BY Count(tblMonitor_Schedule.Member_ID) DESC"
     SMAMrows = db.engine.execute(sqlSMAM).scalar()
-    
+    if (SMAMrows == None):
+        SMAMrows = 0
+
     sqlSMPM = "SELECT Count(tblMonitor_Schedule.Member_ID) AS SMPMrows "
     sqlSMPM += "FROM tblMonitor_Schedule "
     sqlSMPM += "WHERE tblMonitor_Schedule.Duty = 'Shop Monitor' "
@@ -1222,7 +1224,9 @@ def printMonitorScheduleWeek():
     sqlSMPM += "AND tblMonitor_Schedule.Date_Scheduled <= '" + endDateSTR + "' "
     sqlSMPM += "GROUP BY tblMonitor_Schedule.Date_Scheduled ORDER BY Count(tblMonitor_Schedule.Member_ID) DESC"
     SMPMrows = db.engine.execute(sqlSMPM).scalar()
-    
+    if (SMPMrows == None):
+        SMPMrows = 0
+        
     sqlTCAM = "SELECT Count(tblMonitor_Schedule.Member_ID) AS TCAMrows "
     sqlTCAM += "FROM tblMonitor_Schedule "
     sqlTCAM += "WHERE tblMonitor_Schedule.Duty = 'Tool Crib' "
@@ -1232,7 +1236,9 @@ def printMonitorScheduleWeek():
     sqlTCAM += "AND tblMonitor_Schedule.Date_Scheduled <= '" + endDateSTR + "' "
     sqlTCAM += "GROUP BY tblMonitor_Schedule.Date_Scheduled ORDER BY Count(tblMonitor_Schedule.Member_ID) DESC"
     TCAMrows = db.engine.execute(sqlTCAM).scalar()
-    
+    if (TCAMrows == None):
+        TCAMrows = 0
+        
     sqlTCPM = "SELECT Count(tblMonitor_Schedule.Member_ID) AS TCPMrows "
     sqlTCPM += "FROM tblMonitor_Schedule "
     sqlTCPM += "WHERE tblMonitor_Schedule.Duty = 'Tool Crib' "
@@ -1242,15 +1248,21 @@ def printMonitorScheduleWeek():
     sqlTCPM += "AND tblMonitor_Schedule.Date_Scheduled <= '" + endDateSTR + "' "
     sqlTCPM += "GROUP BY tblMonitor_Schedule.Date_Scheduled ORDER BY Count(tblMonitor_Schedule.Member_ID) DESC"
     TCPMrows = db.engine.execute(sqlTCPM).scalar()
-    
+    if (TCPMrows == None):
+        TCPMrows = 0
+        
 
     # DEFINE ARRAYS FOR EACH GROUPING
-    rows = SMAMrows 
+    # if (SMAMrows != None):
+    #     rows = SMAMrows
+    # else:
+    #     rows = 0  
+    rows = SMAMrows
     cols = 6    # member name and training needed Y or N
     SMAMnames = [[0 for x in range(cols)] for y in range(rows)]
     SMAMtraining = [[0 for x in range(cols)] for y in range(rows)]
 
-    rows = SMPMrows  
+    rows = SMPMrows
     cols = 6    # member name and training needed Y or N
     SMPMnames = [[0 for x in range(cols)] for y in range(rows)]
     SMPMtraining = [[0 for x in range(cols)] for y in range(rows)]
@@ -1260,7 +1272,7 @@ def printMonitorScheduleWeek():
     TCAMnames = [[0 for x in range(cols)] for y in range(rows)]
     TCAMtraining = [[0 for x in range(cols)] for y in range(rows)]
 
-    rows = TCPMrows  
+    rows = TCPMrows 
     cols = 6    # member name and training needed Y or N
     TCPMnames = [[0 for x in range(cols)] for y in range(rows)]
     TCPMtraining = [[0 for x in range(cols)] for y in range(rows)]

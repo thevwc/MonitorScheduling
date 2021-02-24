@@ -351,21 +351,16 @@ function refreshCalendarRtn() {
     yearFilter = yearSelected.value
     shopFilter = shopSelected.value
     buildYear(yearFilter);
-    populateCalendar(yearFilter,shopFilter)  //,dutyFilter)
-    //document.getElementById("refreshCalendarBtn").disabled = true;
-    //cancelSwap()
+    populateCalendar(yearFilter,shopFilter) 
+    
     // REFRESH MEMBERS SCHEDULE
     currentMemberID = localStorage.getItem('currentMemberID')
-    console.log('currentMemberID - '+currentMemberID) 
     if (currentMemberID.length == 6) { 
         document.getElementById('memberNameHdg').innerHTML = localStorage.getItem('currentMemberName')     
         populateMemberSchedule(currentMemberID)
-        //document.getElementById('selectpicker').value=''
         document.getElementById('memberBtnsID').style.display='block'
     }   
-    //console.log('before call to populate - ' + currentMemberID)
-    //populateMemberSchedule(currentMemberID)    
-    //}
+    
 }
 
 
@@ -1640,11 +1635,26 @@ function openReasonModal(actionDesc) {
     dt = document.getElementById('day1yyyymmdd').value
     document.getElementById('actionDescID').value = actionDesc
     document.getElementById('reasonDescID').value = ""
+    if (document.getElementById('day1Location').value = 'Rolling Acres') {
+        shopNumber = 1
+    }
+    else {
+        shopNumber = 2
+    }
+    document.getElementById('shopNumber').value = shopNumber
     $('#reasonModalID').modal('show')
     document.getElementById('reasonDescID').focus
 }
 
 function closeReasonModal() {
+    shopInitials = document.getElementById('shopToDisplay').value
+    if (shopInitials == 'RA') {
+        shopNumber = '1'
+    }
+    else {
+        shopNumber = '2'
+    }
+
     $('#reasonModalID').modal('hide')
     actionDesc = document.getElementById('actionDescID').value
     reasonDesc = document.getElementById('reasonDescID').value
@@ -1686,7 +1696,7 @@ function closeReasonModal() {
         swapDate2 = ''
     }
     // NOTE -deleteAsgmntDt, swapAsgmnt1ID, and swapAsgmnt2ID are GLOBAL variables
-    var data = {actionDesc:actionDesc,reasonDesc:reasonDesc,deleteAsgmntDt:deleteAsgmntDt,swapDate1:swapDate1,swapDate2:swapDate2,shopNumber:curShopNumber};
+    var data = {actionDesc:actionDesc,reasonDesc:reasonDesc,deleteAsgmntDt:deleteAsgmntDt,swapDate1:swapDate1,swapDate2:swapDate2,shopNumber:shopNumber};
     xhttp.send(JSON.stringify(data));
 }  // END OF CLOSE NOTES ROUTINE                 
 
