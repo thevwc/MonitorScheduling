@@ -257,7 +257,6 @@ def getDayAssignments():
     sqlSelect += sqlWhereClause
     sqlSelect += sqlOrderBy 
 
-    print('sqlSelect - ',sqlSelect)
     schedule = db.engine.execute(sqlSelect)
     position = 0
     if (schedule == None):
