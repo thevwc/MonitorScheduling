@@ -35,9 +35,6 @@ def index():
         displayName += ' ' + member.Last_Name
     else:
         displayName = ''
-
-    # staffID
-    staffID = getStaffID()
    
 
     # shopID
@@ -59,8 +56,8 @@ def index():
             flash (msg,'danger')
    
 
-    # staffName
     # GET STAFF MEMBER NAME AND PRIVILEDGES (staffName is also available as session variable)
+    staffID = getStaffID()
     staffMember = db.session.query(Member).filter(Member.Member_ID == staffID).first()
     if staffMember != None:
         staffName = staffMember.First_Name
@@ -244,9 +241,9 @@ def getDayAssignments():
 
     # BUILD WHERE CLAUSE
     if (shopNumber == '3'):
-        sqlWhereClause = "WHERE Date_Scheduled = '" + scheduleDate + "'"
+        sqlWhereClause = "WHERE Date_Scheduled = '" + scheduleDate + "' and No_Show = 0"
     else:
-        sqlWhereClause = "WHERE Shop_Number = " + shopNumber + " and Date_Scheduled = '" + scheduleDate + "'"
+        sqlWhereClause = "WHERE Shop_Number = " + shopNumber + " and Date_Scheduled = '" + scheduleDate + "' and No_Show = 0"
 
     # BUILD ORDER BY CLAUSE
     sqlOrderBy = " ORDER BY AM_PM, Duty, Last_Name"   
@@ -260,6 +257,7 @@ def getDayAssignments():
     sqlSelect += sqlWhereClause
     sqlSelect += sqlOrderBy 
 
+    print('sqlSelect - ',sqlSelect)
     schedule = db.engine.execute(sqlSelect)
     position = 0
     if (schedule == None):
@@ -1188,7 +1186,7 @@ def printMonitorScheduleWeek():
             coordinatorsName = '(' + str(coordinatorID) + ')'
             coordinatorsEmail = ''
         else:
-            if memberRecord.NickName != '':
+            if memberRecord.NickName != '' and memberRecord.NickName != None:
                 coordinatorsName = memberRecord.First_Name + ' ' + memberRecord.Last_Name + ' (' + memberRecord.NickName + ')'
             else:
                 coordinatorsName = memberRecord.First_Name + ' ' + memberRecord.Last_Name + ')'
@@ -1426,5 +1424,5 @@ def getStaffID():
     if 'staffID' in session:
         staffID = session['staffID']
     else:
-        staffID = '604875'
+        staffID = ''
     return staffID

@@ -84,6 +84,8 @@ document.getElementById("shopDefault").selectedIndex = curShopNumber
 // CHECK FOR A CURRENT MEMBER ID; IF FOUND DISPLAY NAME AND SCHEDULE
 currentMemberID = document.getElementById('memberID').innerHTML 
 if (currentMemberID.length == 6) {
+    document.getElementById('memberNameHdg').innerHTML = localStorage.getItem('currentMemberName') 
+    document.getElementById('memberBtnsID').style.display='block'
     populateMemberSchedule(currentMemberID)
 }
 
