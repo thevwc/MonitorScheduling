@@ -60,7 +60,7 @@ setStartUpYear(startUpYear)
 // SET VALUES FOR YEAR DROP DOWN LIST
 setupYearFilter(startUpYear)
 
-// WHICH SHOP LOCATION? IS THERE A LOCATION STORED IN LOCALSTORAGE?
+// WHICH SHOP LOCATION? USE THE SHOP LOCATION SPECIFIED AT LOGIN AND PASSED TO INDEX.HTML
 clientLocation = document.getElementById('shopID').value
 if (clientLocation != 'RA' & clientLocation != 'BW'){
     alert('Missing shopID; cannot continue.')
@@ -70,21 +70,11 @@ if (clientLocation != 'RA' & clientLocation != 'BW'){
 setShopFilter(clientLocation)
 // Set modal form location to current settings
 document.getElementById("shopDefault").selectedIndex = curShopNumber
-// switch(currentLocation){
-//     case 'RA':
-//         document.getElementById("shopDefault").selectedIndex = 1; //Option Rolling Acres
-//         break;
-//     case 'BW':
-//         document.getElementById("shopDefault").selectedIndex = 2; //Option Rolling Acres
-//         break;
-//     default:
-//         document.getElementById("shopDefault").selectedIndex = 0; //Option 'Select a Shop'
-// }
 
 // CHECK FOR A CURRENT MEMBER ID; IF FOUND DISPLAY NAME AND SCHEDULE
 currentMemberID = document.getElementById('memberID').innerHTML 
 if (currentMemberID.length == 6) {
-    document.getElementById('memberNameHdg').innerHTML = localStorage.getItem('currentMemberName') 
+    //document.getElementById('memberNameHdg').innerHTML = localStorage.getItem('currentMemberName') 
     document.getElementById('memberBtnsID').style.display='block'
     populateMemberSchedule(currentMemberID)
 }
@@ -95,7 +85,7 @@ document.getElementById("yearToDisplay").addEventListener("change", yearChanged)
 document.getElementById("shopToDisplay").addEventListener("change", shopChanged);
 document.getElementById("refreshCalendarBtn").addEventListener("click",refreshCalendarRtn)
 document.getElementById("selectpicker").addEventListener("change",memberSelectedRtn)
-document.getElementById("saveReasonID").addEventListener("click",closeReasonModal)
+document.getElementById("saveReasonID").addEventListener("click",saveReasonModal)
 //document.getElementById("memberModalID").addEventListener("change",memberModalChange)
 document.getElementById("saveMemberModalID").addEventListener("click",memberModalSave)
 //document.getElementById("printMemberScheduleBtn").addEventListener("click",printMemberScheduleRtn)
@@ -356,9 +346,10 @@ function refreshCalendarRtn() {
     populateCalendar(yearFilter,shopFilter) 
     
     // REFRESH MEMBERS SCHEDULE
-    currentMemberID = localStorage.getItem('currentMemberID')
+    currentMemberID = document.getElementById('memberID').innerHTML 
+    //currentMemberID = localStorage.getItem('currentMemberID')
     if (currentMemberID.length == 6) { 
-        document.getElementById('memberNameHdg').innerHTML = localStorage.getItem('currentMemberName')     
+        //document.getElementById('memberNameHdg').innerHTML = localStorage.getItem('currentMemberName')     
         populateMemberSchedule(currentMemberID)
         document.getElementById('memberBtnsID').style.display='block'
     }   
@@ -1040,7 +1031,7 @@ function createScheduleDetail (scheduleNumber,ShopNumber,yyyymmdd,Shift,Duty,Nam
 function memberSelectedRtn() {
     selectedMember = this.value
     document.getElementById('memberNameHdg').innerHTML = selectedMember
-    localStorage.setItem('currentMemberName',selectedMember)
+    //localStorage.setItem('currentMemberName',selectedMember)
     lastEight = selectedMember.slice(-8)
     currentMemberID= lastEight.slice(1,7)
    
@@ -1266,9 +1257,13 @@ function assignedShiftClicked(nameID) {
     if (swapInProgress) {
         if (swapAsgmnt1ID == '') {
             swapAsgmnt1ID = nameID.slice(0,9)
+            swapShopNumber1 = nameID.slice(3,1)
+            alert('swapShopNumber1 - '+ swapShopNumber1)
         }
         else if (swapAsgmnt2ID == '') {
             swapAsgmnt2ID = nameID.slice(0,9)
+            swapShopNumber2 = nameID.slice(3,1)
+            alert('swapShopNumber2 - '+ swapShopNumber2)
         }
             else {
                 alert('Error in swap assignedShiftClicked routine.')
@@ -1639,23 +1634,30 @@ function openReasonModal(actionDesc) {
     document.getElementById('reasonDescID').value = ""
     if (document.getElementById('day1Location').value = 'Rolling Acres') {
         shopNumber = 1
+        shopID = 'RA'
     }
     else {
         shopNumber = 2
+        shopID = 'BW'
     }
     document.getElementById('shopNumber').value = shopNumber
+    document.getElementById('shopID').value = shopID
     $('#reasonModalID').modal('show')
     document.getElementById('reasonDescID').focus
 }
 
-function closeReasonModal() {
-    shopInitials = document.getElementById('shopToDisplay').value
-    if (shopInitials == 'RA') {
-        shopNumber = '1'
-    }
-    else {
-        shopNumber = '2'
-    }
+function saveReasonModal() {
+    // is this needed?
+    // could a swap be between two locations ?
+
+    
+    // shopInitials = document.getElementById('shopToDisplay').value
+    // if (shopInitials == 'RA') {
+    //     shopNumber = '1'
+    // }
+    // else {
+    //     shopNumber = '2'
+    // }
 
     $('#reasonModalID').modal('hide')
     actionDesc = document.getElementById('actionDescID').value
@@ -1671,7 +1673,8 @@ function closeReasonModal() {
         $('#reasonModalID').modal('show')
         return
     }
-
+    alert('call /logMonitorScheduleNote')
+    
     // SEND ACTION AND REASON TO SERVER WITH DATES, AND SHOPNUMBER
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/logMonitorScheduleNote"); 
@@ -1689,7 +1692,10 @@ function closeReasonModal() {
     }  // END OF ONREADYSTATECHANGE
 
     // CAPTURE DATES NEEDED FOR tblMonitor_Schedule_Notes
+    alert('swap1ID - '+ swap1ID)
     if (actionDesc.slice(0,4) == 'SWAP' || actionDesc.slice(0,4) == 'MOVE') {
+        //console.log('swapAsgmnt1ID - '+ swapAsgmnt1ID)
+        //console.log('swapAsgmnt2ID - '+ swapAsgmnt2ID)
         swapDate1 = document.getElementById(swapAsgmnt1ID+'schedDateID').value 
         swapDate2 = document.getElementById(swapAsgmnt2ID+'schedDateID').value
     }

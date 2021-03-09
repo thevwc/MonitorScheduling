@@ -41,11 +41,17 @@ def index():
     try:
         shopID = session['shopID']
     except:
-        # msg='Missing shop location; cannot continue.'
-        # flash(msg,'danger')
-        # return msg
-        shopID = 'RA'   # set here for testing only
-
+        msg='Missing shop location; cannot continue.'
+        flash(msg,'danger')
+        
+        # COMMENT OUT AFTER TESTING
+        session['staffID'] = '604875'
+        staffID = session['staffID']
+        session['shopID'] = 'RA'
+        shopID = session['shopID']
+        
+        #return msg
+        
     if shopID == 'RA':
         shopNumber = 1
     else:
@@ -440,6 +446,8 @@ def addMonitorAssignment():
 
 @app.route('/swapMonitorAssignments', methods=['GET','POST'])
 def swapMonitorAssignments():
+    print('1. swapMonitorAssignments')
+    
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -687,6 +695,7 @@ def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,d
 
 @app.route('/logMonitorScheduleNote', methods=['GET','POST'])
 def logMonitorScheduleNote():
+    print('logMonitorScheduleNote')
     # GET STAFF ID
     staffID = getStaffID()
 
@@ -700,6 +709,7 @@ def logMonitorScheduleNote():
         return "ERROR - Missing all parameters."
     
     actionDesc = parameters['actionDesc']
+    print('actionDesc - ',actionDesc)
     if actionDesc == None:
         return "ERROR - Missing actionDesc."
     
@@ -723,11 +733,14 @@ def logMonitorScheduleNote():
 
     shopNumber = parameters['shopNumber']
     if shopNumber == None:
-        return "ERROR - Missing shopNumber."
+         return "ERROR - Missing shopNumber."
 
     note = actionDesc + '\n' + reasonDesc
-   
+    print('0. ',actionDesc[0,4])
+
     if actionDesc[0:4] == 'SWAP' or actionDesc[0:4] == 'MOVE':
+        print('1. ',actionDesc[0,4])
+
         swapDate1DAT = datetime.strptime(swapDate1,'%Y%m%d')
         dayOfWeek1 = swapDate1DAT.weekday()
         weekOf1 = swapDate1DAT - timedelta(dayOfWeek1 + 1)

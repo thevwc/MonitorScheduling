@@ -14,7 +14,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>Staff - {{staffName}}&nbsp;&nbsp;&nbsp; ver. Mar 8, 2021</h4> 
+                <h4>Staff - {{staffName}}&nbsp;&nbsp;&nbsp; ver. Mar 9, 2021</h4> 
                 <input id='shopID' type="text" style=display:none value={{shopID}}>
             </div> 
             
@@ -209,7 +209,7 @@
         </div>
     </div>
 
-    <!-- MODAL FORM FOR INPUT OF TRANSACTION REASON (BOOTSTRAP) -->
+    <!-- MODAL FORM FOR INPUT OF TRANSACTION REASON (monitorWeekNote) -->
     <div id="reasonModalID" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -221,6 +221,7 @@
                 </div>
                 <div class="modal-body">
                     <input id='shopNumber' type="hidden">
+                    <input id='shopID' type="hidden">
                     <span>Action:</span>
                     <textarea id="actionDescID" readonly rows="2" cols="75" ></textarea>
                     <br>
