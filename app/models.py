@@ -85,7 +85,8 @@ class ShopName(db.Model):
     __table_args__ = {"schema": "dbo"}
     Shop_Number = db.Column(db.Integer, primary_key=True)
     Shop_Name = db.Column(db.String(30))
-
+    Shop_Abbr = db.Column(db.String(2))
+    
 class MemberActivity(db.Model):
     __tablename__ = 'tblMember_Activity'
     __table_args__ = {"schema": "dbo"}

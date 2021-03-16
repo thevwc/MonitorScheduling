@@ -5,7 +5,14 @@
     --calendar-background: lightgray;
     --calendar-text:blue;
   }
-  
+
+td.dayCell:hover {
+    background-color: lightseagreen;
+}
+.dayCell:hover {
+    background-color: lightgreen;
+} 
+
 /* Laptop - 1280 x 800 */
 @media (min-width: 1280px) {
 
@@ -353,25 +360,28 @@
 
 
     /* MODAL FORM FOR MONITOR SCHEDULING WEEK NOTES */
+    #notesModal {
+        top:20px;
+    }
     .bg-modal-notes {
         width: 100%;
-        height: 100%;
+        height: 70%;
         background-color: rgba(0,0,0,0.7);
         position: absolute;
-        top:0;
         display: flex;
         justify-content: center;
         align-items: center;
         display: none;
     } 
     .modal-content-notes {
-        width:800px;
-        height: minmax(200px auto);
+        width:1000px;
+        height: 500px;
+        overflow-y: auto;
         background-color:white;
         border-radius: 4px;
         text-align: center;
         margin:0px;
-        padding: 20px;
+        padding: 0px;
         position: relative;
     }
     .closeModalNotes {
@@ -384,20 +394,26 @@
         line-height: 30px;
         transform: rotate(45deg);
         cursor: pointer;
-        background-color: white;
+        background-color: lightgray;
         color:navy;
         border-radius:50%; 
         text-align: center;
     }
     .modal-header-notes {
+        width:100%;
         border: 1px solid blue;
         background-color: navy;
         color:white;
+        position:sticky;
     }
 
     #modalBodyNotes {
         display:grid;
         grid-template-columns: 1fr 5fr 1fr;
+        
+    }
+    #modalBodyNotes span {
+        border-top:1px solid black;
     }
 
     /* MODAL - FOR ALL BOOTSTRAP MODAL FORMS */

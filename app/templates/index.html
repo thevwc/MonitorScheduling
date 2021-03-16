@@ -14,7 +14,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>Staff - {{staffName}}&nbsp;&nbsp;&nbsp; ver. Mar 9, 2021</h4> 
+                <h4>Staff - {{staffName}}&nbsp;&nbsp;&nbsp; ver. Mar 11, 2021</h4> 
                 <input id='shopID' type="text" style=display:none value={{shopID}}>
             </div> 
             
@@ -122,7 +122,8 @@
                     <button id='day1Print' class='btn btn-secondary btn-sm'>PRINT</button>
                     <button id='day1Clear' class='btn btn-secondary btn-sm' onclick ="clearDay1()">CLEAR</button>
                     <input id='day1yyyymmdd' type='hidden' value = ''>
-                    <input id='day1shopNumber' type='hidden' value = ''>
+                    <input id='day1ShopNumber' type='hidden' value = ''>
+                    <input id='day1ShopInitials' type= 'hidden' value = ''>
                 </div>
                 <div id="day1Detail"></div>
             </div> <!-- END OF DAY1--> 
@@ -136,7 +137,8 @@
                     <button id='day2Print' class='btn btn-secondary btn-sm' onclick='printWeeklyMonitorSchedule(2)'>PRINT</button>
                     <button id='day2Clear' class='btn btn-secondary btn-sm' onclick='clearDay2()'>CLEAR</button>
                     <input id='day2yyyymmdd' type='hidden' value = ''>
-                    <input id='day2shopNumber' type='hidden' value = ''>
+                    <input id='day2ShopNumber' type='hidden' value = ''>
+                    <input id='day2ShopInitials' type= 'hidden' value = ''>
                 </div>
                 <div id='day2Detail'></div>
             </div>  <!-- END OF DAY2 -->
@@ -191,7 +193,11 @@
     <!-- MODAL FORM FOR DISPLAYING MONITOR NOTES FOR A SPECIFIC WEEK -->
     <div id="notesModal" class="bg-modal-notes">
         <div class="modal-content-notes ">
-            <div class="closeModalNotes">+</div>
+            <div class="closeModalNotes">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
             <div class="modal-header-notes">
                 <div class="modal-title-notes">
                     <label for="">COORDINATOR NOTES FOR WEEK OF </label>
@@ -205,6 +211,9 @@
             </div>
             <div id="modalBodyNotes">
             
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick=closeNotesRtn() data-dismiss="modal">CLOSE</button>
             </div>
         </div>
     </div>
@@ -222,6 +231,8 @@
                 <div class="modal-body">
                     <input id='shopNumber' type="hidden">
                     <input id='shopID' type="hidden">
+                    <input id=reasonRecordID1 type="hidden">
+                    <input id=reasonRecordID2 type="hidden">
                     <span>Action:</span>
                     <textarea id="actionDescID" readonly rows="2" cols="75" ></textarea>
                     <br>
@@ -335,15 +346,15 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalTitle"></h5>
-                    <button type="button" class="close" onclick=closeModal() aria-label="Close">
+                    <button type="button" class="close" onclick=closeAlertModal() aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body" id=modalBody style=text-align:center>
                 </div>
                 
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick=closeModal() data-dismiss="modal">CLOSE</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick=closeAlertModal() data-dismiss="modal">CLOSE</button>
                 </div>
             </div>
         </div>
