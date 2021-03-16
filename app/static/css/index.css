@@ -6,12 +6,6 @@
     --calendar-text:blue;
   }
 
-td.dayCell:hover {
-    background-color: lightseagreen;
-}
-.dayCell:hover {
-    background-color: lightgreen;
-} 
 
 /* Laptop - 1280 x 800 */
 @media (min-width: 1280px) {
