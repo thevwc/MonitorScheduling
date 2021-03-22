@@ -1,3 +1,4 @@
+
 # routes.py
 
 from flask import session, render_template, flash, redirect, url_for, request, jsonify, json, make_response
@@ -14,43 +15,13 @@ import datetime as dt
 from datetime import date, datetime, timedelta
 from pytz import timezone
 
-#app = Flask(__name__)
-
-app.secret_key = "anyrandomstring"
- 
-# @app.route('/', defaults={'villageID':None}, methods=['GET','POST'])
-# @app.route('/index/', defaults={'villageID':None}, methods=['GET','POST'])
-# @app.route('/index/<villageID>', methods=['GET','POST'])
 @app.route('/', methods=['GET','POST'])
 @app.route('/index/',methods=['GET','POST'])
 def index():
-    villageID = request.args.get('villageID')
-   
-    # GET MEMBER NAME
-    member = db.session.query(Member).filter(Member.Member_ID == villageID).first()
-    if member:
-        displayName = member.First_Name
-        if member.NickName != '':
-            displayName += ' (' + member.NickName + ')'
-        displayName += ' ' + member.Last_Name
-    else:
-        displayName = ''
-   
-
-    # shopID
-    try:
-        shopID = session['shopID']
-    except:
-        msg='Missing shop location; cannot continue.'
-        flash(msg,'danger')
-        
-        # COMMENT OUT AFTER TESTING
-        session['staffID'] = '604875'
-        staffID = session['staffID']
-        session['shopID'] = 'RA'
-        shopID = session['shopID']
-        
-        #return msg
+    # GET LOGIN DATA
+    staffID = getStaffID()
+    staffName = getStaffName()
+    shopID = getShopID()
         
     if shopID == 'RA':
         shopNumber = 1
@@ -61,21 +32,13 @@ def index():
             msg = "The shopID of " + shopID + " is not valid; cannot continue."
             flash (msg,'danger')
    
-
-    # GET STAFF MEMBER NAME AND PRIVILEDGES (staffName is also available as session variable)
-    staffID = getStaffID()
+    # GET STAFF PRIVILEDGES 
     staffMember = db.session.query(Member).filter(Member.Member_ID == staffID).first()
-    if staffMember != None:
-        staffName = staffMember.First_Name
-        if staffMember.NickName != None:
-            staffName += ' (' + staffMember.NickName + ')'
-        staffName += ' ' +  staffMember.Last_Name
-    else:
-        msg = "No match for staffID " + villageID + "; cannot continue."
+    if staffMember == None:
+        msg = "No match for staffID " + staffID + "; cannot continue."
         flash(msg,"danger")
         return msg
 
-    
     # GET POSITION OF USER - Staff, DBA, Manager
     # isDBA, isManager, isStaff are not boolean because we cannot pass boolean values to client???
     if (staffMember.DBA):
@@ -98,9 +61,6 @@ def index():
         flash (msg,'danger')
         return msg               
     
-
-
-
     # POST REQUEST
     if request.method == 'POST':
         if not request.get_json() == None:
@@ -113,8 +73,9 @@ def index():
             if parameters and 'year' in parameters:
                  yearFilter=parameters['year']
             else:
-                currentYear = datetime.date.year
-                yearFilter=currentYear
+                #currentYear = datetime.date.year
+                #yearFilter=currentYear
+                yearFilter = db.session.query(ControlVariables.Year_To_Print).filter(ControlVariables.Shop_Number == 1).scalar()
 
             if parameters and 'shop' in parameters:
                 shopFilter = parameters['shop']
@@ -202,7 +163,27 @@ def index():
         position += 1
         lastFirst = n.Last_Name + ', ' + n.First_Name + ' (' + n.Member_ID + ')'
         nameArray.append(lastFirst)
-    return render_template("index.html",nameList=nameArray,memberID=villageID,displayName=displayName,staffName=staffName,shopID=shopID)
+    
+    # POPULATE MEMBER SECTION IF MEMBER IF SENT
+
+    # GET MEMBER ID
+    villageID = request.args.get('villageID')
+    
+    # GET MEMBER NAME
+    displayName = ''
+    if (villageID != None and villageID != ''):
+        member = db.session.query(Member).filter(Member.Member_ID == villageID).first()
+        if member:
+            displayName = member.First_Name
+            if member.NickName != '':
+                displayName += ' (' + member.NickName + ')'
+            displayName += ' ' + member.Last_Name
+
+    # GET CURRENT MONITOR YEAR
+    thisYear = db.session.query(ControlVariables.monitorYear).filter(ControlVariables.Shop_Number == 1).scalar()
+    lastYear = str(int(thisYear)-1)
+    return render_template("index.html",nameList=nameArray,memberID=villageID,displayName=displayName,\
+    staffName=staffName,shopID=shopID,thisYear=thisYear,lastYear=lastYear)
    
 
 @app.route('/refreshCalendar', methods=['POST'])
@@ -303,15 +284,19 @@ def getMemberSchedule():
     if (memberID == None):
         return "ERROR - Missing member ID parameter."
 
+    scheduleYear = parameters['scheduleYear'] 
+    if (scheduleYear == None or scheduleYear == ''):
+        scheduleYear = db.session.query(ControlVariables.monitorYear).filter(ControlVariables.Shop_Number == 1).scalar()
+
     # RETRIEVE MEMBER NAME AND LAST TRAINING DATE
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
     #est = timezone('EST')
     Today = date.today()
-    currentYear = Today.year
+    
     
     # DECLARE ARRAY AND SET TO ZERO 
     rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
-    cols = 9 # Date_Scheduled, AM_PM, Member name, Village ID
+    cols = 10 # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
    
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
@@ -319,7 +304,9 @@ def getMemberSchedule():
     sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, Date_Scheduled, AM_PM, Duty, No_Show, Shop_Number "
     sqlSelect += "FROM tblMember_Data "
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
-    sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' ORDER BY Date_Scheduled desc"
+    sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' "
+    sqlSelect += "and DatePart(year,[Date_Scheduled]) = '" + str(scheduleYear) + "' "
+    sqlSelect += "ORDER BY Date_Scheduled"
     memberSchedule = db.engine.execute(sqlSelect)
     position = 0
     
@@ -338,7 +325,7 @@ def getMemberSchedule():
             schedArray[position][6] = ms.AM_PM
             schedArray[position][7] = ms.Duty
             schedArray[position][8] = ms.No_Show
-        
+        schedArray[position][9]=scheduleYear
         position += 1
     
     return jsonify(schedArray)
@@ -453,7 +440,6 @@ def addMonitorAssignment():
 
 @app.route('/swapMonitorAssignments', methods=['GET','POST'])
 def swapMonitorAssignments():
-    print('1. swapMonitorAssignments')
     
     # POST REQUEST
     if request.method != 'POST':
@@ -725,7 +711,7 @@ def logMonitorScheduleNote():
         return "ERROR - Missing all parameters."
     
     actionDesc = parameters['actionDesc']
-    print('actionDesc - ',actionDesc)
+    
     if actionDesc == None:
         return "ERROR - Missing actionDesc."
     
@@ -782,7 +768,6 @@ def logMonitorScheduleNote():
     try:
         sqlInsert1 = "INSERT INTO monitorWeekNotes (Author_ID, Date_Of_Change,Schedule_Note,WeekOf,Shop_Number) "
         sqlInsert1 += " VALUES ('" + staffID + "','" + todaySTR + "','" + note + "','" + weekOf1STR + "'," + str(shopNumber) + ")"
-        print('sqlInsert1 - ',sqlInsert1)
         result1 = db.engine.execute(sqlInsert1)
         if (result1.rowcount == 0):
             return "ERROR - Assignment could NOT be added to monitorWeekNotes."
@@ -795,7 +780,7 @@ def logMonitorScheduleNote():
         try:
             sqlInsert1 = "INSERT INTO monitorWeekNotes (Author_ID, Date_Of_Change,Schedule_Note,WeekOf,Shop_Number) "
             sqlInsert1 += " VALUES ('" + staffID + "','" + todaySTR + "','" + note + "','" + weekOf1STR + "'," + str(shopNumber) + ")"
-            print('sqlInsert1 - ',sqlInsert1)
+           
             result1 = db.engine.execute(sqlInsert1)
             if (result1.rowcount == 0):
                 return "ERROR - Assignment could NOT be added to monitorWeekNotes."
@@ -814,7 +799,7 @@ def logMonitorScheduleNote():
         try:
             sqlInsert2 = "INSERT INTO monitorWeekNotes (Author_ID, Date_Of_Change,Schedule_Note,WeekOf,Shop_Number) "
             sqlInsert2 += " VALUES ('" + staffID + "','" + todaySTR + "','" + note + "','" + weekOf2STR + "'," + shopNumber + ")"
-            print('sqlInsert2 - ',sqlInsert2)
+           
             result2 = db.engine.execute(text(sqlInsert2).execution_options(autocommit=True))
             if (result2.rowcount == 0):
                 return "ERROR - Assignment could NOT be added to monitorWeekNotes."
@@ -827,7 +812,6 @@ def logMonitorScheduleNote():
             try:
                 sqlInsert2 = "INSERT INTO monitorWeekNotes (Author_ID, Date_Of_Change,Schedule_Note,WeekOf,Shop_Number) "
                 sqlInsert2 += " VALUES ('" + staffID + "','" + todaySTR + "','" + note + "','" + weekOf2STR + "'," + shopNumber + ")"
-                print('sqlInsert2 - ',sqlInsert2)
                 result2 = db.engine.execute(text(sqlInsert2).execution_options(autocommit=True))
                 if (result2.rowcount == 0):
                     return "ERROR - Assignment could NOT be added to monitorWeekNotes."
@@ -1188,8 +1172,13 @@ def printMemberSchedule(memberID):
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' and Date_Scheduled >= '"
     sqlSelect += beginDateSTR + "' ORDER BY Date_Scheduled desc, AM_PM, Duty"
 
-    schedule = db.engine.execute(sqlSelect)
-    
+    try:
+        schedule = db.engine.execute(sqlSelect)
+    # check for OperationalError ??
+    except (SQLAlchemyError, DBAPIError) as e:
+        print("ERROR -",e)
+        flash("ERROR - Can't access database.")
+
     return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,\
     schedule=schedule,todays_date=todays_dateSTR)
 
@@ -1486,3 +1475,17 @@ def getStaffID():
     else:
         staffID = ''
     return staffID
+
+def getStaffName():
+    if 'staffname' in session:
+        staffName = session['staffname']
+    else:
+        staffName = ''
+    return staffName
+
+def getShopID():
+    if 'shopID' in session:
+        shopID = session['shopID']
+    else:
+        shopID = ''
+    return shopID

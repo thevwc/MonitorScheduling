@@ -28,3 +28,4 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = conn_str 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TEMPLATES_AUTO_RELOAD=True 
+    SECRET_KEY = os.environ.get('Secret_key')

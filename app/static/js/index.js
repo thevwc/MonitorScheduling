@@ -76,7 +76,7 @@ document.getElementById("shopDefault").selectedIndex = curShopNumber
 currentMemberID = document.getElementById('memberID').innerHTML 
 if (currentMemberID.length == 6) {
     document.getElementById('memberBtnsID').style.display='block'
-    populateMemberSchedule(currentMemberID)
+    populateMemberSchedule(currentMemberID,'')
 }
 
 
@@ -320,7 +320,7 @@ function refreshCalendarRtn() {
     // REFRESH MEMBERS SCHEDULE
     currentMemberID = document.getElementById('memberID').innerHTML 
     if (currentMemberID.length == 6) { 
-        populateMemberSchedule(currentMemberID)
+        populateMemberSchedule(currentMemberID,'')
         document.getElementById('memberBtnsID').style.display='block'
     }   
     
@@ -1010,16 +1010,16 @@ function memberSelectedRtn() {
    
     // STORE MEMBER ID  
     localStorage.setItem('currentMemberID',currentMemberID)
-    populateMemberSchedule(currentMemberID)
+    populateMemberSchedule(currentMemberID,'')
     document.getElementById('selectpicker').value=''
     document.getElementById('memberBtnsID').style.display='block'
 }
   
-function populateMemberSchedule(memberID) {
+function populateMemberSchedule(memberID,scheduleYear) {
     if (memberID == null) {
         return
     }
-    
+    thisYear = document.getElementById('thisYearBtn').value
     // Ajax request for last training date and monitor schedule for current year forward
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/getMemberSchedule"); 
@@ -1095,8 +1095,8 @@ function populateMemberSchedule(memberID) {
                     yymmdd=(yr + '/' + mo + '/' + da)
                     dateSched = new Date(yymmdd)
                 }
-                todaysDate = new Date()
-                if (dateSched > todaysDate) {
+                // todaysDate = new Date()
+                if (scheduleYear == thisYear) {
                     mbrRowDiv.style.color="Red"   
                 }
                 else {
@@ -1139,7 +1139,7 @@ function populateMemberSchedule(memberID) {
             return
         }  // END OF READY STATE TEST
     }   // END IF READYSTATE ...
-    var data = {memberID:memberID}; //send memberID selected to server;
+    var data = {memberID:memberID,scheduleYear:scheduleYear}; //send memberID selected to server;
     xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
 
@@ -1264,7 +1264,7 @@ function delAssignment(id) {
             // PROMPT FOR REASON; THE MODAL FORM WILL CALL THE ROUTINE TO LOG THE MONITOR SCHEDULE NOTE
             openReasonModal(msg)
 
-            populateMemberSchedule(memberID)
+            populateMemberSchedule(memberID,'')
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
     
@@ -1309,7 +1309,7 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
             refreshCalendarRtn()
 
             // REFRESH MEMBERS SCHEDULE
-            populateMemberSchedule(memberID)
+            populateMemberSchedule(memberID,'')
             
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
@@ -1776,7 +1776,6 @@ function printWeeklyMonitorSchedule(dayNumber) {
             return
         }
 
-   
     // SEND DATE AND SHOPNUMBER TO SERVER
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/printWeeklyMonitorSchedule"); 
@@ -1808,9 +1807,27 @@ function closeAlertModal() {
 function refreshMemberSchedule() {
     currentMemberID = document.getElementById('memberID').innerHTML 
     if (currentMemberID.length == 6) {      
-        populateMemberSchedule(currentMemberID)
+        populateMemberSchedule(currentMemberID,'')
     }   
 }
 function printMemberScheduleRtn() {
 
 }
+
+// On page load add eventlistener to each btn in schedulePeriod:
+// Add active class to the current button (highlight it)
+var header = document.getElementById("schedulePeriod");
+var btns = header.getElementsByClassName("btn");
+for (var i = 0; i < btns.length; i++) {
+	btns[i].addEventListener("click", function() {
+	var current = document.getElementsByClassName("active");
+	current[0].className = current[0].className.replace(" active", "");
+	this.className += " active";
+});
+}
+
+
+function changeScheduleYear(yearSpecified) {
+    populateMemberSchedule(currentMemberID,yearSpecified)
+}
+   

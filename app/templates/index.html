@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/checkmark.css') }}"> -->
 {% endblock %}
- {% block title %}Monitor Scheduling{% endblock %}
+ {% block title %}MONITOR SCHEDULING{% endblock %}
 
 {% block content %}
     <div class="parent">
@@ -14,7 +14,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>Staff - {{staffName}}&nbsp;&nbsp;&nbsp; ver. Mar 15, 2021</h4> 
+                <h4>ver. Mar 22, 2021</h4> 
                 <input id='shopID' type="text" style=display:none value={{shopID}}>
             </div> 
             
@@ -75,12 +75,26 @@
             
 
                 <div id="memberOptions">
-                    <select id="selectpicker" class='selectpicker' style='margin-bottom:20px' 
-                    title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
-                        {% for nme in nameList %}
-                            <option  class="optName" value='{{nme}}'</option>{{nme}}</option>
-                        {% endfor %}
-                    </select><br><br>
+                    <div id='schedulePeriod'>
+                        <select id="selectpicker" class='selectpicker' style='margin-bottom:20px' 
+                        title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
+                            {% for nme in nameList %}
+                                <option  class="optName" value='{{nme}}'</option>{{nme}}</option>
+                            {% endfor %}
+                        </select>
+                        <button 
+                            id='thisYearBtn' 
+                            type='button' 
+                            onclick="changeScheduleYear('{{thisYear}}')" 
+                            style='margin-left:30px;color:red' 
+                            class="btn periodBtn active">{{thisYear}}</button>
+                        <button 
+                            id='lastYearBtn' 
+                            type='button' 
+                            onclick="changeScheduleYear('{{lastYear}}')"
+                            style='color:green' 
+                            class="btn periodBtn ">{{lastYear}}</button>
+                    </div>
                 </div>
                 <div id="memberBtnsID" style = "display:none">
                     <label style="margin-left:20px; color:white"for="lastMonitorTraining">Last Monitor Training:</label>

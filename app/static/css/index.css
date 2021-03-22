@@ -472,6 +472,29 @@
 
     }
 
+    #schedulePeriod {
+        text-align: center;
+    }
+    
+    .periodBtn {
+      border: 1px solid black;
+      height:25px;
+      width:40px;
+      outline: none;
+      padding: 5px 5px;
+      background-color: white;
+      cursor: pointer;
+      font-size: 10px; 
+    }
+    .btn:hover {
+      background-color:lightgrey;
+    }
+    #thisYearBtn.active {
+        border:2px solid red;
+    }
+    #lastYearBtn.active {
+        border:3px solid green;
+    }
     /* CSS FOR ACTION/REASON MODAL FORM */
     #reasonModalID .modal-header {
         background-color: green;
