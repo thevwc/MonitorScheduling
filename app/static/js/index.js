@@ -193,6 +193,14 @@ function enableRefreshBtn() {
 
 
 function dayClicked(dayClickedID) {
+    console.log('dayClicked rtn')
+    curDay = document.getElementById(dayClickedID)
+    console.log('classList - ' + curDay.classList)
+    if (curDay.classList.contains('closed')){
+        modalAlert("VWC","The shop is closed.\nYou may not schedule a member on this date.")
+        return
+    }
+    
     // SAVE dayClickedID FOR REFRESHING PAGE ON PAGE LOAD
     localStorage.setItem('dayClickedID',dayClickedID)
     // send POST request with year, shop, and duty
@@ -558,6 +566,7 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
                     case (status == 'CLOSED'):
                         document.getElementById(dayID).style.backgroundColor = colors.bg_Closed;
                         document.getElementById(dayID).style.color = colors.fg_Closed;
+                        document.getElementById(dayID).classList.add('closed')
                         break
                     
                     case (dateSched < currentDate):
@@ -1072,7 +1081,8 @@ function populateMemberSchedule(memberID,scheduleYear) {
                 duty = sched[y][7]
                 noShow = sched[y][8]
                 locationName = shopNames[shopNumber - 1]
-                
+                recordID = sched[y][10]
+
                 // IF FIRST RECORD OF THE ARRAY, INSERT TRAINING DATE AND HIDDEN MEMBER ID
                 if (y == 0) {
                     document.getElementById('lastMonitorTrainingID').value = trainingDate
@@ -1128,7 +1138,9 @@ function populateMemberSchedule(memberID,scheduleYear) {
                
                 var inputNoShow = document.createElement("input")
                 inputNoShow.type='checkbox'
-                inputNoShow.setAttribute("onclick","return false")
+                inputNoShow.id='R'+recordID
+                lnk = "window.location.href='/setNoShow/?recordID="+recordID + "'"
+                inputNoShow.setAttribute("onclick",lnk)
                 if (noShow){
                     inputNoShow.checked="checked"
                 }
@@ -1796,7 +1808,7 @@ function printWeeklyMonitorSchedule(dayNumber) {
 
 function modalAlert(title,msg) {
 	document.getElementById("modalTitle").innerHTML = title
-	document.getElementById("modalBody").innerHTML= msg
+	document.getElementById("modalBody").innerHTML= "<pre>" + msg + "</pre>"
 	$('#myAlertModal').modal('show')
 }
 	
@@ -1826,8 +1838,6 @@ for (var i = 0; i < btns.length; i++) {
 });
 }
 
-
 function changeScheduleYear(yearSpecified) {
     populateMemberSchedule(currentMemberID,yearSpecified)
 }
-   

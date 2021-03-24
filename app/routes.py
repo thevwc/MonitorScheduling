@@ -22,7 +22,9 @@ def index():
     staffID = getStaffID()
     staffName = getStaffName()
     shopID = getShopID()
-        
+    print('staffID - ',staffID)
+    print('shopID - ',shopID)
+
     if shopID == 'RA':
         shopNumber = 1
     else:
@@ -296,12 +298,13 @@ def getMemberSchedule():
     
     # DECLARE ARRAY AND SET TO ZERO 
     rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
-    cols = 10 # Date_Scheduled, AM_PM, Member name, Village ID
+    cols = 11 # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
    
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "Last_Name + ', ' + First_Name + '  (' + tblMember_Data.Member_ID + ')' as displayName, "
-    sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, Date_Scheduled, AM_PM, Duty, No_Show, Shop_Number "
+    sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, Date_Scheduled, "
+    sqlSelect += "AM_PM, Duty, No_Show, Shop_Number, tblMonitor_Schedule.ID as recordID "
     sqlSelect += "FROM tblMember_Data "
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' "
@@ -326,6 +329,7 @@ def getMemberSchedule():
             schedArray[position][7] = ms.Duty
             schedArray[position][8] = ms.No_Show
         schedArray[position][9]=scheduleYear
+        schedArray[position][10]=ms.recordID
         position += 1
     
     return jsonify(schedArray)
@@ -1441,6 +1445,27 @@ def printMonitorScheduleWeek():
     weekOfHdg=weekOfHdg,\
     monDate=monDate,tueDate=tueDate,wedDate=wedDate,thuDate=thuDate,friDate=friDate,satDate=satDate)
     
+
+@app.route("/setNoShow/")
+def setNoShow():
+    recordID = request.args.get('recordID')
+    scheduleRecord = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID == recordID).first()
+    if scheduleRecord != None:
+        memberID = scheduleRecord.Member_ID
+        print('No_Show - ',scheduleRecord.No_Show)
+        if scheduleRecord.No_Show == False:
+            scheduleRecord.No_Show = True
+        else:
+            scheduleRecord.No_Show = False
+        try:
+            print('before commit - ',scheduleRecord.No_Show)
+            db.session.commit()
+            print('after commit')
+        except:
+            print('rollback ...')
+            db.session.rollback()
+    print('recordID passed in - ',recordID)
+    return redirect(url_for('index',villageID=memberID))
 
 def logChange(colName,memberID,newData,origData):
     staffID = getStaffID()
