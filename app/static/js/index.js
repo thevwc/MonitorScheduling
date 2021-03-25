@@ -193,9 +193,7 @@ function enableRefreshBtn() {
 
 
 function dayClicked(dayClickedID) {
-    console.log('dayClicked rtn')
     curDay = document.getElementById(dayClickedID)
-    console.log('classList - ' + curDay.classList)
     if (curDay.classList.contains('closed')){
         modalAlert("VWC","The shop is closed.\nYou may not schedule a member on this date.")
         return
@@ -1013,7 +1011,7 @@ function createScheduleDetail (scheduleNumber,ShopNumber,yyyymmdd,Shift,Duty,Nam
 
 function memberSelectedRtn() {
     selectedMember = this.value
-    document.getElementById('memberNameHdg').innerHTML = selectedMember
+    document.getElementById('memberName').innerHTML = selectedMember
     lastEight = selectedMember.slice(-8)
     currentMemberID= lastEight.slice(1,7)
    
@@ -1021,9 +1019,9 @@ function memberSelectedRtn() {
     localStorage.setItem('currentMemberID',currentMemberID)
     populateMemberSchedule(currentMemberID,'')
     document.getElementById('selectpicker').value=''
-    document.getElementById('memberBtnsID').style.display='block'
+    //document.getElementById('memberOptions').style.display='block'
 }
-  
+
 function populateMemberSchedule(memberID,scheduleYear) {
     if (memberID == null) {
         return
@@ -1049,6 +1047,12 @@ function populateMemberSchedule(memberID,scheduleYear) {
             //lnk = "window.location.href='/eMailMemberSchedule/"+ memberID + "'"
             //prt.setAttribute("onclick",lnk)
 
+            // FROM FIRST RECORD OF THE ARRAY, INSERT TRAINING DATE AND HIDDEN MEMBER ID
+            trainingDate = sched[0][3]
+            document.getElementById('lastMonitorTrainingID').value = trainingDate
+            memberIDfromArray = sched[0][0]
+            document.getElementById('memberID').innerHTML = memberIDfromArray 
+            
             // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
             memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
 
@@ -1074,7 +1078,6 @@ function populateMemberSchedule(memberID,scheduleYear) {
                 memberIDfromArray = sched[y][0]
                 shopNumber = sched[y][1]
                 displayName = sched[y][2]
-                trainingDate = sched[y][3]
                 dateScheduled = sched[y][4]
                 dateScheduledFormatted = sched[y][5]
                 shift = sched[y][6]
@@ -1082,12 +1085,6 @@ function populateMemberSchedule(memberID,scheduleYear) {
                 noShow = sched[y][8]
                 locationName = shopNames[shopNumber - 1]
                 recordID = sched[y][10]
-
-                // IF FIRST RECORD OF THE ARRAY, INSERT TRAINING DATE AND HIDDEN MEMBER ID
-                if (y == 0) {
-                    document.getElementById('lastMonitorTrainingID').value = trainingDate
-                    document.getElementById('memberID').innerHTML = memberIDfromArray 
-                }
 
                 // CREATE NEW day1shift AS CHILD OF memberSchedule (new row)
                 var mbrRowDiv = document.createElement("div")
@@ -1110,7 +1107,7 @@ function populateMemberSchedule(memberID,scheduleYear) {
                     mbrRowDiv.style.color="Red"   
                 }
                 else {
-                mbrRowDiv.style.color="Green"
+                    mbrRowDiv.style.color="Green"
                 }
                 memberScheduleDetailID.appendChild(mbrRowDiv)
 
@@ -1134,7 +1131,6 @@ function populateMemberSchedule(memberID,scheduleYear) {
                 spanDuty.classList.add("memberScheduleCol")
                 spanDuty.innerHTML = duty
                 mbrRowDiv.appendChild(spanDuty)
-
                
                 var inputNoShow = document.createElement("input")
                 inputNoShow.type='checkbox'
@@ -1154,6 +1150,8 @@ function populateMemberSchedule(memberID,scheduleYear) {
     var data = {memberID:memberID,scheduleYear:scheduleYear}; //send memberID selected to server;
     xhttp.send(JSON.stringify(data)); 
 }   // END xhttp FUNCTION
+
+
 
 // USER CLICKED ON A BLANK, IE, UNASSIGNED SHIFT SLOT
 // ADD A RECORD TO THE TABLE tblMonitor_Schedule
@@ -1304,7 +1302,7 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
                 return
             }
             // DISPLAY THE NAME
-            mbrName  = document.getElementById('memberNameHdg').innerHTML
+            mbrName  = document.getElementById('memberName').innerHTML
             document.getElementById(id).value = mbrName
 
             // CONSTRUCT dayID FOR EXECUTING THE dayClicked FUNCTION
@@ -1476,7 +1474,6 @@ function makeSwap() {
     // SEND WEEK#, STAFF ID, MEMBER ID, DATE SCHEDULED, AMPM, DUTY, SHOP LOCATION AND RECORD ID
     // ASSIGNMENT 1
     idPrefix1 = swapAsgmnt1ID.slice(0,9)
-    //console.log('swapAsgmnt1ID at SEND SWAP/MOVE - '+ swapAsgmnt1ID)
     recordID1 = document.getElementById(idPrefix1+"recordID").value
     memberID1 = document.getElementById(idPrefix1+"memberID").value
     schedDate1 = document.getElementById(idPrefix1 + "schedDateID").value
@@ -1686,7 +1683,7 @@ function openMemberModal() {
         alert('Must select a member.')
         return
     } 
-    mbrName =  document.getElementById('memberNameHdg').innerHTML
+    mbrName =  document.getElementById('memberName').innerHTML
     document.getElementById("memberNameID").innerHTML = mbrName
     
     // SEND MEMBER ID TO SERVER

@@ -298,13 +298,14 @@ def getMemberSchedule():
     
     # DECLARE ARRAY AND SET TO ZERO 
     rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
-    cols = 11 # Date_Scheduled, AM_PM, Member name, Village ID
+    cols = 12 # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
    
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "Last_Name + ', ' + First_Name + '  (' + tblMember_Data.Member_ID + ')' as displayName, "
     sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, Date_Scheduled, "
-    sqlSelect += "AM_PM, Duty, No_Show, Shop_Number, tblMonitor_Schedule.ID as recordID "
+    sqlSelect += "AM_PM, Duty, No_Show, Shop_Number, tblMonitor_Schedule.ID as recordID, "
+    sqlSelect += "Requires_Tool_Crib_Duty "
     sqlSelect += "FROM tblMember_Data "
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' "
@@ -312,17 +313,25 @@ def getMemberSchedule():
     sqlSelect += "ORDER BY Date_Scheduled"
     memberSchedule = db.engine.execute(sqlSelect)
     position = 0
+
+    # GET NAME AND TRAINING DATE FROM MEMBER TABLE
     
-    for ms in memberSchedule:
-        schedArray[position][0] = ms.memberID
-        schedArray[position][1] = ms.Shop_Number
-        schedArray[position][2] = ms.displayName
-        if (ms.trainingDate != None):
-            schedArray[position][3] = ms.trainingDate.strftime("%-m/%-d/%Y")
+    member = db.session.query(Member).filter(Member.Member_ID == memberID).first()
+    if member != None:
+        displayName = member.Last_Name + ', ' + member.First_Name + " (" + member.Member_ID + ")"
+        schedArray[position][0] = memberID
+        
+        schedArray[position][2] = displayName
+        if (member.Last_Monitor_Training != None):
+            schedArray[position][3] = member.Last_Monitor_Training.strftime("%-m/%-d/%Y")
         else:
             schedArray[position][3] = ''
-        
+
+    position = 0
+    for ms in memberSchedule:
         if ms.Date_Scheduled != None:
+            schedArray[position][0] = memberID
+            schedArray[position][1] = ms.Shop_Number
             schedArray[position][4] = ms.Date_Scheduled.strftime("%Y%m%d")
             schedArray[position][5] = ms.Date_Scheduled.strftime("%a %-m/%-d/%y")
             schedArray[position][6] = ms.AM_PM
@@ -330,6 +339,11 @@ def getMemberSchedule():
             schedArray[position][8] = ms.No_Show
         schedArray[position][9]=scheduleYear
         schedArray[position][10]=ms.recordID
+        if ms.Requires_Tool_Crib_Duty:
+            schedArray[position][11]='NEEDS TOOL CRIB DUTY'
+        else:
+            schedArray[position][11]='No restrictions'
+        
         position += 1
     
     return jsonify(schedArray)
@@ -1131,11 +1145,11 @@ def updateMemberModalData():
 
     try:
         db.session.commit()
-    except:
-        db.session.rollback()
-        return "ERROR - Save has failed."
-    finally:
         return "SUCCESS - Data has been saved."
+    except (SQLAlchemyError, DBAPIError) as e:      
+            db.session.rollback()
+            print("ERROR - ",e)   
+            return "ERROR - Save has failed."
 
 
 
@@ -1452,22 +1466,27 @@ def setNoShow():
     scheduleRecord = db.session.query(MonitorSchedule).filter(MonitorSchedule.ID == recordID).first()
     if scheduleRecord != None:
         memberID = scheduleRecord.Member_ID
-        print('No_Show - ',scheduleRecord.No_Show)
         if scheduleRecord.No_Show == False:
             scheduleRecord.No_Show = True
         else:
             scheduleRecord.No_Show = False
         try:
-            print('before commit - ',scheduleRecord.No_Show)
             db.session.commit()
-            print('after commit')
         except:
-            print('rollback ...')
             db.session.rollback()
-    print('recordID passed in - ',recordID)
+    
     return redirect(url_for('index',villageID=memberID))
 
 def logChange(colName,memberID,newData,origData):
+    if (type(newData) == datetime):
+        newData = newData.strftime('%Y-%m-%d')
+    if (type(origData) == datetime):
+        origData = origData.strftime('%Y-%m-%-d')
+    if (type(newData) == str and len(newData) > 50):
+        newData = newData[:50]
+    if (type(origData) == str and len(origData) > 50):
+        origData = origData[:50]
+    
     staffID = getStaffID()
     if staffID == None or staffID == '':
         flash('Missing staffID in logChange routine.','danger')
@@ -1489,7 +1508,7 @@ def logChange(colName,memberID,newData,origData):
         db.session.add(newTransaction)
         return
         db.session.commit()
-    except SQLAlchemyError as e:
+    except (SQLAlchemyError, DBAPIError) as e:
         error = str(e.__dict__['orig'])
         flash('Transaction could not be logged.\n'+error,'danger')
         db.session.rollback()

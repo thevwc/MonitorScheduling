@@ -81,11 +81,7 @@
         height: 30px;
         font-size:18px;
     }
-    select {
-        /* text-size-adjust:100 px; */
-        margin-right:20px;
-        color:blue;
-    }
+    
 
     #calendar-container{
         grid-area:calArea;
@@ -144,9 +140,10 @@
         display: grid;
         grid-area: parent2Area;
         grid-template-columns:1fr;
-        grid-template-rows:auto fit-content(200px) auto minmax(200px, auto) auto auto 1fr;
+        grid-template-rows:50px auto fit-content(200px) auto minmax(200px, auto) auto auto 1fr;
         grid-area: 0.5em;
         grid-template-areas: "nameArea"
+                            "memberOptionsArea"
                             "scheduleArea"
                             "swapArea"
                             "day1Area"
@@ -159,52 +156,59 @@
     }
 
     #memberNameSection {
-        height:auto;
         grid-area:nameArea;
+        height:auto;
         width:100%;
-        text-align: center;
-        align-content: center;
-        justify-content: center; 
         background-color:navy;
-        border:navy solid 1px;
-        border-radius: 10px;
-        padding-bottom:5px;
-        margin-bottom:5px;
-
-    }  
-
-    #memberNameHdg {
-        text-align: center;
-        background-color: white;
-        color:navy;
-        font-size: 18px;
-        padding:0px;
-        margin:0px;
-        border:navy solid 1px;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
+        padding-bottom:5px;
+        margin:0 auto;
+        margin-bottom:1px;
+    }  
+
+    .bootstrap-select {
+        /* text-size-adjust:100 px; */
+        margin-left:40px;
+        height:20px;
+        color:blue;
+        background-color: red;
     }
-    .memberName {
-        background-color: white;
-        color:navy;
-        border: navy solid 1px;
-    } 
+
+    #memberList {
+        text-align:left;
+    }
+    #memberName {
+        background-color: navy;
+        color:white;
+        font-size: 18px;
+        padding:0px;
+        margin-top:10px;
+    }
 
     #memberID {
         display:none;
     }
     #memberOptions {
-        text-align: center;
-        height: 40px;
-        align-content: center;
-        justify-content: center;
-        padding-bottom:5px;
+        grid-area: memberOptionsArea;
+        text-align: left;
+        height: 30px;
+        width:100%;
+        align-content: left;
+        justify-content: left;
+        padding-bottom:0px;
         background-color:navy;
         color:white;
-        margin-top:0px;
-        margin-bottom:0px;
-    }
+        margin:0 auto;
+    } 
 
+    #needsToolCribDuty {    
+        color:white;
+        font-size:.5rem;
+        border:1px solid white;
+        width:110px;
+        text-align:center;
+    }
 
     #memberSchedule-container {
         grid-area: scheduleArea;
@@ -212,7 +216,8 @@
         margin:0px;
         background-color:white;
         border:navy solid 1px;
-        border-radius: 10px;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
         padding-bottom: 0px;
         margin-bottom:5px;
     }
@@ -227,8 +232,6 @@
         text-align: center;
         background-color: navy;
         border:white solid 1px;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
         color:white;
         padding:0px;
         margin-left:0px;
@@ -461,16 +464,7 @@
     .nameID :hover{
         background-color:yellow;
     }
-    #findMember {
-        background-color: lime;
-        width: 200px;
-    } 
-
-    #selectpicker {
-        width:200px;
-        height:40px;
-
-    }
+    
 
     #schedulePeriod {
         text-align: center;
@@ -484,7 +478,8 @@
       padding: 5px 5px;
       background-color: white;
       cursor: pointer;
-      font-size: 10px; 
+      font-size: 10px;
+      margin-bottom:4px; 
     }
     .btn:hover {
       background-color:lightgrey;
@@ -493,7 +488,7 @@
         border:2px solid red;
     }
     #lastYearBtn.active {
-        border:3px solid green;
+        border:2px solid green;
     }
     /* CSS FOR ACTION/REASON MODAL FORM */
     #reasonModalID .modal-header {
