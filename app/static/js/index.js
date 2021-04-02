@@ -193,6 +193,18 @@ function enableRefreshBtn() {
 
 
 function dayClicked(dayClickedID) {
+    shopSelected = document.getElementById('shopToDisplay').value
+    if (shopSelected == 'BOTH') {
+        shopNumber = 0
+    }
+    else if (shopSelected == 'RA') {
+        shopNumber = 1
+        }
+        else if (shopSelected == 'BW') {
+            shopNumber = 2
+        }
+    // alert('shopSelected - '+shopSelected)
+ 
     curDay = document.getElementById(dayClickedID)
     if (curDay.classList.contains('closed')){
         modalAlert("VWC","The shop is closed.\nYou may not schedule a member on this date.")
@@ -214,24 +226,10 @@ function dayClicked(dayClickedID) {
             if (dayNumber == 0) {
                 dayNumber = dayOfYear(yyyymmdd)
             }
-            // CONVERT SHOP ABBREV TO SHOP NUMBER
-            if (shopFilter == 'BOTH') {
-                shopNumber = 0
-            }
-            else if (shopFilter == 'RA') {
-                shopNumber = 1
-                }
-                else if (shopFilter == 'BW') {
-                    shopNumber = 2
-                }
-                else {
-                    alert ('Error in shopFilter setting.')
-                    return
-                }
             
             // IF SWAP IN PROGRESS THEN SET scheduleNumber TO THE FIRST EMPTY DAY
             if (swapInProgress) {
-                if (shopFilter == 'BOTH') {
+                if (shopSelected == 'BOTH') {
                     // IS THIS THE FIRST DATE OF THE SWAP? BUILD SCHEDULE FOR ROLLING ACRES
                     if (!localStorage.getItem('swap1ID')){
                         shopNumber = 1
@@ -252,33 +250,26 @@ function dayClicked(dayClickedID) {
                     return
                 }
                 else {
+                    // SWAP IS WITHIN A SINGLE LOCATION
                     // IS THIS THE FIRST DATE OF THE SWAP? BUILD SCHEDULE FOR shopFilter value
                     if (!localStorage.getItem('swap1ID')){
-                        if (shopFilter = 'RA'){
-                            shopNumber = 1
-                        }
-                        else {
-                            shopNumber = 2
-                        }
                         scheduleNumber = 1
                         localStorage.setItem('swap1ID',dayClickedID)
+                        buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,dayClickedID)
+                        return
                     }
-                    // BUILD SCHEDULE FOR BROWNWOOD
+                    // BUILD SCHEDULE FOR DAY 2
                     else if (!localStorage.getItem('swap2ID')) {
-                        if (shopFilter = 'RA'){
-                            shopNumber = 1
-                        }
-                        else {
-                            shopNumber = 2
-                        }
                         scheduleNumber = 2
                         localStorage.setItem('swap2ID', dayClickedID)
+                        buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,dayClickedID)
+                        return
                     }
                     else {
                         alert('Only two days may be selected. Press CANCEL SWAP to begin again.')
                         return
                     }
-                    buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,dayClickedID)
+                    //buildDayTable(scheduleNumber,shopNumber,sched,yyyymmdd,dayNumber,dayClickedID)
                     return
                 }
             }
@@ -286,7 +277,7 @@ function dayClicked(dayClickedID) {
             // IF THE CURRENT SHOP LOCATION IS SET TO 'BOTH' AND A SWAP IS NOT IN PROGRESS
             // THEN BUILD A DAY SCHEDULE FOR EACH LOCATION
             if (!swapInProgress) {
-                if (shopFilter == 'BOTH') {
+                if (shopSelected == 'BOTH') {
                     scheduleNumber = 1
                     buildDayTable(scheduleNumber,1,sched,yyyymmdd,dayNumber,dayClickedID)
                     scheduleNumber = 2
@@ -1052,7 +1043,8 @@ function populateMemberSchedule(memberID,scheduleYear) {
             document.getElementById('lastMonitorTrainingID').value = trainingDate
             memberIDfromArray = sched[0][0]
             document.getElementById('memberID').innerHTML = memberIDfromArray 
-            
+            document.getElementById('needsToolCribDuty').innerHTML=sched[0][11]
+
             // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
             memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
 
@@ -1393,7 +1385,7 @@ function initiateSwap() {
 
     if (shopFilter != 'BOTH') {
         msg = 'Select one or two dates, then select two assignments.'
-        modalAlert('SET UP SWAP OR MOVE',msg)
+        modalAlert('SET UP SWAP',msg)
     }
     else {
         msg = 'Select a date for Rolling Acres, then select a date for Brownwood.'
@@ -1716,7 +1708,7 @@ function openMemberModal() {
         document.getElementById("certifiedRA").checked = dataArray[13]
         document.getElementById("certifiedBW").checked = dataArray[14]
         document.getElementById("lastTrainingDateID").value = dataArray[15]
-        document.getElementById("needsToolCribID").value = dataArray[16]
+        document.getElementById("needsToolCribID").checked = dataArray[16]
         document.getElementById("memberNotesID").value = dataArray[17]
         document.getElementById("monitorDutyNotesID").value = dataArray[18]
         

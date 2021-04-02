@@ -339,6 +339,7 @@ def getMemberSchedule():
             schedArray[position][8] = ms.No_Show
         schedArray[position][9]=scheduleYear
         schedArray[position][10]=ms.recordID
+        
         if ms.Requires_Tool_Crib_Duty:
             schedArray[position][11]='NEEDS TOOL CRIB DUTY'
         else:
