@@ -440,6 +440,38 @@
         padding:0px;
     }
 
+    /* MODAL ALERT  */
+    #modalAlert {
+        display:block;
+        width:50%;
+    }
+    .modalAlertContent {
+        background-color: beige;
+        color:navy;
+        height:max-content;
+        font-size:.75rem;
+    }
+    .modalAlertHeader {
+        height:75px;
+        background-color:navy;
+        color:white;
+    }
+    .modalAlertHeader button {
+        float:right;
+    }
+    /* .modalAlertTitle {
+        background-color: navy;
+        color:white;
+        padding:0;
+        margin:0;
+    } */
+    .modalAlertBody {
+        width:100%;
+        background-color:white;
+        color:maroon;
+    }
+
+    
     /* The Close Button */
     .close {
         color: #aaaaaa;
@@ -553,4 +585,7 @@
 }
 @media (min-width: 1440px) {
     
+}
+.selected {
+    background-color:yellow;
 }

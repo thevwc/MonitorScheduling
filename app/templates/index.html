@@ -14,7 +14,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>ver. Apr 1, 2021</h4> 
+                <h4>ver. Apr 14, 2021</h4> 
                 <input id='shopID' type="text" style=display:none value={{shopID}}>
             </div> 
             
@@ -77,8 +77,11 @@
                             {% endfor %}
                     </select>  
                 </div>
-                <div id="memberName" class=col-sm-5>
-                    <span>{{displayName}}</span>
+                <div class=col-sm-5>
+                    <span id="memberName">{{displayName}}</span>
+                </div>
+                <div class="col-sm-1">
+                    <button id='clearMemberBtn' type="button" style="margin-left:5px;width: 90px;height:25px;font-size:.6rem;display:none"  class="btn-primary btn btn-sm" onclick="location.reload()">Clear</button>
                 </div>
             </div>
             <div id="memberOptions" class=row>
@@ -87,9 +90,9 @@
                     <input id="lastMonitorTrainingID" type="text" readonly style="height:20px;width:75px;font-size: small;" value="">
                 </div>
                 <div id="memberBtnsID" style=border:1px solid red>
-                    <button type="button" style="margin-left:5px;width: 90px;height:25px;font-size:.6rem" class="btn-primary btn btn-sm" onclick="openMemberModal()">Member Data</button>
-                    <button id="printMemberScheduleBtn" style="margin-left:5px;width:90px;height:25px;font-size:.6rem" class="btn btn-primary btn-sm" >Print Schedule</button>   
-                    <button id="emailMemberScheduleBtn" style="margin-left:5px;width:90px;height:25px;font-size:.6rem" class="btn btn-primary btn-sm">Email Schedule</button>
+                    <button id='memberDataBtn' type="button" style="margin-left:5px;width: 90px;height:25px;font-size:.6rem" disabled class="btn-primary btn btn-sm" onclick="openMemberModal()">Member Data</button>
+                    <button id="printMemberScheduleBtn" style="margin-left:5px;width:90px;height:25px;font-size:.6rem" disabled class="btn btn-primary btn-sm" >Print Schedule</button>   
+                    <button id="emailMemberScheduleBtn" style="margin-left:5px;width:90px;height:25px;font-size:.6rem" disabled class="btn btn-primary btn-sm">Email Schedule</button>
                 </div>
                 <div>
                     <label id='needsToolCribDuty' style=margin-left:30px;font-size:.5rem>No restrictions</label>
@@ -129,6 +132,7 @@
                 <button id='initiateSwap' style="width:115px" class="btn btn-secondary btn-sm" onclick='initiateSwap()'>Initiate Swap</button>
                 <button id='cancelSwap' style="margin-left:30px;width:115px" class="btn btn-secondary btn-sm" onclick='cancelSwap()'>Cancel Swap</button>
                 <button id='makeSwap' style="margin-left:30px; width:115px" class="btn btn-secondary btn-sm" onclick='makeSwap()'>Make Swap</button>
+                <button id='clearAll' style="margin-left:30px; width:115px" class="btn btn-secondary btn-sm" onclick='clearAll()'>Clear All</button>
             </div>
 
             <!-- First DAY SELECTED -->
@@ -271,7 +275,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 id="memberNameID" class="modal-title"></h3>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" onclick='memberModalClose()' aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -294,12 +298,6 @@
                             style="margin-left:15px;font-weight:700"
                             id="needsToolCribID" 
                             name="needsToolCrib"
-                            {% if needsToolCrib == true %} 
-                                checked 
-                                value = 'True'
-                            {% else %}
-                                value = 'False'
-                            {% endif %}
                             
                             >
                             <br>
@@ -351,6 +349,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button id="closeMemberModalID" type='button' class='btn btn-secondary' style=display:none>Close</button>
                     <button id='saveMemberModalID' type="button" class="btn btn-primary">Save changes</button>
                 </div>
                 
@@ -359,16 +358,16 @@
     </div>
 
     <!-- Modal for error messages. -->
-    <div class="modal fade" id="myAlertModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal fade" id="myAlertModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog  modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTitle"></h5>
-                    <button type="button" class="close" onclick=closeAlertModal() aria-label="Close">
+                    <h5 class="modal-title" id="modal-title"></h5>
+                    <button type="button" class="close" onclick=closeAlertModal()>
                     <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" id=modalBody>
+                <div class="modal-body" id=modalAlertBody style=text-align:center>
                 </div>
                 
                 <div class="modal-footer">

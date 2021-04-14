@@ -177,7 +177,7 @@ def index():
         member = db.session.query(Member).filter(Member.Member_ID == villageID).first()
         if member:
             displayName = member.First_Name
-            if member.NickName != '':
+            if member.NickName != '' and member.NickName != None:
                 displayName += ' (' + member.NickName + ')'
             displayName += ' ' + member.Last_Name
 
@@ -272,6 +272,7 @@ def getDayAssignments():
 
 @app.route('/getMemberSchedule', methods=['GET','POST'])
 def getMemberSchedule():
+
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -313,7 +314,7 @@ def getMemberSchedule():
     sqlSelect += "ORDER BY Date_Scheduled"
     memberSchedule = db.engine.execute(sqlSelect)
     position = 0
-
+    
     # GET NAME AND TRAINING DATE FROM MEMBER TABLE
     
     member = db.session.query(Member).filter(Member.Member_ID == memberID).first()
@@ -329,6 +330,7 @@ def getMemberSchedule():
 
     position = 0
     for ms in memberSchedule:
+        print('Member - ',memberID, ms.Date_Scheduled)
         if ms.Date_Scheduled != None:
             schedArray[position][0] = memberID
             schedArray[position][1] = ms.Shop_Number
@@ -405,6 +407,7 @@ def deleteMonitorAssignment():
     
 @app.route('/addMonitorAssignment', methods=['GET','POST'])
 def addMonitorAssignment():
+    print('/addMonitorAssignment')
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -444,6 +447,7 @@ def addMonitorAssignment():
     sqlInsert += " VALUES ('" + memberID + "', '" + schedDate + "', '" + Shift + "'"
     sqlInsert += ", " + shopNumber + ", '" + Duty + "')"
     
+    print('sqlInsert - ',sqlInsert)
     
     # ADD ASSIGNMENT TO tblMonitor_Schedule
     result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
@@ -545,12 +549,12 @@ def swapMonitorAssignments():
 
 
     # CHECK FOR POTENTIAL CONFLICTS WITH EACH ASSIGNMENT
-    if conflicts(memberID2,schedDate1,shift1) > 1:
+    if conflicts(memberID2,recordID1,schedDate1,shift1,duty1,duty2) > 0:
         msg = "ERROR - " + memberName2 + " has a conflict at "
         msg += schedDate1.strftime('%m-%d-%Y') + " " + shift1
         return msg
         
-    if conflicts(memberID1,schedDate2,shift2) > 1:
+    if conflicts(memberID1,recordID2,schedDate2,shift2,duty1,duty2) > 0:
         msg = "ERROR  - " + memberName1 + " has a conflict at "
         msg += schedDate2.strftime('%m-%d-%Y') + " " + shift2
         return msg
@@ -668,7 +672,7 @@ def swapMonitorAssignments():
         return actionDesc    
     
 
-def conflicts(memberID,dateScheduled,shift):
+def conflicts(memberID,recordID,dateScheduled,shift,duty1,duty2):
     # CONVERT DATETIME FIELD TO STRING
     dtSched = dateScheduled.strftime('%Y-%m-%d')
 
@@ -676,8 +680,12 @@ def conflicts(memberID,dateScheduled,shift):
     assignmentCount = db.session.query(func.count(MonitorSchedule.Member_ID))\
         .filter(MonitorSchedule.Member_ID==memberID)\
         .filter(MonitorSchedule.Date_Scheduled==dtSched)\
+        .filter(MonitorSchedule.ID != recordID)\
         .filter(MonitorSchedule.AM_PM==shift).scalar()
-
+    if assignmentCount > 0:
+        if duty1 != duty2:
+            # MEMBER HAS DIFFERENT DUTY NOW, SO OK?
+            assignmentCount = 0
     return assignmentCount 
     
 def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,duty,shopNumber):
@@ -755,9 +763,11 @@ def logMonitorScheduleNote():
 
     if actionDesc[0:4] == 'SWAP' or actionDesc[0:4] == 'MOVE':
         swapDate1 = parameters['swapDate1']
+        print('swapDate1 - ',swapDate1)
         if swapDate1 == None:
             return "ERROR - Missing swapDate1."
         swapDate2 = parameters['swapDate2']
+        print('swapDate2 - ',swapDate2)
         if swapDate2 == None:
             return "ERROR - Missing swapDate2."
 
@@ -838,7 +848,7 @@ def logMonitorScheduleNote():
                 print("ERROR - ",e)
                 return 0
                     
-    return "SUCCESS - SWAP or MOVE Transaction completed."
+    return "SUCCESS - SWAP transaction completed."
 
 @app.route('/getMonitorWeekNotes', methods=['GET','POST'])
 def getMonitorWeekNotes():
@@ -952,11 +962,12 @@ def getMemberModalData():
         dataArray[15] = member.Last_Monitor_Training.strftime("%Y-%m-%d")
     else:
         dataArray[15] = ''
-     
-    if (member.Requires_Tool_Crib_Duty):
-        dataArray[16] = 'True'
-    else:
-        dataArray[16] = 'False'
+
+    dataArray[16] = member.Requires_Tool_Crib_Duty 
+    # if (member.Requires_Tool_Crib_Duty):
+    #     dataArray[16] = 'True'
+    # else:
+    #     dataArray[16] = 'False'
 
     dataArray[17] = member.Monitor_Duty_Notes
     dataArray[18] = member.Member_Notes
@@ -996,7 +1007,8 @@ def updateMemberModalData():
         return "ERROR - Missing memberID."
     
     needsToolCrib = parameters["needsToolCrib"]
-   
+    print('needsToolCrib - ',needsToolCrib)
+
     monitorNotes = parameters['monitorNotes']
     if monitorNotes == None:
         return "ERROR - Missing monitorNotes."
@@ -1055,21 +1067,26 @@ def updateMemberModalData():
         logChange('Last Monitor Training',memberID,lastTraining,member.Last_Monitor_Training)
         member.Last_Monitor_Training = lastTraining
         fieldsChanged += 1
+    print('type needsToolCrib - ',type(needsToolCrib),'value - ',needsToolCrib)
+    print('type in db -',type(member.Requires_Tool_Crib_Duty),'value - ',member.Requires_Tool_Crib_Duty)
 
-    if ((needsToolCrib == 'True' and member.Requires_Tool_Crib_Duty != True)
-    or (needsToolCrib == 'False' and member.Requires_Tool_Crib_Duty)):    
-        # Requires_Tool_Crib_Duty HAS CHANGED
-        if (needsToolCrib == 'True'):
-            newValue = 1
-        else:
-            newValue = 0
+    # if ((needsToolCrib == 'True' and member.Requires_Tool_Crib_Duty != True)
+    # or (needsToolCrib == 'False' and member.Requires_Tool_Crib_Duty == True)): 
+    #     print('change in needsToolCrib')   
+    #     # Requires_Tool_Crib_Duty HAS CHANGED
+    #     if (needsToolCrib == 'True'):
+    #         newValue = 1
+    #     else:
+    #         newValue = 0
 
-        logChange('Requires TC Duty',memberID,newValue,member.Requires_Tool_Crib_Duty)
-        if (needsToolCrib == 'True'):
-            member.Requires_Tool_Crib_Duty = True
-        else:
-            member.Requires_Tool_Crib_Duty = False
-
+    #     logChange('Requires TC Duty',memberID,newValue,member.Requires_Tool_Crib_Duty)
+    #     if (needsToolCrib == 'True'):
+    #         member.Requires_Tool_Crib_Duty = 1
+    #     else:
+    #         member.Requires_Tool_Crib_Duty = 0
+    if member.Requires_Tool_Crib_Duty != needsToolCrib:
+        logChange('Requires TC Duty',memberID,needsToolCrib,member.Requires_Tool_Crib_Duty)
+        member.Requires_Tool_Crib_Duty = needsToolCrib
         fieldsChanged += 1
   
     if isAuthorized:
@@ -1146,7 +1163,9 @@ def updateMemberModalData():
 
     try:
         db.session.commit()
-        return "SUCCESS - Data has been saved."
+        msg = 'SUCCESS - Data has been saved.'
+        print(msg)
+        return (msg)
     except (SQLAlchemyError, DBAPIError) as e:      
             db.session.rollback()
             print("ERROR - ",e)   
@@ -1189,7 +1208,7 @@ def printMemberSchedule(memberID):
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
     sqlSelect += "LEFT JOIN tblShop_Names ON tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' and Date_Scheduled >= '"
-    sqlSelect += beginDateSTR + "' ORDER BY Date_Scheduled desc, AM_PM, Duty"
+    sqlSelect += beginDateSTR + "' ORDER BY Date_Scheduled, AM_PM, Duty"
 
     try:
         schedule = db.engine.execute(sqlSelect)
@@ -1201,6 +1220,65 @@ def printMemberSchedule(memberID):
     return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,\
     schedule=schedule,todays_date=todays_dateSTR)
 
+
+# PRINT MEMBER MONITOR DUTY SCHEDULE
+@app.route("/emailMemberSchedule/<string:memberID>/", methods=['GET','POST'])
+def emailMemberSchedule(memberID):
+    print('emailMemberSchedule rtn')
+    
+    # GET MEMBER NAME
+    member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
+    displayName = member.First_Name + ' ' + member.Last_Name
+    lastTraining = member.Last_Monitor_Training
+
+    # RETRIEVE LAST_ACCEPTABLE_TRAINING_DATE FROM tblControl_Variables
+    lastAcceptableTrainingDate = db.session.query(ControlVariables.Last_Acceptable_Monitor_Training_Date).filter(ControlVariables.Shop_Number == '1').scalar()
+    if lastTraining == None:
+        needsTraining = 'TRAINING IS NEEDED'
+    else:
+        if (lastTraining < lastAcceptableTrainingDate):
+            needsTraining = 'TRAINING IS NEEDED'
+        else:
+            needsTraining = ''
+
+    # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
+    #est = timezone('EST')
+    todays_date = date.today()
+    currentYear = todays_date.year
+    beginDateDAT = datetime(todays_date.year,1,1)
+    todays_dateSTR = todays_date.strftime('%m-%d-%Y')
+    beginDateSTR = beginDateDAT.strftime('%m-%d-%Y')
+    
+    # BUILD SELECT STATEMENT TO RETRIEVE MEMBERS SCHEDULE FOR CURRENT YEAR FORWARD
+    sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
+    sqlSelect += "First_Name + ' ' + Last_Name as displayName, tblShop_Names.Shop_Name, "
+    sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, "
+    sqlSelect += " format(Date_Scheduled,'MMM d, yyyy') as DateScheduled, AM_PM, Duty, No_Show, tblMonitor_Schedule.Shop_Number "
+    sqlSelect += "FROM tblMember_Data "
+    sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
+    sqlSelect += "LEFT JOIN tblShop_Names ON tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number "
+    sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' and Date_Scheduled >= '"
+    sqlSelect += beginDateSTR + "' ORDER BY Date_Scheduled, AM_PM, Duty"
+
+    try:
+        schedule = db.engine.execute(sqlSelect)
+    # check for OperationalError ??
+    except (SQLAlchemyError, DBAPIError) as e:
+        print("ERROR -",e)
+        flash("ERROR - Can't access database.")
+
+    # ..... add code to email schedule in body of email
+    #To - insert member's email address, if available
+    #Subject - Monitor schedule for ...
+    #Body -
+    #  Date   Shift   Duty   Location
+    # 3/1/21    AM      Shop Monitor    Brownwood
+    # 3/15/21   AM      Tool Crib       Rolling Acres
+
+    flash ('email routine','info')
+    # return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,\
+    # schedule=schedule,todays_date=todays_dateSTR)
+    return redirect(url_for('index',villageID=memberID))
 
 # PRINT WEEKLY MONITOR DUTY SCHEDULE FOR COORDINATOR
 @app.route("/printWeeklyMonitorSchedule", methods=['GET'])
@@ -1518,19 +1596,22 @@ def getStaffID():
     if 'staffID' in session:
         staffID = session['staffID']
     else:
-        staffID = ''
+        #staffID = ''
+        staffID = '604875'
     return staffID
 
 def getStaffName():
     if 'staffname' in session:
         staffName = session['staffname']
     else:
-        staffName = ''
+        #staffName = ''
+        staffName = 'rlh'
     return staffName
 
 def getShopID():
     if 'shopID' in session:
         shopID = session['shopID']
     else:
-        shopID = ''
+        #shopID = ''
+        shopID = 'BW'
     return shopID
