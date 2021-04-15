@@ -14,7 +14,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>ver. Apr 14, 2021</h4> 
+                <h4>ver. Apr 15, 2021</h4> 
                 <input id='shopID' type="text" style=display:none value={{shopID}}>
             </div> 
             
@@ -77,11 +77,11 @@
                             {% endfor %}
                     </select>  
                 </div>
-                <div class=col-sm-5>
+                <div class='col-sm-5 memberName'>
                     <span id="memberName">{{displayName}}</span>
                 </div>
                 <div class="col-sm-1">
-                    <button id='clearMemberBtn' type="button" style="margin-left:5px;width: 90px;height:25px;font-size:.6rem;display:none"  class="btn-primary btn btn-sm" onclick="location.reload()">Clear</button>
+                    <button id='clearMemberBtn' type="button"   class="btn-primary btn btn-sm" onclick="clearMemberRtn()">Clear</button>
                 </div>
             </div>
             <div id="memberOptions" class=row>
@@ -89,13 +89,13 @@
                     <label style="margin-left:0px;font-size:small; color:white"for="lastMonitorTraining">Last Monitor Training:</label>
                     <input id="lastMonitorTrainingID" type="text" readonly style="height:20px;width:75px;font-size: small;" value="">
                 </div>
-                <div id="memberBtnsID" style=border:1px solid red>
-                    <button id='memberDataBtn' type="button" style="margin-left:5px;width: 90px;height:25px;font-size:.6rem" disabled class="btn-primary btn btn-sm" onclick="openMemberModal()">Member Data</button>
-                    <button id="printMemberScheduleBtn" style="margin-left:5px;width:90px;height:25px;font-size:.6rem" disabled class="btn btn-primary btn-sm" >Print Schedule</button>   
-                    <button id="emailMemberScheduleBtn" style="margin-left:5px;width:90px;height:25px;font-size:.6rem" disabled class="btn btn-primary btn-sm">Email Schedule</button>
+                <div id="memberBtnsID">
+                    <button id='memberDataBtn'  disabled class="btn-primary btn btn-sm memberBtn" onclick="openMemberModal()">Member Data</button>
+                    <button id="printMemberScheduleBtn"  disabled class="btn btn-primary btn-sm memberBtn" >Print Schedule</button>   
+                    <button id="emailMemberScheduleBtn" disabled class="btn btn-primary btn-sm memberBtn">Email Schedule</button>
                 </div>
                 <div>
-                    <label id='needsToolCribDuty' style=margin-left:30px;font-size:.5rem>No restrictions</label>
+                    <input id='needsToolCribDuty' type='text' readonly style=display:none value='No restrictions'>
                 </div>
                 <div id='schedulePeriod' >
                     <button 

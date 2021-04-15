@@ -15,13 +15,18 @@ const colors = {
     bg_Sunday:  "#2E86C1",  // Aqua
     fg_Sunday:  "#FFFFFF",  // White (#FFFFFF)
     bg_Closed:  "#2E86C1",  // Aqua
+    bg_Closed_Both: "#704241",  // Brown
     fg_Closed:  "#FFFFFF",  // White (#FFFFFF)
     bg_ToManySM:"#FAFE02",  // Yellow
     fg_ToManySM:"#000000",  // Black
     bg_ToManyTC:"#FE4E02",  // Orange
     fg_ToManyTC:"#000000",  // Black
     bg_PastDate:"#cccccc",  // Light grey
-    fg_PastDate:"#FFFFFF"   // White (#FFFFFF)
+    fg_PastDate:"#FFFFFF",  // White (#FFFFFF)
+    font_Red:   "#FF0000",  // Red
+    bg_White:   "#FFFFFF",  // White (#FFFFFF)
+    font_Yellow:"#FAFE02",  // Yellow
+    bg_Navy:    "#000080"   // Navy
 };
 
 // Declare global variables)
@@ -563,12 +568,18 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
                     case DateScheduled == 0:
                         break 
 
-                    case (status == 'CLOSED'):
+                    case (status == 'CLOSED' && shopValue != 'BOTH'):
                         document.getElementById(dayID).style.backgroundColor = colors.bg_Closed;
                         document.getElementById(dayID).style.color = colors.fg_Closed;
                         document.getElementById(dayID).classList.add('closed')
                         break
-                    
+
+                    case (status == 'CLOSED' && shopValue == 'BOTH'):
+                        document.getElementById(dayID).style.backgroundColor = colors.bg_Closed_Both;
+                        document.getElementById(dayID).style.color = colors.fg_Closed;
+                        document.getElementById(dayID).classList.add('closed')
+                        break
+
                     case (dateSched < currentDate):
                         document.getElementById(dayID).style.backgroundColor = colors.bg_PastDate;
                         document.getElementById(dayID).style.color = colors.fg_Past;
@@ -1073,10 +1084,7 @@ function memberSelectedRtn() {
     //document.getElementById('memberOptions').style.display='block'
 
     // SHOW BUTTONS
-    document.getElementById('clearMemberBtn').style.display='block'
-    document.getElementById('memberDataBtn').removeAttribute('disabled')
-    document.getElementById('printMemberScheduleBtn').removeAttribute('disabled')
-    document.getElementById('emailMemberScheduleBtn').removeAttribute('disabled')
+    showMemberButtons()
 }
 
 function populateMemberSchedule(memberID,scheduleYear) {
@@ -1109,7 +1117,12 @@ function populateMemberSchedule(memberID,scheduleYear) {
             document.getElementById('lastMonitorTrainingID').value = trainingDate
             memberIDfromArray = sched[0][0]
             document.getElementById('memberID').innerHTML = memberIDfromArray 
-            document.getElementById('needsToolCribDuty').innerHTML=sched[0][11]
+            document.getElementById('needsToolCribDuty').value=sched[0][11]
+           
+            if (sched[0][11].slice(0,5) == 'NEEDS') {
+                document.getElementById('needsToolCribDuty').style.backgroundColor = colors.bg_White
+                document.getElementById('needsToolCribDuty').style.color=colors.font_Red
+            }
 
             // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
             memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
@@ -2052,4 +2065,28 @@ for (var i = 0; i < btns.length; i++) {
 
 function changeScheduleYear(yearSpecified) {
     populateMemberSchedule(currentMemberID,yearSpecified)
+}
+
+function clearMemberRtn() {
+    hideMemberButtons()
+    document.getElementById('lastMonitorTrainingID').value = ''
+    window.location.reload()
+}
+
+function showMemberButtons() {
+    document.getElementById('clearMemberBtn').style.display='block'
+    document.getElementById('memberDataBtn').removeAttribute('disabled')
+    document.getElementById('printMemberScheduleBtn').removeAttribute('disabled')
+    document.getElementById('emailMemberScheduleBtn').removeAttribute('disabled')
+    document.getElementById('needsToolCribDuty').style.display='block'
+    document.getElementById('needsToolCribDuty').style.backgroundColor = colors.bg_Navy
+    document.getElementById('needsToolCribDuty').style.color=colors.font_Yellow
+}
+
+function hideMemberButtons() {
+    document.getElementById('clearMemberBtn').style.display='none'
+    document.getElementById('memberDataBtn').disabled = true
+    document.getElementById('printMemberScheduleBtn').disabled = true
+    document.getElementById('emailMemberScheduleBtn').disabled = true
+    document.getElementById('needsToolCribDuty').style.display='none'
 }

@@ -12,7 +12,7 @@
 
     .parent {
         display: grid;
-        grid-template-columns:1.10fr .90fr;
+        grid-template-columns:1.10fr 1fr;
         grid-template-areas: "hdgArea      hdgArea"
                             "parent1Area  parent2Area";
         background-color:lightgray;                   
@@ -160,6 +160,7 @@
         height:auto;
         width:100%;
         background-color:navy;
+        color:white;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
         padding-bottom:5px;
@@ -167,6 +168,42 @@
         margin-bottom:1px;
     }  
 
+    .memberName {
+        margin-top:.2em;
+        padding-top:0em;
+        border: 1px solid white;
+        text-align:center;
+        font-size: 1.5rem;
+        background-color:navy;
+        color:white;
+    }
+    #clearMemberBtn {
+        margin-left:5px;
+        width: 90px;
+        height:25px;
+        font-size:1rem;
+        display:none;
+        margin-top:.75em;
+        padding-top:0;
+    }
+    .memberBtn {
+        margin-left:5px;
+        width: 100px;
+        height:25px;
+        font-size:.7rem;
+        padding-top:0.3em;
+    }
+    #needsToolCribDuty {
+        margin-left:20px;
+        height:25px;
+        font-size:.8rem;
+        padding-top:.1em;
+        background-color: navy;
+        color:yellow;
+        border:1px solid white;
+        width:155px;
+        text-align:center;
+    }
     .bootstrap-select {
         /* text-size-adjust:100 px; */
         margin-left:40px;
@@ -178,13 +215,13 @@
     #memberList {
         text-align:left;
     }
-    #memberName {
+    /* #memberName {
         background-color: navy;
         color:white;
         font-size: 18px;
         padding:0px;
         margin-top:10px;
-    }
+    } */
 
     #memberID {
         display:none;
@@ -201,14 +238,6 @@
         color:white;
         margin:0 auto;
     } 
-
-    #needsToolCribDuty {    
-        color:white;
-        font-size:.5rem;
-        border:1px solid white;
-        width:110px;
-        text-align:center;
-    }
 
     #memberSchedule-container {
         grid-area: scheduleArea;

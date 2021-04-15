@@ -22,8 +22,8 @@ def index():
     staffID = getStaffID()
     staffName = getStaffName()
     shopID = getShopID()
-    print('staffID - ',staffID)
-    print('shopID - ',shopID)
+    #print('staffID - ',staffID)
+    #print('shopID - ',shopID)
 
     if shopID == 'RA':
         shopNumber = 1
@@ -88,7 +88,7 @@ def index():
             # BUILD WHERE CLAUSE FOR RESPONSE OBJECT
             whereClause = "WHERE DatePart(year,[Date_Scheduled]) = '" + str(yearFilter) + "'" 
             if shopFilter == 'RA':
-                whereClause += " and Shop_number = 1"
+                whereClause += " and Shop_Number = 1"
 
             if shopFilter == 'BW':
                 whereClause += " and Shop_Number = 2"
@@ -122,18 +122,28 @@ def index():
                 requirements[d.dayNumber][3] = d.SM_ASGND
                 requirements[d.dayNumber][4] = d.TC_ASGND
             
-            # ADD tblShop_Dates DAILY REQUIREMENTS TO 'requirements' ARRAY
-            if shopFilter == 'BOTH' or shopFilter == 'RA':
-                shopNumber = 1
+            # BUILD WHERE CLAUSE FOR RESPONSE OBJECT
+            whereClause = "WHERE DatePart(year,[MM_DD_YYYY]) = '" + str(yearFilter) + "'" 
+            if shopFilter == 'RA':
+                whereClause += " and Shop_Number = 1"
             else:
-                shopNumber = 2
+                if shopFilter == 'BW':
+                    whereClause += " and Shop_Number = 2"
+        
+            # ADD tblShop_Dates DAILY REQUIREMENTS TO 'requirements' ARRAY
+            # if shopFilter == 'BOTH' or shopFilter == 'RA':
+            #     shopNumber = 1
+            # else:
+            #     shopNumber = 2
             # BOTH SHOPS ARE IN THE shopDates ARRAY
             SQLselect2 = "SELECT [Shop_Number],[MM_DD_YYYY], [Status],"
             SQLselect2 += " SM_AM_REQD, SM_PM_REQD, TC_AM_REQD, TC_PM_REQD, "
             SQLselect2 += " DATEPART(Y,[MM_DD_YYYY]) AS dayNumber "
             SQLselect2 += " FROM tblShop_Dates  "
-            SQLselect2 += " WHERE DatePart(year,[MM_DD_YYYY]) = '" + str(yearFilter) + "'" 
             
+            # ADD WHERE CLAUSE
+            SQLselect2 += whereClause
+           
             shopDates = db.engine.execute(SQLselect2)
             for s in shopDates:
                 position = s.dayNumber
@@ -149,7 +159,7 @@ def index():
                     requirements[position][10] = s.SM_PM_REQD
                     requirements[position][11] = s.TC_AM_REQD
                     requirements[position][12] = s.TC_PM_REQD
-
+            
             return jsonify(requirements)          
         else:
             return 'No data available' 
@@ -302,6 +312,26 @@ def getMemberSchedule():
     cols = 12 # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
    
+   
+    # GET NAME AND TRAINING DATE FROM MEMBER TABLE
+    member = db.session.query(Member).filter(Member.Member_ID == memberID).first()
+    if member != None:
+        displayName = member.Last_Name + ', ' + member.First_Name + " (" + member.Member_ID + ")"
+        schedArray[0][0] = memberID
+        
+        schedArray[0][2] = displayName
+        if (member.Last_Monitor_Training != None):
+            schedArray[0][3] = member.Last_Monitor_Training.strftime("%-m/%-d/%Y")
+        else:
+            schedArray[0][3] = ''
+
+        if member.Requires_Tool_Crib_Duty:
+            schedArray[0][11]='NEEDS TOOL CRIB DUTY'
+        else:
+            schedArray[0][11]='No restrictions'
+        
+
+    # ADD SCHEDULE TO ARRAY IF IT EXISTS
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "Last_Name + ', ' + First_Name + '  (' + tblMember_Data.Member_ID + ')' as displayName, "
     sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, Date_Scheduled, "
@@ -313,24 +343,9 @@ def getMemberSchedule():
     sqlSelect += "and DatePart(year,[Date_Scheduled]) = '" + str(scheduleYear) + "' "
     sqlSelect += "ORDER BY Date_Scheduled"
     memberSchedule = db.engine.execute(sqlSelect)
-    position = 0
-    
-    # GET NAME AND TRAINING DATE FROM MEMBER TABLE
-    
-    member = db.session.query(Member).filter(Member.Member_ID == memberID).first()
-    if member != None:
-        displayName = member.Last_Name + ', ' + member.First_Name + " (" + member.Member_ID + ")"
-        schedArray[position][0] = memberID
-        
-        schedArray[position][2] = displayName
-        if (member.Last_Monitor_Training != None):
-            schedArray[position][3] = member.Last_Monitor_Training.strftime("%-m/%-d/%Y")
-        else:
-            schedArray[position][3] = ''
 
     position = 0
     for ms in memberSchedule:
-        print('Member - ',memberID, ms.Date_Scheduled)
         if ms.Date_Scheduled != None:
             schedArray[position][0] = memberID
             schedArray[position][1] = ms.Shop_Number
@@ -341,14 +356,7 @@ def getMemberSchedule():
             schedArray[position][8] = ms.No_Show
         schedArray[position][9]=scheduleYear
         schedArray[position][10]=ms.recordID
-        
-        if ms.Requires_Tool_Crib_Duty:
-            schedArray[position][11]='NEEDS TOOL CRIB DUTY'
-        else:
-            schedArray[position][11]='No restrictions'
-        
         position += 1
-    
     return jsonify(schedArray)
     
 
@@ -407,7 +415,7 @@ def deleteMonitorAssignment():
     
 @app.route('/addMonitorAssignment', methods=['GET','POST'])
 def addMonitorAssignment():
-    print('/addMonitorAssignment')
+    
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -446,8 +454,6 @@ def addMonitorAssignment():
     sqlInsert = "INSERT INTO tblMonitor_Schedule (Member_ID, Date_Scheduled, AM_PM, Shop_Number,Duty)"
     sqlInsert += " VALUES ('" + memberID + "', '" + schedDate + "', '" + Shift + "'"
     sqlInsert += ", " + shopNumber + ", '" + Duty + "')"
-    
-    print('sqlInsert - ',sqlInsert)
     
     # ADD ASSIGNMENT TO tblMonitor_Schedule
     result = db.engine.execute(text(sqlInsert).execution_options(autocommit=True))
@@ -1007,7 +1013,6 @@ def updateMemberModalData():
         return "ERROR - Missing memberID."
     
     needsToolCrib = parameters["needsToolCrib"]
-    print('needsToolCrib - ',needsToolCrib)
 
     monitorNotes = parameters['monitorNotes']
     if monitorNotes == None:
@@ -1067,23 +1072,7 @@ def updateMemberModalData():
         logChange('Last Monitor Training',memberID,lastTraining,member.Last_Monitor_Training)
         member.Last_Monitor_Training = lastTraining
         fieldsChanged += 1
-    print('type needsToolCrib - ',type(needsToolCrib),'value - ',needsToolCrib)
-    print('type in db -',type(member.Requires_Tool_Crib_Duty),'value - ',member.Requires_Tool_Crib_Duty)
-
-    # if ((needsToolCrib == 'True' and member.Requires_Tool_Crib_Duty != True)
-    # or (needsToolCrib == 'False' and member.Requires_Tool_Crib_Duty == True)): 
-    #     print('change in needsToolCrib')   
-    #     # Requires_Tool_Crib_Duty HAS CHANGED
-    #     if (needsToolCrib == 'True'):
-    #         newValue = 1
-    #     else:
-    #         newValue = 0
-
-    #     logChange('Requires TC Duty',memberID,newValue,member.Requires_Tool_Crib_Duty)
-    #     if (needsToolCrib == 'True'):
-    #         member.Requires_Tool_Crib_Duty = 1
-    #     else:
-    #         member.Requires_Tool_Crib_Duty = 0
+   
     if member.Requires_Tool_Crib_Duty != needsToolCrib:
         logChange('Requires TC Duty',memberID,needsToolCrib,member.Requires_Tool_Crib_Duty)
         member.Requires_Tool_Crib_Duty = needsToolCrib
