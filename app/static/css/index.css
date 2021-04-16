@@ -384,7 +384,36 @@
         border: 4px solid blue;
     }
 
+    /* CSS FOR MODAL ALERT */
+    /* #myAlertModal {
+        background-color: lightgray;
+        color:navy;
+    } */
+    #myAlertModal .modal-content {
+        background-color: gray;
+        color:white;
+        width:60%;
+    }
+    #myAlertModal .modal-header {
+        background-color: navy;
+        color:white;
+        text-align: center;
+    }
 
+    #myAlertModal .modal-body {
+        background-color: beige;
+        text-align: left;
+        margin:0;
+    }
+    #myAlertModal pre {
+        color:maroon;
+    }
+    #myAlertModal .modal-footer {
+        background-color: gray;
+        color:white;
+        text-align: right;
+        border:0em;
+    }
     /* MODAL FORM FOR MONITOR SCHEDULING WEEK NOTES */
     #notesModal {
         top:20px;

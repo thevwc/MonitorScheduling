@@ -15,6 +15,9 @@ import datetime as dt
 from datetime import date, datetime, timedelta
 from pytz import timezone
 
+from flask_mail import Mail, Message 
+mail = Mail(app)
+
 @app.route('/', methods=['GET','POST'])
 @app.route('/index/',methods=['GET','POST'])
 def index():
@@ -1214,7 +1217,10 @@ def printMemberSchedule(memberID):
 @app.route("/emailMemberSchedule/<string:memberID>/", methods=['GET','POST'])
 def emailMemberSchedule(memberID):
     print('emailMemberSchedule rtn')
-    
+    # GET CURRENT MONITOR YEAR
+    monitorYear = db.session.query(ControlVariables.monitorYear).filter(ControlVariables.Shop_Number == 1).scalar()
+    print('monitorYear - ',monitorYear)
+
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
@@ -1234,13 +1240,15 @@ def emailMemberSchedule(memberID):
     #est = timezone('EST')
     todays_date = date.today()
     currentYear = todays_date.year
-    beginDateDAT = datetime(todays_date.year,1,1)
+    #beginDateDAT = datetime(todays_date.year,1,1)
+    beginDateDAT = datetime(int(monitorYear),1,1)
     todays_dateSTR = todays_date.strftime('%m-%d-%Y')
     beginDateSTR = beginDateDAT.strftime('%m-%d-%Y')
     
     # BUILD SELECT STATEMENT TO RETRIEVE MEMBERS SCHEDULE FOR CURRENT YEAR FORWARD
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "First_Name + ' ' + Last_Name as displayName, tblShop_Names.Shop_Name, "
+    sqlSelect += "tblMember_Data.[E-Mail] as emailAddress, "
     sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, "
     sqlSelect += " format(Date_Scheduled,'MMM d, yyyy') as DateScheduled, AM_PM, Duty, No_Show, tblMonitor_Schedule.Shop_Number "
     sqlSelect += "FROM tblMember_Data "
@@ -1248,13 +1256,27 @@ def emailMemberSchedule(memberID):
     sqlSelect += "LEFT JOIN tblShop_Names ON tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' and Date_Scheduled >= '"
     sqlSelect += beginDateSTR + "' ORDER BY Date_Scheduled, AM_PM, Duty"
-
+   
     try:
         schedule = db.engine.execute(sqlSelect)
     # check for OperationalError ??
     except (SQLAlchemyError, DBAPIError) as e:
         print("ERROR -",e)
         flash("ERROR - Can't access database.")
+    msg = ''
+    if (schedule):
+        for s in schedule:
+            emailAddress = s.emailAddress
+            displayName = s.displayName
+            print(s.DateScheduled)
+            
+            msg += s.DateScheduled + '  ' + s.AM_PM + '  ' + s.Duty + '  ' + s.Shop_Name + '\n'
+    else:
+        msg = 'Nothing has been scheduled.'
+
+    print('....................................')
+    print('msg - ',msg)
+    print('....................................')
 
     # ..... add code to email schedule in body of email
     #To - insert member's email address, if available
@@ -1264,10 +1286,26 @@ def emailMemberSchedule(memberID):
     # 3/1/21    AM      Shop Monitor    Brownwood
     # 3/15/21   AM      Tool Crib       Rolling Acres
 
-    flash ('email routine','info')
+    # PREPARE AN EMAIL
+    #recipient = emailAddress
+    #recipient = ("Richard Hartley", "hartl1r@gmail.com")
+    recipient = ("hartl1r@gmail.com")
+    #bcc=("Woodshop","villagesWoodShop@embarqmail.com")
+    recipientList = []
+    recipientList.append(recipient)
+    print('recipientList - ',recipientList)
+
+    message = Message('Hello', sender = 'frontdesk@thevwc.net',recipients = recipientList)
+    message.subject = "Monitor schedule for " + displayName
+    #message.body = msg
+    message.body = 'TEST MESSAGE'
+    mail.send(message)
+    response += "/nEmail sent."
+    return make_response (f"{response}")
+
     # return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,\
     # schedule=schedule,todays_date=todays_dateSTR)
-    return redirect(url_for('index',villageID=memberID))
+    #return redirect(url_for('index',villageID=memberID))
 
 # PRINT WEEKLY MONITOR DUTY SCHEDULE FOR COORDINATOR
 @app.route("/printWeeklyMonitorSchedule", methods=['GET'])
