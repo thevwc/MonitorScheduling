@@ -644,6 +644,9 @@
 @media (min-width: 1440px) {
     
 }
-.selected {
-    background-color:yellow;
+.rowSelected { 
+    background-color: yellow;
 }
+/* .selected {
+    background-color:yellow;
+} */
