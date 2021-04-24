@@ -73,7 +73,7 @@ class Member(db.Model):
     Monitor_Duty_Notes = db.Column(db.String(255))
     Requires_Tool_Crib_Duty = db.Column(db.Boolean)
     Member_Notes = db.Column(db.String(255))
-    
+    Monitor_Coordinator = db.Column(db.Boolean)
     fullName = column_property(First_Name + " " + Last_Name)
     # Relationships
     #activities = db.relationship('MemberActivity', backref='member')

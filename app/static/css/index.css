@@ -402,8 +402,11 @@
 
     #myAlertModal .modal-body {
         background-color: beige;
-        text-align: left;
         margin:0;
+    }
+    #modalAlertMsg {
+        background-color: beige;
+        color:maroon;
     }
     #myAlertModal pre {
         color:maroon;
@@ -431,13 +434,13 @@
     .modal-content-notes {
         width:1000px;
         height: 500px;
-        overflow-y: auto;
         background-color:white;
         border-radius: 4px;
         text-align: center;
         margin:0px;
         padding: 0px;
         position: relative;
+        overflow-y:auto;
     }
     .closeModalNotes {
         position: absolute;
@@ -465,12 +468,16 @@
     #modalBodyNotes {
         display:grid;
         grid-template-columns: 1fr 5fr 1fr;
-        
+        overflow-y: auto;
     }
     #modalBodyNotes span {
         border-top:1px solid black;
     }
-
+    #modal-footer-notes {
+        margin:10px;
+        padding:0px;
+        position:sticky;
+    }
     /* MODAL - FOR ALL BOOTSTRAP MODAL FORMS */
     .modal-header button {
         float: right;
@@ -574,8 +581,14 @@
     .btn:hover {
       background-color:lightgrey;
     }
+    #thisYearBtn {
+        border:1px solid navy;
+    }
     #thisYearBtn.active {
         border:2px solid red;
+    }
+    #lastYearBtn {
+        border:1px solid navy;
     }
     #lastYearBtn.active {
         border:2px solid green;
@@ -650,3 +663,7 @@
 /* .selected {
     background-color:yellow;
 } */
+
+#test .active {
+    color:fuchsia;
+}
