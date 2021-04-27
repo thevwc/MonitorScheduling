@@ -51,7 +51,9 @@ var deleteAsgmntDt = ''
 var curShopNumber = ''
 
 currentMemberID = localStorage.getItem('currentMemberID')
-
+if (currentMemberID == ''){
+    currentMemberID = document.getElementById('memberID').innerHTML
+}
 // IS THERE A STARTUP YEAR STORED IN LOCALSTORAGE, IF NOT USE CURRENT YEAR
 // START UP YEAR IS THE MIDDLE VALUE OF THE THREE YEARS LISTED IN THE DROPDOWN LIST
 startUpYear = localStorage.getItem('startUpYear')
@@ -81,14 +83,11 @@ document.getElementById("shopDefault").selectedIndex = curShopNumber
 
 // HIDE 'NOTES' BUTTONS IF MEMBER NOT DBA, MGR, OR MONITOR COORDINATOR
 canViewNotes = document.getElementById('canViewNotes').value
-console.log('canViewNotes -  *'+canViewNotes+'*')
 if (canViewNotes == 'True'){
-    console.log('canViewNotes - '+canViewNotes)
     document.getElementById('day1Notes').style.display='block'
     document.getElementById('day2Notes').style.display='block'
 }
 else {
-    console.log('canViewNotes - '+canViewNotes)
     document.getElementById('day1Notes').style.display='none'
     document.getElementById('day2Notes').style.display='none'
 }
@@ -112,6 +111,7 @@ document.getElementById("saveMemberModalID").addEventListener("click",memberModa
 document.getElementById("closeMemberModalID").addEventListener("click",memberModalClose)
 document.getElementById("scheduleYearID").addEventListener('change',schedulePeriodChange)
 document.getElementById("scheduleYearID").addEventListener('click',schedulePeriodChange)
+document.getElementById("emailMemberScheduleBtn").addEventListener('click',eMailSchedule)
 
 window.addEventListener('unload', function(event) {
 	localStorage.removeItem('currentMemberID')
@@ -230,7 +230,6 @@ function enableRefreshBtn() {
 
 function dayClicked(dayClickedID) {
     shopSelected = document.getElementById('shopToDisplay').value
-    console.log('2.5 shopSelected - '+ shopSelected)
     
     // IS THE SHOP OPEN?
     curDay = document.getElementById(dayClickedID)
@@ -259,11 +258,8 @@ function dayClicked(dayClickedID) {
     // WHEN 'BOTH' LOCATIONS IS NOT SELECTED AND THERE IS NOT A CURRENT MEMBER,
     // THE FIRST DAY CLICKED GOES TO UPPER TABLE, THE SECOND TO THE LOWER TABLE
     if (shopSelected != 'BOTH' && currentMemberID.length < 6) {
-        console.log('not a current member - '+ currentMemberID)
-
         if (upperTableOpen) {
             // UPPER TABLE IS OPEN
-            console.log('shopSelected - '+shopSelected)
             buildDayTable('upper',shopSelected,dayClickedID)
             document.getElementById('day1-container').classList.add('tableSelected')
             localStorage.setItem('upperDayClickedID',dayClickedID)
@@ -271,8 +267,6 @@ function dayClicked(dayClickedID) {
         else {
             // LOWER TABLE IS OPEN
             if (lowerTableOpen){
-                console.log('shopSelected - '+shopSelected)
-
                 buildDayTable('lower',shopSelected,dayClickedID)
                 document.getElementById('day2-container').classList.add('tableSelected')
                 localStorage.setItem('lowerDayClickedID',dayClickedID)
@@ -287,8 +281,6 @@ function dayClicked(dayClickedID) {
     // WHEN 'BOTH' LOCATIONS IS NOT SELECTED AND THERE IS A CURRENT MEMBER,
     // THE FIRST DAY CLICKED GOES TO UPPER TABLE, THE SECOND TO THE LOWER TABLE
     if (shopSelected != 'BOTH' && currentMemberID.length == 6) {
-        console.log('there is a current member - '+ currentMemberID)
-        console.log('shopSelected - '+shopSelected)
         buildDayTable('upper',shopSelected,dayClickedID)
         if (!upperTableOpen) {
             document.getElementById('day1-container').classList.add('tableSelected')
@@ -320,7 +312,6 @@ function dayClicked(dayClickedID) {
 }
  
 function refreshCalendarRtn() {
-    console.log('... refreshCalendarRtn')
     yearSelected = document.getElementById("yearToDisplay")
     shopSelected = document.getElementById("shopToDisplay")
     yearFilter = yearSelected.value
@@ -334,7 +325,6 @@ function refreshCalendarRtn() {
         populateMemberSchedule(currentMemberID,'')
         document.getElementById('memberBtnsID').style.display='block'
     }   
-    //console.log('... end of refreshCalendar')
 }
 
 
@@ -519,7 +509,7 @@ function populateCalendar(yearValue,shopValue) { //,dutyValue) {
         if (this.readyState == 4 && this.status == 200) {
             sched = JSON.parse(this.response)
             shopData = sched
-            //console.log ('shopData - ' + shopData)
+            
             for ( var y=0; y<367; y++ ) {
                 DateScheduled = sched[y][0]
                 status = sched[y][1]
@@ -709,20 +699,13 @@ window.onclick = function(event) {
 }
 
 function buildDayTable(tableArea, shopLocation, dayClickedID) {
-    console.log('__________________________________________________________________')
-    console.log('... buildDayTable')
-
     shopSelected = document.getElementById("shopToDisplay")
     
     // tableArea is 'upper' or 'lower'
     // upper = tableArea 1
     // lower = tableArea 2
     // send POST request with year, shop, and day of year
-    console.log('tableArea - '+tableArea)
-    console.log('shopLocation - '+shopLocation)
-    console.log('dayClickedID - '+dayClickedID)
-
-    console.log('7. BEGIN buildDayTable - '+tableArea+' '+ shopLocation + ' '+ dayClickedID)
+   
     if (shopLocation == 'RA') {    
         shopNumber = '1'
         shopName = 'Rolling Acres'
@@ -737,24 +720,13 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
             return
         }
     }
-    console.log('7.1 shopNumber - '+shopNumber)
-    console.log('... shopNumber type - '+typeof(shopNumber))
-    console.log('... ShopNumber type - '+typeof(ShopNumber))
+   
     var xhttp = new XMLHttpRequest();
-    console.log('7.2 shopNumber - '+shopNumber)
-
     xhttp.open("POST", "/getDayAssignments"); 
-    console.log('7.3 shopNumber - '+shopNumber)
-
     xhttp.setRequestHeader("Content-Type", "application/json");
-    console.log('7.4 shopNumber - '+shopNumber)
-
     xhttp.onreadystatechange = function() {
-        console.log('7.5 shopNumber - '+shopNumber)
-        console.log('9. onreadystatechange')
         if (this.readyState == 4 && this.status == 200) {
             // PROCESS RESPONSE FROM REQUEST
-            console.log('9.1 shopNumber - '+shopNumber)
             sched = JSON.parse(this.response)
             yyyymmdd = dayClickedID.slice(1,9)
             dayNumber = sched[0][7]
@@ -763,17 +735,12 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
             }
     
             // if swap-in-progress ... check for day2
-            console.log('sched[0] - ' + sched[0])
             cnt = sched[0].length + 1
             
 
             // INSERT DATE, SHOP NAME INTO APPROPRIATE SCHEDULE HEADING
-            console.log('10. tableArea - '+tableArea)
-            console.log('11. shopName - '+ shopName)
             if (tableArea == 'upper') {
-                console.log ('11.1 upper table')
                 // REVEAL BUTTONS
-                console.log('canViewNotes - '+canViewNotes+' type - '+typeof(canViewNotes))
                 if (document.getElementById('canViewNotes').value == 'True'){
                     document.getElementById('day1Notes').style.display='block'
                 }
@@ -799,9 +766,7 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                 document.getElementById('day1ShopInitials').value = shopLocation
                 //  SET day1Detail to detailParent
                 detailParent = document.getElementById('day1Detail')
-                console.log('11.1 shopNumber - '+shopNumber)
                 if (shopNumber == 1) {
-                    console.log('shopNumber is 1 - '+shopNumber+' type - '+ typeof(shopNumber))
                     SM_AM_REQD = shopData[dayNumber][5]
                     SM_PM_REQD = shopData[dayNumber][6]
                     TC_AM_REQD = shopData[dayNumber][7]
@@ -814,13 +779,8 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                     TC_AM_REQD = shopData[dayNumber][11]
                     TC_PM_REQD = shopData[dayNumber][12]
                 }
-                // console.log('sm am - '+SM_AM_REQD)
-                // console.log('sm pm - '+SM_PM_REQD)
-                // console.log('tc am - '+TC_AM_REQD)
-                // console.log('tc pm - '+TC_PM_REQD)
             }
             else if (tableArea == 'lower') {
-                console.log ('11.2 lower table')
                 // REVEAL BUTTONS
                 if (document.getElementById('canViewNotes').value == 'True'){ 
                     document.getElementById('day2Notes').style.display='block'
@@ -846,7 +806,6 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                 //  GET staffing requirements for shop 2
                 //if (swapInProgress) {
                 if (shopSelected != 'BOTH') {
-                    console.log('11.21 before REQUIREMENTS FOR ONE LOCATION')
                     // REQUIREMENTS FOR ONE LOCATION
                     SM_AM_REQD = shopData[dayNumber][5]
                     SM_PM_REQD = shopData[dayNumber][6]
@@ -854,7 +813,6 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                     TC_PM_REQD = shopData[dayNumber][8]
                 }
                 else {
-                    console.log('11.22 before REQUIREMENTS FOR BOTH LOCATIONS')
                     // REQUIREMENTS FOR COMBINED LOCATIONS
                     SM_AM_REQD = shopData[dayNumber][9]
                     SM_PM_REQD = shopData[dayNumber][10]
@@ -864,7 +822,6 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
             
             }
             // REMOVE CURRENT DAY ASSIGNMENTS FOR SELECTED SCHEDULE DAY
-            console.log('11.2 before while ...')
             while (detailParent.firstChild) {
                 detailParent.removeChild(detailParent.lastChild);
             }
@@ -873,8 +830,6 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
             numberLoaded = 0
             for ( var y=0; y<cnt; y++ ) {
                 ShopNumber = sched[y][0]
-                console.log('ShopNumber -'+ ShopNumber + '\nshopNumber - '+shopNumber + '\ny = '+y)
-                console.log('ShopNumber(type) -'+ typeof(ShopNumber) + '\nshopNumber(type) - '+typeof(shopNumber))
                 if (ShopNumber != shopNumber) {
                     continue
                 }
@@ -885,8 +840,7 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                 MemberID = sched[y][5]
                 RecordID = sched[y][6]
                 dayNumber = sched[y][7]
-                console.log('Shift - '+Shift+'\nDuty -'+Duty)
-
+              
                 if (Shift == 'AM' && Duty == 'Shop Monitor') {
                     createScheduleDetail(tableArea,yyyymmdd,Shift,Duty,Name,MemberID,RecordID)
                     numberLoaded += 1   
@@ -896,8 +850,6 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
             // AM SHOP MONITORS - CREATE RECORDS OF SHIFTS TO FILL
 
             //  SM_AM_REQD = shopData[dayNumber][5]
-            console.log('11.3 .. SM_AM shifts to fill')
-
             SM_AM_TO_FILL = SM_AM_REQD - numberLoaded
             for ( var y=0; y<SM_AM_TO_FILL; y++ ) {
                 createScheduleDetail(tableArea,yyyymmdd,'AM','Shop Monitor',' ',' ',0)
@@ -927,7 +879,6 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
 
             // AM TOOL CRIB - CREATE RECORDS OF SHIFTS TO FILL
             //     TC_AM_REQD = shopData[dayNumber][6]
-            console.log('11.4 .. TC_AM shifts to fill')
             TC_AM_TO_FILL = TC_AM_REQD - numberLoaded
             for ( var y=0; y<TC_AM_TO_FILL; y++ ) {
                 createScheduleDetail(tableArea,yyyymmdd,'AM','Tool Crib',' ',' ',0)
@@ -956,7 +907,6 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
 
             // PM SHOP MONITORS - CREATE RECORDS OF SHIFTS TO FILL
             //     SM_PM_REQD = shopData[dayNumber][7]
-            console.log('11.4 .. SM_PM shifts to fill')
             SM_PM_TO_FILL = SM_PM_REQD - numberLoaded
             for ( var y=0; y<SM_PM_TO_FILL; y++ ) {
                 createScheduleDetail(tableArea,yyyymmdd,'PM','Shop Monitor',' ',' ',0)
@@ -987,21 +937,16 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
             // PM TOOL CRIB - CREATE RECORDS OF SHIFTS TO FILL
             
             //      TC_PM_REQD = shopData[dayNumber][8]
-            console.log('11.5 .. TC_PM shifts to fill')
             TC_PM_TO_FILL = TC_PM_REQD - numberLoaded
             for ( var y=0; y<TC_PM_TO_FILL; y++ ) {
                 createScheduleDetail(tableArea,yyyymmdd,'PM','Tool Crib',' ',' ',0)
             }
-            console.log('12. END build day table')
             // END OF TOOL CRIB PM
-        //console.log('9.1 end of ready state - ' + shopName)    
         } // END OF IF READY ...
         
     }  // END OF xhttp
     // SEND REQUEST
-    console.log('8. sending shopNumber - '+shopNumber+'\ndayClickedID - '+dayClickedID)
     var data = {shopNumber:shopNumber,dayID:dayClickedID}; //send date selected to server;
-    console.log('8.1 send data selected to server')
     xhttp.send(JSON.stringify(data));
     
 }
@@ -1009,7 +954,7 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
 
 function createScheduleDetail (tableArea,yyyymmdd,Shift,Duty,Name,MemberID,RecordID) {  
     // DETERMINE HOW MANY CHILD RECORDS EXIST
-    console.log('... createScheduleDetail - '+tableArea + ' ' + yyyymmdd + ' ' + Shift + ' '+ Duty + ' '+ Name)
+   
     // ESTABLISH EITHER day1Detail or day2Detail as detailParent
     if (tableArea == 'upper') {
         detailParent = document.getElementById('day1Detail')
@@ -1061,7 +1006,6 @@ function createScheduleDetail (tableArea,yyyymmdd,Shift,Duty,Name,MemberID,Recor
     inputName.classList.add("nameID")
     inputName.style.border='1px solid black'
     inputName.type="text"
-    console.log('Name - '+Name + ' length - '+ Name.length)
     if (Name.length > 2) {
         inputName.value = Name + '  (' + MemberID + ')'
         inputName.onclick = function() {
@@ -1134,8 +1078,6 @@ function memberSelectedRtn() {
 }
 
 function populateMemberSchedule(memberID) {
-    console.log('populateMemberSchedule')
-
     scheduleYear = document.getElementById('scheduleYearID').value
 
     if (memberID == null) {
@@ -1159,9 +1101,10 @@ function populateMemberSchedule(memberID) {
             prt.setAttribute("onclick",lnk)
 
             // SET LINK FOR eMail BUTTON
-            prt = document.getElementById("emailMemberScheduleBtn")
-            lnk = "window.location.href='/emailMemberSchedule/"+ memberID + "'"
-            prt.setAttribute("onclick",lnk)
+            // prt = document.getElementById("emailMemberScheduleBtn")
+            // lnk = "window.location.href='/emailMemberSchedule/"+ memberID + "'"
+            // prt.setAttribute("onclick",lnk)
+            document.getElementById("emailMemberScheduleBtn").value = memberID
 
             // FROM FIRST RECORD OF THE ARRAY, INSERT TRAINING DATE AND HIDDEN MEMBER ID
             trainingDate = sched[0][3]
@@ -1169,13 +1112,9 @@ function populateMemberSchedule(memberID) {
             memberIDfromArray = sched[0][0]
             document.getElementById('memberID').innerHTML = memberIDfromArray 
 
-            console.log('sched[0][11] - '+sched[0][11])
             needsToolCribDuty = sched[0][11]
             document.getElementById('needsToolCribDuty').value=needsToolCribDuty 
            
-            //if (sched[0][11].slice(0,5) == 'NEEDS') {
-            console.log('type needsToolCribDuty - '+typeof(needsToolCribDuty))
-
             if (needsToolCribDuty.slice(0,5) == 'NEEDS') {
                 document.getElementById('needsToolCribDuty').style.backgroundColor = colors.bg_White
                 document.getElementById('needsToolCribDuty').style.color=colors.font_Red
@@ -1284,24 +1223,20 @@ function populateMemberSchedule(memberID) {
 // USER CLICKED ON A BLANK, IE, UNASSIGNED SHIFT SLOT
 // ADD A RECORD TO THE TABLE tblMonitor_Schedule
 function unAssignedShiftClicked(nameID) {
-    console.log('unAssignedShiftClicked rtn ')
-    console.log('nameID - '+nameID)
     idPrefix = nameID.slice(0,9)
     if (currentMemberID.length == 6 &  !swapInProgress) {
         // ADD NEW ASSIGNMENT TO CURRENT MEMBER'S SCHEDULE
         dayXyyyymmdd = 'day' + nameID.slice(3,4) + 'yyyymmdd'
-        //console.log('dateScheduledID - ')+dayXyyyymmdd
         dateScheduled=document.getElementById(dayXyyyymmdd).value
         Duty = document.getElementById(idPrefix + 'duty').innerHTML
         Shift = document.getElementById(idPrefix + 'shift').innerHTML
-        //console.log('memberID - '+currentMemberID+'\ndate - '+dateScheduled+'\nDuty - '+Duty+'\nShift - '+Shift+'\nnameID - '+nameID)
+       
         memberName = document.getElementById(dayXyyyymmdd).value
         addAssignment(currentMemberID,dateScheduled,Shift,shopNumber,Duty,nameID)
         return
     }
     
     // MUST HAVE A CURRENT MEMBER OR HAVE INITIATED A SWAP
-    //console.log('currentMemberID - '+currentMemberID + '/n swapInProgress - ' + swapInProgress)
     if (currentMemberID.length != 6 &  !swapInProgress) {
         modalAlert('SELECT ASSIGNMENT SLOT','You need to select a member or initiate a swap \nbefore selecting an assignment.')
         return
@@ -1321,7 +1256,6 @@ function unAssignedShiftClicked(nameID) {
         }
         // ARE THERE ALREADY TWO ROWS SELECTED?
         numberOfRowsSelected=document.getElementsByClassName('rowSelected').length
-        //console.log('numberOfRowsSelected - '+numberOfRowsSelected)
         if (numberOfRowsSelected < 2) {
             selectedName.classList.add('rowSelected')
             numberOfRowsSelected=document.getElementsByClassName('rowSelected').length
@@ -1391,16 +1325,10 @@ function confirmAdd() {
 
 // DELETE AN ASSIGNMENT BY RECORD ID
 function delAssignment(id) {
-
-    console.log('delAssignment id -'+id)
     idPrefix = id.slice(0,9)
-    console.log('idPrefix - '+idPrefix)
     schedDateID = idPrefix + 'schedDateID'
-    console.log('schedDateID - '+schedDateID)
     schedDateValue = document.getElementById(schedDateID).value
-    console.log('schedDateValue - '+ schedDateValue)
     dayClickedID = 'x'+schedDateValue
-    console.log('dayClickedID - ' + dayClickedID)
     
     selectedName = document.getElementById(idPrefix + 'name')
     memberID = document.getElementById('memberID').innerHTML
@@ -1508,7 +1436,6 @@ function clearAll() {
     clearDay2()
 }
 function clearDay1() {
-    console.log('clearDay1 .....')
     document.getElementById('day1-container').classList.remove('tableSelected')
     localStorage.removeItem('upperDayClickedID')
     while (day1Detail.firstChild) {
@@ -1529,7 +1456,6 @@ function clearDay1() {
 }
 
 function clearDay2() {
-    console.log('clearDay2 ...')
     document.getElementById('day2-container').classList.remove('tableSelected')
     localStorage.removeItem('lowerDayClickedID')
     while (day2Detail.firstChild) {
@@ -1653,7 +1579,6 @@ function makeSwapOrMove() {
     }
 //--------------------------------------------------------------------------
 function makeSwap(recordID1,recordID2,asgmntID1,asgmntID2) {
-    console.log('#2 ... makeSwap')
     // SEND SWAP DATA TO SERVER
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/swapMonitorAssignments"); 
@@ -1700,11 +1625,7 @@ function makeSwap(recordID1,recordID2,asgmntID1,asgmntID2) {
     // END OF MAKE SWAP ROUTINE
 }
 
-function makeMove(recordID,idPrefix1,idPrefix2) {
-    console.log('.......................................................')
-    console.log('makeMove rtn .................................')
-    console.log('recordID to delete - '+recordID+'\nidPrefix1 - '+idPrefix1+'\nidPrefix2 - '+idPrefix2)
-       
+function makeMove(recordID,idPrefix1,idPrefix2) {      
     // recordID - RECORD ID OF MONITOR SCHEDULE RECORD TO DELETE
     // idPrefix1 - 'dayXrowXX' OF ROW WITH NAME (ASSIGNMENT BEING MOVED)
     // idPrefix2 - 'dayXrowXX' OF ROW WITHOUT NAME (DATA FOR NEW ASSIGNMENT)
@@ -1757,14 +1678,6 @@ function makeMove(recordID,idPrefix1,idPrefix2) {
     }  // END OF ONREADYSTATECHANGE
 
     // SEND WEEK#, STAFF ID, MEMBER ID, DATE SCHEDULED, AMPM, DUTY, SHOP LOCATION AND RECORD ID
-
-    
-    console.log('memberID - ' +memberID)
-    console.log('schedDate - '+schedDate)
-    console.log('shift - ' +shift)
-    console.log('duty - '+duty)
-    console.log('shopNumber - ' +shopNumber)
-    
     var data = {recordID:recordID,memberID:memberID,schedDate:schedDate,shift:shift,duty:duty,shopNumber:shopNumber}
     xhttp.send(JSON.stringify(data)); 
     // END xhttp FUNCTION
@@ -1858,7 +1771,6 @@ function closeNotesRtn() {
 
 
 function openReasonModal(actionDesc,asgmntID1,asgmntID2) {
-    console.log('#4 ... openReasonModal rtn')
     dt = document.getElementById('day1yyyymmdd').value
     document.getElementById('actionDescID').value = actionDesc
     document.getElementById('reasonDescID').value = ""
@@ -1877,16 +1789,12 @@ function openReasonModal(actionDesc,asgmntID1,asgmntID2) {
     document.getElementById('shopID').value = shopID
     $('#reasonModalID').modal('show')
     document.getElementById('reasonDescID').focus
-    console.log('... end of openReasonModal')
     return
 }
 
 function saveReasonModal() {
-    console.log('#5 ... saveReasonModal')
     asgmnt1ID = document.getElementById('asgmnt1ID').value
     asgmnt2ID = document.getElementById('asgmnt2ID').value
-    //console.log('asgmnt1ID - '+ asgmnt1ID)
-    //console.log('asgmnt2ID - '+ asgmnt2ID)
 
     shopInitials = document.getElementById('shopToDisplay').value
     // GET SHOP NUMBER FOR FIRST ASSIGNMENT (asgmnt1ID)
@@ -1938,8 +1846,6 @@ function saveReasonModal() {
                 return
             }
             alert(msg)
-            //console.log('#6 ... end of saveReasonModal')
-            //refreshCalendarRtn()
         }  // END OF READY STATE RESPONSE
     }  // END OF ONREADYSTATECHANGE
 
@@ -2006,7 +1912,6 @@ function openMemberModal() {
 function memberModalSave() {
     lastTraining = document.getElementById('lastTrainingDateID').value
     needsToolCrib = document.getElementById('needsToolCribID').checked
-    console.log('needsToolCrib - '+needsToolCrib)
     monitorNotes=document.getElementById("memberNotesID").value
     memberNotes=document.getElementById("monitorDutyNotesID").value
     jan= document.getElementById("janID").checked
@@ -2158,3 +2063,24 @@ function hideMemberButtons() {
 //     $('.btn-group > .btn').removeClass('active');
 //     $(this).addClass('active');
 // })
+function eMailSchedule(){
+    memberID = this.value
+    
+    $.ajax({
+        url : "/emailMemberSchedule",
+        type: "GET",
+        data : {
+        memberID:memberID
+        },
+        success: function(data, textStatus, jqXHR)
+        {
+        alert('Message has been sent.')
+        },
+        error: function (jqXHR, textStatus, errorThrown)
+        {
+        alert(textStatus,data.msg)
+        }
+    }); 
+}
+    
+    

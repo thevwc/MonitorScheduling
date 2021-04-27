@@ -1238,12 +1238,14 @@ def printMemberSchedule(memberID):
 
 
 # PRINT MEMBER MONITOR DUTY SCHEDULE
-@app.route("/emailMemberSchedule/<string:memberID>/", methods=['GET','POST'])
-def emailMemberSchedule(memberID):
+@app.route("/emailMemberSchedule", methods=['GET','POST'])
+def emailMemberSchedule():
+    print('emailMemberSchedule ....................')
     # GET CURRENT MONITOR YEAR
     monitorYear = db.session.query(ControlVariables.monitorYear).filter(ControlVariables.Shop_Number == 1).scalar()
 
     # GET MEMBER NAME
+    memberID = request.args.get('memberID')
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
     lastTraining = member.Last_Monitor_Training
@@ -1329,9 +1331,10 @@ def emailMemberSchedule(memberID):
     server.sendmail(sender, recipient, text)
     server.quit()
 
-    flash('Schedule has been sent to member.','info')
-    return redirect(url_for('index',villageID=memberID))
-
+    # flash('Schedule has been sent to member.','success')
+    # return redirect(url_for('index',villageID=memberID))
+    msg = "Schedule has been sent."
+    return msg
 
 # PRINT WEEKLY MONITOR DUTY SCHEDULE FOR COORDINATOR
 @app.route("/printWeeklyMonitorSchedule", methods=['GET'])
