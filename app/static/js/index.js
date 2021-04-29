@@ -50,10 +50,7 @@ var swapAsgmnt2ID = ''
 var deleteAsgmntDt = ''
 var curShopNumber = ''
 
-currentMemberID = localStorage.getItem('currentMemberID')
-if (currentMemberID == ''){
-    currentMemberID = document.getElementById('memberID').innerHTML
-}
+
 // IS THERE A STARTUP YEAR STORED IN LOCALSTORAGE, IF NOT USE CURRENT YEAR
 // START UP YEAR IS THE MIDDLE VALUE OF THE THREE YEARS LISTED IN THE DROPDOWN LIST
 startUpYear = localStorage.getItem('startUpYear')
@@ -94,9 +91,13 @@ else {
 
 // CHECK FOR A CURRENT MEMBER ID; IF FOUND DISPLAY NAME AND SCHEDULE
 currentMemberID = document.getElementById('memberID').innerHTML 
+if (currentMemberID == ''){
+    currentMemberID = localStorage.getItem('currentMemberID')
+}
 if (currentMemberID.length == 6) {
     document.getElementById('memberBtnsID').style.display='block'
     document.getElementById('scheduleYearID').style.display='block'
+    showMemberButtons()
     populateMemberSchedule(currentMemberID,'')
 }
 
