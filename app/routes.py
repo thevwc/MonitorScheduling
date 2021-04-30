@@ -302,7 +302,6 @@ def getDayAssignments():
 
 @app.route('/getMemberSchedule', methods=['GET','POST'])
 def getMemberSchedule():
-
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -326,7 +325,6 @@ def getMemberSchedule():
     #est = timezone('EST')
     Today = date.today()
     
-    
     # DECLARE ARRAY AND SET TO ZERO 
     rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
     cols = 12 # Date_Scheduled, AM_PM, Member name, Village ID
@@ -337,6 +335,7 @@ def getMemberSchedule():
     member = db.session.query(Member).filter(Member.Member_ID == memberID).first()
     if member != None:
         displayName = member.Last_Name + ', ' + member.First_Name + " (" + member.Member_ID + ")"
+        
         schedArray[0][0] = memberID
         
         schedArray[0][2] = displayName
@@ -376,6 +375,7 @@ def getMemberSchedule():
         schedArray[position][9]=scheduleYear
         schedArray[position][10]=ms.recordID
         position += 1
+
     return jsonify(schedArray)
     
 
@@ -1240,7 +1240,7 @@ def printMemberSchedule(memberID):
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/emailMemberSchedule", methods=['GET','POST'])
 def emailMemberSchedule():
-    print('emailMemberSchedule ....................')
+  
     # GET CURRENT MONITOR YEAR
     monitorYear = db.session.query(ControlVariables.monitorYear).filter(ControlVariables.Shop_Number == 1).scalar()
 

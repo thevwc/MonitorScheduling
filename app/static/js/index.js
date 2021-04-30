@@ -1210,7 +1210,7 @@ function populateMemberSchedule(memberID) {
                 }
                 //labelNoShow.appendChild(inputNoShow)
                 mbrRowDiv.appendChild(inputNoShow)
-            
+              
             }  // END OF FOR LOOP  
             return
         }  // END OF READY STATE TEST
@@ -1501,7 +1501,7 @@ function initiateSwap() {
     btnMakeSwap.disabled = true;
     btnClearAll = document.getElementById('clearAll')
     btnClearAll.disabled = true;
-
+    clearMemberRtn()
     if (shopFilter != 'BOTH') {
         msg = 'Select one or two dates, then select two assignments.'
         modalAlert('SET UP SWAP',msg)
@@ -1511,6 +1511,7 @@ function initiateSwap() {
         modalAlert('SET UP SWAP BETWEEN LOCATIONS',msg)
     }
     document.getElementById('initiateSwap').disabled = true
+   
 }
 
 function cancelSwap() {
@@ -2033,10 +2034,12 @@ function printMemberScheduleRtn() {
 function clearMemberRtn() {
     hideMemberButtons()
     document.getElementById('memberName').innerHTML = ''
+    document.getElementById('memberID').innerHTML = ''
     document.getElementById('lastMonitorTrainingID').value = ''
     localStorage.removeItem('currentMemberID')
     currentMemberID = ''
-    window.location.reload()
+    clearMemberSchedule()
+    //window.location.reload()
 }
 
 function showMemberButtons() {
@@ -2084,4 +2087,12 @@ function eMailSchedule(){
     }); 
 }
     
-    
+function clearMemberSchedule(){
+    // IDENTIFY MEMBER SCHEDULE DETAIL AS PARENT NODE
+    memberScheduleDetailID = document.getElementById('memberScheduleDetailID')
+
+    // REMOVE CHILD RECORDS OF memberScheduleDetailID
+    while (memberScheduleDetailID.firstChild) {
+        memberScheduleDetailID.removeChild(memberScheduleDetailID.lastChild);
+    }
+}
