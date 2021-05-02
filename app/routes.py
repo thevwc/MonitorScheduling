@@ -1192,6 +1192,7 @@ def updateMemberModalData():
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/printMemberSchedule/<string:memberID>/", methods=['GET','POST'])
 def printMemberSchedule(memberID):
+    print('Member ID - ',memberID)
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
@@ -1232,6 +1233,7 @@ def printMemberSchedule(memberID):
     except (SQLAlchemyError, DBAPIError) as e:
         print("ERROR -",e)
         flash("ERROR - Can't access database.")
+    print('name - ',displayName)
 
     return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,\
     schedule=schedule,todays_date=todays_dateSTR)
@@ -1240,13 +1242,15 @@ def printMemberSchedule(memberID):
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/emailMemberSchedule", methods=['GET','POST'])
 def emailMemberSchedule():
-  
+    print('emailMemberSchedule')
+
     # GET CURRENT MONITOR YEAR
     monitorYear = db.session.query(ControlVariables.monitorYear).filter(ControlVariables.Shop_Number == 1).scalar()
 
     # GET MEMBER NAME
     memberID = request.args.get('memberID')
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
+    
     displayName = member.First_Name + ' ' + member.Last_Name
     lastTraining = member.Last_Monitor_Training
 

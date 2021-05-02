@@ -51,6 +51,7 @@ var deleteAsgmntDt = ''
 var curShopNumber = ''
 
 
+
 // IS THERE A STARTUP YEAR STORED IN LOCALSTORAGE, IF NOT USE CURRENT YEAR
 // START UP YEAR IS THE MIDDLE VALUE OF THE THREE YEARS LISTED IN THE DROPDOWN LIST
 startUpYear = localStorage.getItem('startUpYear')
@@ -95,6 +96,7 @@ if (currentMemberID == ''){
     currentMemberID = localStorage.getItem('currentMemberID')
 }
 if (currentMemberID.length == 6) {
+    document.getElementById('memberName').innerHTML = localStorage.getItem('currentMemberName')
     document.getElementById('memberBtnsID').style.display='block'
     document.getElementById('scheduleYearID').style.display='block'
     showMemberButtons()
@@ -112,9 +114,12 @@ document.getElementById("saveMemberModalID").addEventListener("click",memberModa
 document.getElementById("closeMemberModalID").addEventListener("click",memberModalClose)
 document.getElementById("scheduleYearID").addEventListener('change',schedulePeriodChange)
 document.getElementById("scheduleYearID").addEventListener('click',schedulePeriodChange)
+document.getElementById("printMemberScheduleBtn").addEventListener('click',printMemberSchedule)
+
 document.getElementById("emailMemberScheduleBtn").addEventListener('click',eMailSchedule)
 
 window.addEventListener('unload', function(event) {
+    alert('unload window')
 	localStorage.removeItem('currentMemberID')
 });
 
@@ -1070,6 +1075,7 @@ function memberSelectedRtn() {
    
     // STORE MEMBER ID  
     localStorage.setItem('currentMemberID',currentMemberID)
+    localStorage.setItem('currentMemberName',selectedMember)
     populateMemberSchedule(currentMemberID,'')
     document.getElementById('selectpicker').value=''
     //document.getElementById('memberOptions').style.display='block'
@@ -1097,15 +1103,15 @@ function populateMemberSchedule(memberID) {
             numberOfElements = sched.length // Array is fixed at 100
             
             // SET LINK FOR PRINT BUTTON
-            prt = document.getElementById("printMemberScheduleBtn")
-            lnk = "window.location.href='/printMemberSchedule/"+ memberID + "'"
-            prt.setAttribute("onclick",lnk)
+            // prt = document.getElementById("printMemberScheduleBtn")
+            // lnk = "window.location.href='/printMemberSchedule/"+ memberID + "'"
+            // prt.setAttribute("onclick",lnk)
 
             // SET LINK FOR eMail BUTTON
             // prt = document.getElementById("emailMemberScheduleBtn")
             // lnk = "window.location.href='/emailMemberSchedule/"+ memberID + "'"
             // prt.setAttribute("onclick",lnk)
-            document.getElementById("emailMemberScheduleBtn").value = memberID
+            //document.getElementById("emailMemberScheduleBtn").value = memberID
 
             // FROM FIRST RECORD OF THE ARRAY, INSERT TRAINING DATE AND HIDDEN MEMBER ID
             trainingDate = sched[0][3]
@@ -2032,6 +2038,7 @@ function printMemberScheduleRtn() {
 // }
 
 function clearMemberRtn() {
+    alert('clearMemberRtn')
     hideMemberButtons()
     document.getElementById('memberName').innerHTML = ''
     document.getElementById('memberID').innerHTML = ''
@@ -2067,8 +2074,21 @@ function hideMemberButtons() {
 //     $('.btn-group > .btn').removeClass('active');
 //     $(this).addClass('active');
 // })
+
+function printMemberSchedule() {
+    saveID = localStorage.getItem('currentMemberID')
+    console.log('1. ' + saveID)
+    console.log('printMemberSchedule')
+    link = "/printMemberSchedule/" + currentMemberID + "/"
+    console.log('link - '+link)
+    location.href=link
+    localStorage.setItem('currentMemberID',saveID)
+    console.log('2. ' + localStorage.getItem('currentMemberID'))
+}
+
 function eMailSchedule(){
-    memberID = this.value
+    memberID = currentMemberID
+    console.log('currentMemberID - '+currentMemberID)
     
     $.ajax({
         url : "/emailMemberSchedule",
