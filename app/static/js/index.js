@@ -102,7 +102,24 @@ if (currentMemberID.length == 6) {
     showMemberButtons()
     populateMemberSchedule(currentMemberID,'')
 }
+// ... following not working ...
 
+// CHECK FOR A CURRENT DAY IN UPPER TABLE
+// upperTableDay = localStorage.getItem('upperDayClickedID')
+// console.log('upperTableDay - '+upperTableDay)
+// if (upperTableDay != null && upperTableDay != '') {
+//     dayClicked(upperTableDay)
+// }
+
+// HIDE DAY 1 AND 2 BUTTONS
+//clearAll()
+
+// CHECK FOR A CURRENT DAY IN LOWER TABLE
+// lowerTableDay = localStorage.getItem('lowerDayClickedID')
+// console.log('lowerTableDay - '+lowerTableDay)
+// if (lowerTableDay != null && lowerTableDay != '') {
+//     dayClicked(lowerTableDay)
+// }
 
 // DEFINE EVENT LISTENERS
 document.getElementById("yearToDisplay").addEventListener("change", yearChanged);
@@ -121,6 +138,8 @@ document.getElementById("emailMemberScheduleBtn").addEventListener('click',eMail
 window.addEventListener('unload', function(event) {
     alert('unload window')
 	localStorage.removeItem('currentMemberID')
+    localStorage.removeItem('upperDayClickedID')
+    localStorage.removeItem('lowerDayClickedID')
 });
 
 
@@ -132,9 +151,6 @@ $('#reasonModalID').on('shown.bs.modal', function () {
     $('#reasonDescID').trigger('focus')
   })
 
-
-// HIDE DAY 1 AND 2 BUTTONS
-clearAll()
 
 // SET 'CANCEL SWAP' AND 'MAKE SWAP' BUTTONS TO DISABLED
 // document.getElementById('cancelSwap').disabled = true
@@ -235,6 +251,7 @@ function enableRefreshBtn() {
 
 
 function dayClicked(dayClickedID) {
+    console.log('dayClicked - ',dayClickedID)
     shopSelected = document.getElementById('shopToDisplay').value
     
     // IS THE SHOP OPEN?
@@ -706,7 +723,7 @@ window.onclick = function(event) {
 
 function buildDayTable(tableArea, shopLocation, dayClickedID) {
     shopSelected = document.getElementById("shopToDisplay")
-    
+    memberID = document.getElementById('memberID').innerHTML
     // tableArea is 'upper' or 'lower'
     // upper = tableArea 1
     // lower = tableArea 2
@@ -761,7 +778,7 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                 document.getElementById('day1Location').innerHTML = day1Title
                 
                 prt = document.getElementById("day1Print")
-                address = "/printWeeklyMonitorSchedule?dateScheduled="+ yyyymmdd + "&shopNumber=" + shopNumber 
+                address = "/printWeeklyMonitorSchedule?dateScheduled="+ yyyymmdd + "&shopNumber=" + shopNumber + "&memberID=" + memberID
                 lnk = "window.location.href='" + address +"'"
                 prt.setAttribute("onclick",lnk)
 
@@ -801,6 +818,11 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                 day2Title = shopName
                 document.getElementById('day2Location').innerHTML = day2Title
                 
+                prt = document.getElementById("day2Print")
+                address = "/printWeeklyMonitorSchedule?dateScheduled="+ yyyymmdd + "&shopNumber=" + shopNumber + "&memberID=" + memberID
+                lnk = "window.location.href='" + address +"'"
+                prt.setAttribute("onclick",lnk)
+
                 // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
                 document.getElementById('day2yyyymmdd').value = yyyymmdd
                 // STORE SHOP LOCATION AS A NUMBER IN A HIDDEN INPUT ELEMENT
@@ -1443,6 +1465,7 @@ function clearAll() {
     clearDay2()
 }
 function clearDay1() {
+    console.log('clearDay1')
     document.getElementById('day1-container').classList.remove('tableSelected')
     localStorage.removeItem('upperDayClickedID')
     while (day1Detail.firstChild) {

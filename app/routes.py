@@ -1192,7 +1192,6 @@ def updateMemberModalData():
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/printMemberSchedule/<string:memberID>/", methods=['GET','POST'])
 def printMemberSchedule(memberID):
-    print('Member ID - ',memberID)
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
@@ -1233,16 +1232,14 @@ def printMemberSchedule(memberID):
     except (SQLAlchemyError, DBAPIError) as e:
         print("ERROR -",e)
         flash("ERROR - Can't access database.")
-    print('name - ',displayName)
 
     return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,\
-    schedule=schedule,todays_date=todays_dateSTR)
+    schedule=schedule,todays_date=todays_dateSTR,memberID=memberID)
 
 
 # PRINT MEMBER MONITOR DUTY SCHEDULE
 @app.route("/emailMemberSchedule", methods=['GET','POST'])
 def emailMemberSchedule():
-    print('emailMemberSchedule')
 
     # GET CURRENT MONITOR YEAR
     monitorYear = db.session.query(ControlVariables.monitorYear).filter(ControlVariables.Shop_Number == 1).scalar()
@@ -1345,6 +1342,7 @@ def emailMemberSchedule():
 def printMonitorScheduleWeek():
     dateScheduled=request.args.get('dateScheduled')
     shopNumber=request.args.get('shopNumber')
+    memberID = request.args.get('memberID')
 
     #  DETERMINE START OF WEEK DATE
     #  CONVERT TO DATE TYPE
@@ -1353,22 +1351,22 @@ def printMonitorScheduleWeek():
 
     beginDateDAT = dateScheduledDat - timedelta(dayOfWeek + 1)
     beginDateSTR = beginDateDAT.strftime('%m-%d-%Y')
-
+    
     endDateDAT = beginDateDAT + timedelta(days=6)
     endDateSTR = endDateDAT.strftime('%m-%d-%Y')
 
     # DEFINE COLUMN HEADING DATES
-    monDateDAT = dateScheduledDat + timedelta(days=1)
+    monDateDAT = beginDateDAT + timedelta(days=1)
     monDate = monDateDAT.strftime('%m-%d-%Y')
-    tueDateDAT = dateScheduledDat + timedelta(days=2)
+    tueDateDAT = beginDateDAT + timedelta(days=2)
     tueDate = tueDateDAT.strftime('%m-%d-%Y')
-    wedDateDAT = dateScheduledDat + timedelta(days=3)
+    wedDateDAT = beginDateDAT + timedelta(days=3)
     wedDate = wedDateDAT.strftime('%m-%d-%Y')
-    thuDateDAT = dateScheduledDat + timedelta(days=4)
+    thuDateDAT = beginDateDAT + timedelta(days=4)
     thuDate = thuDateDAT.strftime('%m-%d-%Y')
-    friDateDAT = dateScheduledDat + timedelta(days=5)
+    friDateDAT = beginDateDAT + timedelta(days=5)
     friDate = friDateDAT.strftime('%m-%d-%Y')
-    satDateDAT = dateScheduledDat + timedelta(days=6)
+    satDateDAT = beginDateDAT + timedelta(days=6)
     satDate = satDateDAT.strftime('%m-%d-%Y')
 
     weekOfHdg = beginDateDAT.strftime('%b %-d, %Y')
@@ -1596,7 +1594,7 @@ def printMonitorScheduleWeek():
     shopName=shopName,weekOf=beginDateSTR,coordinatorsName=coordinatorsName, coordinatorsEmail=coordinatorsEmail,\
     todays_date=todays_dateSTR,\
     weekOfHdg=weekOfHdg,\
-    monDate=monDate,tueDate=tueDate,wedDate=wedDate,thuDate=thuDate,friDate=friDate,satDate=satDate)
+    monDate=monDate,tueDate=tueDate,wedDate=wedDate,thuDate=thuDate,friDate=friDate,satDate=satDate,memberID=memberID)
     
 
 @app.route("/setNoShow/")
