@@ -55,6 +55,7 @@ class Member(db.Model):
     NonMember_Volunteer=db.Column(db.Boolean)
     Restricted_From_Shop = db.Column(db.Boolean)
     Last_Monitor_Training = db.Column(db.DateTime)
+    Last_Monitor_Training_Shop_2 = db.Column(db.DateTime)
     Jan_resident = db.Column(db.Boolean)
     Feb_resident = db.Column(db.Boolean)
     Mar_resident = db.Column(db.Boolean)

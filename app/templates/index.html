@@ -14,7 +14,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>ver. May 3, 2021</h4> 
+                <h4>ver. May 10, 2021</h4> 
                 <input id='shopID' type="text" style=display:none value={{shopID}}>
             </div> 
             
@@ -86,8 +86,12 @@
             </div>
             <div id="memberOptions" class=row>
                 <div style=margin-left:10px>
-                    <label style="margin-left:0px;font-size:small; color:white"for="lastMonitorTraining">Last Monitor Training:</label>
-                    <input id="lastMonitorTrainingID" type="text" readonly style="height:20px;width:75px;font-size: small;" value="">
+                    <label style="margin-left:0px;font-size:small; color:white"for="lastMonitorTraining">Last Monitor Training (RA):</label>
+                    <input id="lastMonitorTrainingRA" type="text" readonly style="height:20px;width:75px;font-size: small;" value="">
+                </div>
+                <div style=margin-left:10px>
+                    <label style="margin-left:0px;font-size:small; color:white"for="lastMonitorTraining">(BW):</label>
+                    <input id="lastMonitorTrainingBW" type="text" readonly style="height:20px;width:75px;font-size: small;" value="">
                 </div>
                 <div id="memberBtnsID">
                     <button id='memberDataBtn'  disabled class="btn-primary btn btn-sm memberBtn" onclick="openMemberModal()">Member Data</button>
@@ -121,7 +125,7 @@
                     <button class="btn active">2021</button>
                     <button class="btn">2020</button>
                 </div> -->
-                <span id = "memberID" style = "color:red;display:none;">{{memberID}}</span>  
+                <span id = "memberID" style = "color:red;display:block;">{{memberID}}</span>  
             </div>
 
             <!-- MEMBER SCHEDULE -->

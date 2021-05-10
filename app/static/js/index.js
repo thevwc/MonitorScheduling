@@ -95,6 +95,19 @@ currentMemberID = document.getElementById('memberID').innerHTML
 if (currentMemberID == ''){
     currentMemberID = localStorage.getItem('currentMemberID')
 }
+else {
+    localStorage.setItem('currentMemberID',currentMemberID)
+}
+
+currentMemberName = document.getElementById('memberName').innerHTML
+if (currentMemberName == '') {
+    currentMemberName = localStorage.getItem('currentMemberName')
+}
+else {
+    localStorage.setItem('currentMemberName',currentMemberName)
+}
+
+
 if (currentMemberID.length == 6) {
     document.getElementById('memberName').innerHTML = localStorage.getItem('currentMemberName')
     document.getElementById('memberBtnsID').style.display='block'
@@ -102,24 +115,6 @@ if (currentMemberID.length == 6) {
     showMemberButtons()
     populateMemberSchedule(currentMemberID,'')
 }
-// ... following not working ...
-
-// CHECK FOR A CURRENT DAY IN UPPER TABLE
-// upperTableDay = localStorage.getItem('upperDayClickedID')
-// console.log('upperTableDay - '+upperTableDay)
-// if (upperTableDay != null && upperTableDay != '') {
-//     dayClicked(upperTableDay)
-// }
-
-// HIDE DAY 1 AND 2 BUTTONS
-//clearAll()
-
-// CHECK FOR A CURRENT DAY IN LOWER TABLE
-// lowerTableDay = localStorage.getItem('lowerDayClickedID')
-// console.log('lowerTableDay - '+lowerTableDay)
-// if (lowerTableDay != null && lowerTableDay != '') {
-//     dayClicked(lowerTableDay)
-// }
 
 // DEFINE EVENT LISTENERS
 document.getElementById("yearToDisplay").addEventListener("change", yearChanged);
@@ -188,7 +183,8 @@ function yearChanged() {
 }
 
 function shopChanged() {
-    shopFilter = this.value
+    // shopFilter = this.value
+    setShopFilter(this.value)
     localStorage.setItem('shopFilter',this.value)
     clearDay1()
     clearDay2()
@@ -229,18 +225,25 @@ function setShopFilter(shopLocation) {
             document.getElementById("shopToDisplay").selectedIndex = 0; //Option Rolling Acres
             shopFilter = 'RA'
             curShopNumber = '1'
+            document.getElementById('lastMonitorTrainingRA').classList.add('trainingBorder')
+            document.getElementById('lastMonitorTrainingBW').classList.remove('trainingBorder')
             break;
         case 'BW':
             localStorage.setItem('shopFilter','BW')
             document.getElementById("shopToDisplay").selectedIndex = 1; //Option Brownwood
             shopFilter = 'BW'
             curShopNumber = '2'
+            // $('lastMonitorTrainingBW').addClass('trainingBorder')
+            document.getElementById('lastMonitorTrainingBW').classList.add('trainingBorder')
+            document.getElementById('lastMonitorTrainingRA').classList.remove('trainingBorder')
             break;
         default:
             localStorage.setItem('shopFilter','BOTH')
             document.getElementById("shopToDisplay").selectedIndex = 2; //Option Both
             shopFilter = 'BOTH'
             curShopNumber = 0
+            document.getElementById('lastMonitorTrainingRA').classList.add('trainingBorder')
+            document.getElementById('lastMonitorTrainingBW').classList.add('trainingBorder')
     }   
 }
 
@@ -251,7 +254,6 @@ function enableRefreshBtn() {
 
 
 function dayClicked(dayClickedID) {
-    console.log('dayClicked - ',dayClickedID)
     shopSelected = document.getElementById('shopToDisplay').value
     
     // IS THE SHOP OPEN?
@@ -1123,21 +1125,24 @@ function populateMemberSchedule(memberID) {
             // PROCESS RESPONSE
             sched = JSON.parse(this.response)
             numberOfElements = sched.length // Array is fixed at 100
-            
-            // SET LINK FOR PRINT BUTTON
-            // prt = document.getElementById("printMemberScheduleBtn")
-            // lnk = "window.location.href='/printMemberSchedule/"+ memberID + "'"
-            // prt.setAttribute("onclick",lnk)
-
-            // SET LINK FOR eMail BUTTON
-            // prt = document.getElementById("emailMemberScheduleBtn")
-            // lnk = "window.location.href='/emailMemberSchedule/"+ memberID + "'"
-            // prt.setAttribute("onclick",lnk)
-            //document.getElementById("emailMemberScheduleBtn").value = memberID
-
+           
             // FROM FIRST RECORD OF THE ARRAY, INSERT TRAINING DATE AND HIDDEN MEMBER ID
-            trainingDate = sched[0][3]
-            document.getElementById('lastMonitorTrainingID').value = trainingDate
+            //trainingDate (RA) = sched[0][2]
+            document.getElementById('lastMonitorTrainingRA').value = sched[0][2]
+            if (sched[0][3] == 'Y') {
+                document.getElementById('lastMonitorTrainingRA').classList.add('needsTraining')
+            }
+            else {
+                document.getElementById('lastMonitorTrainingRA').classList.remove('needsTraining')    
+            }
+            //trainingDate (BW) = sched[0][12]
+            document.getElementById('lastMonitorTrainingBW').value = sched[0][12]
+            if (sched[0][13] == 'Y') {
+                document.getElementById('lastMonitorTrainingBW').classList.add('needsTraining')
+            }
+            else {
+                document.getElementById('lastMonitorTrainingBW').classList.remove('needsTraining')    
+            }
             memberIDfromArray = sched[0][0]
             document.getElementById('memberID').innerHTML = memberIDfromArray 
 
@@ -1465,7 +1470,6 @@ function clearAll() {
     clearDay2()
 }
 function clearDay1() {
-    console.log('clearDay1')
     document.getElementById('day1-container').classList.remove('tableSelected')
     localStorage.removeItem('upperDayClickedID')
     while (day1Detail.firstChild) {
@@ -2044,24 +2048,7 @@ function printMemberScheduleRtn() {
     alert ('print not implemented ...')
 }
 
-// On page load add eventlistener to each btn in schedulePeriod:
-// Add active class to the current button (highlight it)
-// var header = document.getElementById("schedulePeriod");
-// var btns = header.getElementsByClassName("btn");
-// for (var i = 0; i < btns.length; i++) {
-// 	btns[i].addEventListener("click", function() {
-// 	var current = document.getElementsByClassName("active");
-// 	current[0].className = current[0].className.replace(" active", "");
-// 	this.className += " active";
-// });
-// }
-
-// function changeScheduleYear() {
-//     populateMemberSchedule(currentMemberID)
-// }
-
 function clearMemberRtn() {
-    alert('clearMemberRtn')
     hideMemberButtons()
     document.getElementById('memberName').innerHTML = ''
     document.getElementById('memberID').innerHTML = ''
@@ -2069,7 +2056,6 @@ function clearMemberRtn() {
     localStorage.removeItem('currentMemberID')
     currentMemberID = ''
     clearMemberSchedule()
-    //window.location.reload()
 }
 
 function showMemberButtons() {
@@ -2100,18 +2086,13 @@ function hideMemberButtons() {
 
 function printMemberSchedule() {
     saveID = localStorage.getItem('currentMemberID')
-    console.log('1. ' + saveID)
-    console.log('printMemberSchedule')
     link = "/printMemberSchedule/" + currentMemberID + "/"
-    console.log('link - '+link)
     location.href=link
     localStorage.setItem('currentMemberID',saveID)
-    console.log('2. ' + localStorage.getItem('currentMemberID'))
 }
 
 function eMailSchedule(){
     memberID = currentMemberID
-    console.log('currentMemberID - '+currentMemberID)
     
     $.ajax({
         url : "/emailMemberSchedule",

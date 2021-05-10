@@ -238,7 +238,12 @@
         color:white;
         margin:0 auto;
     } 
-
+    .trainingBorder {
+        border: 3px solid greenyellow;
+    }
+    .needsTraining {
+        color:red;
+    }
     #memberSchedule-container {
         grid-area: scheduleArea;
         padding:0px;

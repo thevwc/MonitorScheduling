@@ -316,33 +316,55 @@ def getMemberSchedule():
     if (memberID == None):
         return "ERROR - Missing member ID parameter."
 
+    # GET SCHEDULE YEAR IF NOT PASSED IN
     scheduleYear = parameters['scheduleYear'] 
     if (scheduleYear == None or scheduleYear == ''):
         scheduleYear = db.session.query(ControlVariables.monitorYear).filter(ControlVariables.Shop_Number == 1).scalar()
 
+    # GET LAST ACCEPTABLE TRAINING DATE
+    lastAcceptableTrainingDate = db.session.query(ControlVariables.Last_Acceptable_Monitor_Training_Date).filter(ControlVariables.Shop_Number == 1).scalar()
+    
     # RETRIEVE MEMBER NAME AND LAST TRAINING DATE
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
     #est = timezone('EST')
     Today = date.today()
     
     # DECLARE ARRAY AND SET TO ZERO 
-    rows = 100  # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
-    cols = 12 # Date_Scheduled, AM_PM, Member name, Village ID
+    rows = 100   # ARRAY LARGE ENOUGH FOR MULTIPLE YEARS
+    cols = 14    # Date_Scheduled, AM_PM, Member name, Village ID
     schedArray = [[0 for x in range(cols)] for y in range(rows)]
-   
    
     # GET NAME AND TRAINING DATE FROM MEMBER TABLE
     member = db.session.query(Member).filter(Member.Member_ID == memberID).first()
     if member != None:
         displayName = member.Last_Name + ', ' + member.First_Name + " (" + member.Member_ID + ")"
-        
         schedArray[0][0] = memberID
-        
         schedArray[0][2] = displayName
+      
+        # schedArray[0][2] - RA Last_Monitor_Training date
+        # schedArray[0][3]- RA Needs training Y/N
+        # schedArray[0][12] - BW Last_Monitor_Training date
+        # schedArray[0][13]- BW Needs training Y/N
+
+        # IS MONITOR TRAINING NEEDED FOR ROLLING ACRES (RA)?
+        schedArray[0][3] = 'N'
         if (member.Last_Monitor_Training != None):
-            schedArray[0][3] = member.Last_Monitor_Training.strftime("%-m/%-d/%Y")
+            schedArray[0][2] = member.Last_Monitor_Training.strftime("%-m/%-d/%Y")
+            if member.Last_Monitor_Training < lastAcceptableTrainingDate:
+                schedArray[0][3] = 'Y'
         else:
-            schedArray[0][3] = ''
+            schedArray[0][2] = ''
+            schedArray[0][3] = 'Y'
+
+        # IS MONITOR TRAINING NEEDED FOR BROWNWOOD (BW)?
+        schedArray[0][13] = 'N'
+        if (member.Last_Monitor_Training_Shop_2 != None):
+            schedArray[0][12] = member.Last_Monitor_Training_Shop_2.strftime("%-m/%-d/%Y")
+            if member.Last_Monitor_Training_Shop_2 < lastAcceptableTrainingDate:
+                schedArray[0][13] = 'Y'
+        else:
+            schedArray[0][12] = ''
+            schedArray[0][13] = 'Y'
 
         if member.Requires_Tool_Crib_Duty:
             schedArray[0][11]='NEEDS TOOL CRIB DUTY'
@@ -727,13 +749,13 @@ def conflicts(memberID,recordID,dateScheduled,shift,duty1,duty2):
         .filter(MonitorSchedule.AM_PM==shift).scalar()
 
     # temp - show assignments
-    assignments = db.session.query(MonitorSchedule)\
-        .filter(MonitorSchedule.Member_ID==memberID)\
-        .filter(MonitorSchedule.Date_Scheduled==dtSched)\
-        .filter(MonitorSchedule.ID != recordID)\
-        .filter(MonitorSchedule.AM_PM==shift).all()
-    for a in assignments:
-        print (a.Member_ID,a.Date_Scheduled,a.ID,a.AM_PM,a.Duty)
+    # assignments = db.session.query(MonitorSchedule)\
+    #     .filter(MonitorSchedule.Member_ID==memberID)\
+    #     .filter(MonitorSchedule.Date_Scheduled==dtSched)\
+    #     .filter(MonitorSchedule.ID != recordID)\
+    #     .filter(MonitorSchedule.AM_PM==shift).all()
+    # for a in assignments:
+    #     print (a.Member_ID,a.Date_Scheduled,a.ID,a.AM_PM,a.Duty)
   
     return assignmentCount 
     
