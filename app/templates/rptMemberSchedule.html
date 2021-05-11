@@ -24,6 +24,25 @@
         <br>
         <h3 class="text-center">Monitor Duty Schedule</h3>
         <h3 class="text-center">As of {{ todays_date }}</h3>
+        <br>
+        <div class='training'>
+            <h3>
+            <label for="RAtraining">Last monitor training (RA) - </label>
+            <input type="text" id="RAtraining"
+                {% if needsTrainingRA == 'Y' %}
+                class='needsTraining'
+                {% endif %}
+                value={{lastTrainingRA}}>
+            <label for="BWtraining">(BW) - </label>
+            <input type="text" id="BWtraining"
+                {% if needsTrainingBW == 'Y' %}
+                class='needsTraining'
+                {% endif %}
+                value={{lastTrainingBW}}>
+            </h3>
+        </div>
+       
+            
         <h3 class="text-center" style=color:red>{{needsTraining}}</h3>
 
         <table style="display: inline block;">                      

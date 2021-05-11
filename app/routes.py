@@ -1217,17 +1217,25 @@ def printMemberSchedule(memberID):
     # GET MEMBER NAME
     member = db.session.query(Member).filter(Member.Member_ID== memberID).first()
     displayName = member.First_Name + ' ' + member.Last_Name
-    lastTraining = member.Last_Monitor_Training
+    lastTrainingRA = member.Last_Monitor_Training
+    lastTrainingBW = member.Last_Monitor_Training_Shop_2
 
     # RETRIEVE LAST_ACCEPTABLE_TRAINING_DATE FROM tblControl_Variables
     lastAcceptableTrainingDate = db.session.query(ControlVariables.Last_Acceptable_Monitor_Training_Date).filter(ControlVariables.Shop_Number == '1').scalar()
-    if lastTraining == None:
-        needsTraining = 'TRAINING IS NEEDED'
+    if lastTrainingRA == None:
+        needsTrainingRA = 'Y'
     else:
-        if (lastTraining < lastAcceptableTrainingDate):
-            needsTraining = 'TRAINING IS NEEDED'
+        if (lastTrainingRA < lastAcceptableTrainingDate):
+            needsTrainingRA = 'Y'
         else:
-            needsTraining = ''
+            needsTrainingRA = 'N'
+    if lastTrainingBW == None:
+        needsTrainingBW = 'Y'
+    else:
+        if (lastTrainingBW < lastAcceptableTrainingDate):
+            needsTrainingBW = 'Y'
+        else:
+            needsTrainingBW = 'N'
 
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
     #est = timezone('EST')
@@ -1236,11 +1244,19 @@ def printMemberSchedule(memberID):
     beginDateDAT = datetime(todays_date.year,1,1)
     todays_dateSTR = todays_date.strftime('%m-%d-%Y')
     beginDateSTR = beginDateDAT.strftime('%m-%d-%Y')
-    
+    if lastTrainingRA != None:
+        lastTrainingRAstr = lastTrainingRA.strftime('%m-%d-%Y')
+    else:
+        lastTrainingRAstr = ''
+    if lastTrainingBW != None:
+        lastTrainingBWstr = lastTrainingBW.strftime('%m-%d-%Y')
+    else:
+        lastTrainingBWstr = ''
+
     # BUILD SELECT STATEMENT TO RETRIEVE MEMBERS SCHEDULE FOR CURRENT YEAR FORWARD
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "First_Name + ' ' + Last_Name as displayName, tblShop_Names.Shop_Name, "
-    sqlSelect += "Last_Monitor_Training as trainingDate, tblMonitor_Schedule.Member_ID, "
+    sqlSelect += "Last_Monitor_Training as trainingDateRA, Last_Monitor_Training_Shop_2 as trainingDateBW, tblMonitor_Schedule.Member_ID, "
     sqlSelect += " format(Date_Scheduled,'MMM d, yyyy') as DateScheduled, AM_PM, Duty, No_Show, tblMonitor_Schedule.Shop_Number "
     sqlSelect += "FROM tblMember_Data "
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
@@ -1255,7 +1271,9 @@ def printMemberSchedule(memberID):
         print("ERROR -",e)
         flash("ERROR - Can't access database.")
 
-    return render_template("rptMemberSchedule.html",displayName=displayName,needsTraining=needsTraining,\
+    return render_template("rptMemberSchedule.html",displayName=displayName,\
+    lastTrainingRA=lastTrainingRAstr, needsTrainingRA=needsTrainingRA,\
+    lastTrainingBW=lastTrainingBWstr, needsTrainingBW=needsTrainingBW,\
     schedule=schedule,todays_date=todays_dateSTR,memberID=memberID)
 
 
