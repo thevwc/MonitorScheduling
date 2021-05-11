@@ -87,11 +87,19 @@
             <div id="memberOptions" class=row>
                 <div style=margin-left:10px>
                     <label style="margin-left:0px;font-size:small; color:white"for="lastMonitorTraining">Last Monitor Training (RA):</label>
-                    <input id="lastMonitorTrainingRA" type="text" readonly style="height:20px;width:75px;font-size: small;" value="">
+                    <input id="lastMonitorTrainingRA" 
+                    type="text" 
+                    readonly 
+                    style="height:20px;width:75px;font-size: small;color:green;border:2px solid green;" 
+                    value="">
                 </div>
                 <div style=margin-left:10px>
                     <label style="margin-left:0px;font-size:small; color:white"for="lastMonitorTraining">(BW):</label>
-                    <input id="lastMonitorTrainingBW" type="text" readonly style="height:20px;width:75px;font-size: small;" value="">
+                    <input id="lastMonitorTrainingBW" 
+                    type="text" 
+                    readonly 
+                    style="height:20px;width:75px;font-size: small;color:green;border:2px solid green" 
+                    value="">
                 </div>
                 <div id="memberBtnsID">
                     <button id='memberDataBtn'  disabled class="btn-primary btn btn-sm memberBtn" onclick="openMemberModal()">Member Data</button>
@@ -299,17 +307,50 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class = certification>
-                        <label for="certifiedRA" style="margin-left:0px">Certified for Rolling Acres</label>
-                        <input type="checkbox" style="margin-left:5px" id="certifiedRA" onclick="return false;" name="certifiedRA" value=""><br>
-                        <label for="certifiedBW" style="margin-left:0px">Certified for Brownwood</label>
+                    <div class="row">
+                        <div class="col-5">
+                        </div>
+                        <div class="col-3">
+                            Certified
+                        </div>
+                        <div class="col-3">
+                            Last Monitor Training
+                        </div>
+                    </div>
+                    <div class = row>
+                        <div class='col-2'></div>
+                        <div class="col-3">
+                            <label for="certifiedRA" style="margin-left:0px">Rolling Acres</label>
+                        </div>
+                        <div class="col-3">
+                            <input id="certifiedRA" type="checkbox" style="margin-left:20px"  onclick="return false;" name="certifiedRA" value="">
+                        </div>
+                        <div class="col-3">
+                            <input type="text" id="lastTrainingDateRA" readonly style='text-align:center;margin-left:10px;width:130px;color:green;border:1px solid green' value=''>
+                        </div>
+                    </div> 
+                    
+                    <div class = row>
+                        <div class="col-2"></div>
+                        <div class="col-3">
+                            <label for="certifiedBW" style="margin-left:0px">Brownwood</label>
+                        </div>
+                        <div class="col-3">
+                            <input id="certifiedBW" type="checkbox" style="margin-left:20px"  onclick="return false;" name="certifiedRA" value="">
+                        </div>
+                        <div class="col-3">
+                            <input type="text" id="lastTrainingDateBW" readonly style='text-align:center;margin-left:10px;width:130px;color:green;border:1px solid green;' value=''>
+                        </div>
+                    </div> 
+                    <br> 
+                    <hr>
+<!--                     
+                        <label for="certifiedBW" style="margin-left:0px">Brownwood:  Certified </label>
                         <input type="checkbox" style="margin-left:15px"id="certifiedBW" onclick="return false;" name="certifiedBW" value=""><br>
-                    </div>
-                    <div class="training">
-                        <label for="lastTrainingDateID">Last monitor training:</label>
-                        <input type="date" id="lastTrainingDateID" class='datepick' value=''>
-                        <br>
-                    </div>
+                        <label for="lastTrainingDateBW">Last monitor training:</label>
+                        <input type="text" id="lastTrainingDateBW" readonly style=color:green value=''>
+                    </div> -->
+                    
                     <div>
                         <label for="needsToolCribID" >Requires Tool Crib Duty: </label>
                         <input 

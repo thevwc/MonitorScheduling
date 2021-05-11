@@ -238,11 +238,22 @@
         color:white;
         margin:0 auto;
     } 
-    .trainingBorder {
+    /* .trainingBorder {
         border: 3px solid greenyellow;
+    } */
+    /* #lastMonitorTrainingRA {
+        height:20px;
+        width:75px;
+        font-size: small;
+        color:green;
+        border:1px solid green;
+    } */
+    hr {
+        font-weight:bold;
     }
     .needsTraining {
-        color:red;
+        color:red !important;
+        border:1px solid red !important;
     }
     #memberSchedule-container {
         grid-area: scheduleArea;

@@ -29,7 +29,7 @@ class ControlVariables(db.Model):
     __tablename__ = 'tblControl_Variables'
     __table_args__ = {"schema": "dbo"}
     Shop_Number = db.Column(db.Integer, primary_key=True)
-    Last_Acceptable_Monitor_Training_Date = db.Column(db.DateTime)
+    Last_Acceptable_Monitor_Training_Date = db.Column(db.Date)
     monitorYear = db.Column('Year_To_Print',db.String(4))
 
 class Member(db.Model):
@@ -45,7 +45,7 @@ class Member(db.Model):
     Initials = db.Column(db.String(3))
     Date_Joined = db.Column(db.DateTime)
     Certified = db.Column(db.Boolean)
-    Certification_Training_Date = db.Column(db.DateTime)
+    Certification_Training_Date = db.Column(db.Date)
     Certified_2 = db.Column(db.Boolean)
     Certification_Training_Date_2 = db.Column(db.DateTime)
     Home_Phone = db.Column(db.String(14))
@@ -54,8 +54,8 @@ class Member(db.Model):
     Dues_Paid=db.Column(db.Boolean)
     NonMember_Volunteer=db.Column(db.Boolean)
     Restricted_From_Shop = db.Column(db.Boolean)
-    Last_Monitor_Training = db.Column(db.DateTime)
-    Last_Monitor_Training_Shop_2 = db.Column(db.DateTime)
+    Last_Monitor_Training = db.Column(db.Date)
+    Last_Monitor_Training_Shop_2 = db.Column(db.Date)
     Jan_resident = db.Column(db.Boolean)
     Feb_resident = db.Column(db.Boolean)
     Mar_resident = db.Column(db.Boolean)

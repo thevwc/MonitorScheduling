@@ -225,8 +225,8 @@ function setShopFilter(shopLocation) {
             document.getElementById("shopToDisplay").selectedIndex = 0; //Option Rolling Acres
             shopFilter = 'RA'
             curShopNumber = '1'
-            document.getElementById('lastMonitorTrainingRA').classList.add('trainingBorder')
-            document.getElementById('lastMonitorTrainingBW').classList.remove('trainingBorder')
+            // document.getElementById('lastMonitorTrainingRA').classList.add('trainingBorder')
+            // document.getElementById('lastMonitorTrainingBW').classList.remove('trainingBorder')
             break;
         case 'BW':
             localStorage.setItem('shopFilter','BW')
@@ -234,16 +234,16 @@ function setShopFilter(shopLocation) {
             shopFilter = 'BW'
             curShopNumber = '2'
             // $('lastMonitorTrainingBW').addClass('trainingBorder')
-            document.getElementById('lastMonitorTrainingBW').classList.add('trainingBorder')
-            document.getElementById('lastMonitorTrainingRA').classList.remove('trainingBorder')
+            // document.getElementById('lastMonitorTrainingBW').classList.add('trainingBorder')
+            // document.getElementById('lastMonitorTrainingRA').classList.remove('trainingBorder')
             break;
         default:
             localStorage.setItem('shopFilter','BOTH')
             document.getElementById("shopToDisplay").selectedIndex = 2; //Option Both
             shopFilter = 'BOTH'
             curShopNumber = 0
-            document.getElementById('lastMonitorTrainingRA').classList.add('trainingBorder')
-            document.getElementById('lastMonitorTrainingBW').classList.add('trainingBorder')
+            // document.getElementById('lastMonitorTrainingRA').classList.add('trainingBorder')
+            // document.getElementById('lastMonitorTrainingBW').classList.add('trainingBorder')
     }   
 }
 
@@ -1930,10 +1930,21 @@ function openMemberModal() {
         document.getElementById("decID").checked = dataArray[12]
         document.getElementById("certifiedRA").checked = dataArray[13]
         document.getElementById("certifiedBW").checked = dataArray[14]
-        document.getElementById("lastTrainingDateID").value = dataArray[15]
+        // dataArray[15] is not used
         document.getElementById("needsToolCribID").checked = dataArray[16]
         document.getElementById("memberNotesID").value = dataArray[17]
         document.getElementById("monitorDutyNotesID").value = dataArray[18]
+
+        document.getElementById("lastTrainingDateRA").value = dataArray[19]
+        if (dataArray[20] == 'Y') {
+            document.getElementById("lastTrainingDateRA").classList.add('needsTraining')
+        }
+       
+        document.getElementById("lastTrainingDateBW").value = dataArray[21]
+        if (dataArray[22] == 'Y') {
+            lastTrainingDateBW = document.getElementById("lastTrainingDateBW")
+            lastTrainingDateBW.classList.add('needsTraining')
+        }
         
         $('#memberModalID').modal('show')
     }  // END OF READY STATE RESPONSE
@@ -1945,7 +1956,8 @@ function openMemberModal() {
 
 // ROUTINE FOR MEMBER DATA SAVE
 function memberModalSave() {
-    lastTraining = document.getElementById('lastTrainingDateID').value
+    lastTrainingRA = document.getElementById('lastTrainingDateRA').value
+    lastTrainingBW = document.getElementById('lastTrainingDateBW').value
     needsToolCrib = document.getElementById('needsToolCribID').checked
     monitorNotes=document.getElementById("memberNotesID").value
     memberNotes=document.getElementById("monitorDutyNotesID").value
@@ -1982,7 +1994,8 @@ function memberModalSave() {
         }  // END OF READY STATE RESPONSE
     }  // END OF ONREADYSTATECHANGE
 // SEND DATA TO SERVER
-var data = {memberID:currentMemberID,lastTraining:lastTraining,monitorNotes:monitorNotes,memberNotes:memberNotes,
+var data = {memberID:currentMemberID,lastTrainingRA:lastTrainingRA,lastTrainingBW:lastTrainingBW,
+    monitorNotes:monitorNotes,memberNotes:memberNotes,
     jan:jan,feb:feb,mar:mar,apr:apr,may:may,jun:jun,jul:jul,aug:aug,sep:sep,oct:oct,nov:nov,dec:dec,needsToolCrib:needsToolCrib};
 xhttp.send(JSON.stringify(data));
 }  // END OF MEMBER MODAL SAVE ROUTINE   
@@ -2052,7 +2065,8 @@ function clearMemberRtn() {
     hideMemberButtons()
     document.getElementById('memberName').innerHTML = ''
     document.getElementById('memberID').innerHTML = ''
-    document.getElementById('lastMonitorTrainingID').value = ''
+    document.getElementById('lastMonitorTrainingRA').value = ''
+    document.getElementById('lastMonitorTrainingBW').value = ''
     localStorage.removeItem('currentMemberID')
     currentMemberID = ''
     clearMemberSchedule()

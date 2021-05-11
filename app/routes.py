@@ -25,6 +25,11 @@ mail = Mail(app)
 @app.route('/', methods=['GET','POST'])
 @app.route('/index/',methods=['GET','POST'])
 def index():
+       
+    # STORE LAST_ACCEPTABLE_TRAINING_YEAR IN SESSION VARIABLE
+    #lastAcceptableTrainingDate = db.session.query(ControlVariables.Last_Acceptable_Monitor_Training_Date).filter(ControlVariables.Shop_Number == 1).scalar()
+    #session['lastAcceptableTrainingDate'] = lastAcceptableTrainingDate
+
     # GET LOGIN DATA
     staffID = getStaffID()
     staffName = getStaffName()
@@ -979,6 +984,7 @@ def getMonitorWeekNotes():
 # ROUTINE TO PASS MONTHS IN VILLAGES, MEMBER NOTES, CERTIFICATION TO MEMBER DATA MODAL FORM
 @app.route('/getMemberModalData', methods=['GET','POST'])
 def getMemberModalData():
+    lastAcceptableTrainingDate = db.session.query(ControlVariables.Last_Acceptable_Monitor_Training_Date).filter(ControlVariables.Shop_Number == '1').scalar()
     # POST REQUEST
     if request.method != 'POST':
         return "ERROR - Not a POST request."
@@ -994,7 +1000,7 @@ def getMemberModalData():
     if member == None:
         print('No record found')
         return
-    cols = 19
+    cols = 23
     dataArray = [0 for x in range(cols)]
 
     dataArray[0] = memberID
@@ -1013,21 +1019,33 @@ def getMemberModalData():
     dataArray[12] = member.Dec_resident
     dataArray[13] = member.Certified
     dataArray[14] = member.Certified_2
-
-    if (member.Last_Monitor_Training != None and member.Last_Monitor_Training != ''):
-        dataArray[15] = member.Last_Monitor_Training.strftime("%Y-%m-%d")
-    else:
-        dataArray[15] = ''
-
+    #dataArray[15] unused
     dataArray[16] = member.Requires_Tool_Crib_Duty 
-    # if (member.Requires_Tool_Crib_Duty):
-    #     dataArray[16] = 'True'
-    # else:
-    #     dataArray[16] = 'False'
-
     dataArray[17] = member.Monitor_Duty_Notes
     dataArray[18] = member.Member_Notes
     
+    if (member.Last_Monitor_Training != None and member.Last_Monitor_Training != ''):
+        dataArray[19] = member.Last_Monitor_Training.strftime("%m-%d=%Y")
+        delta = member.Last_Monitor_Training - lastAcceptableTrainingDate
+        if delta.days < 0:
+            dataArray[20] = 'Y'
+        else:
+            dataArray[20]= 'N'
+    else:
+        dataArray[19] = ''
+        dataArray[20] = ''
+    
+    if (member.Last_Monitor_Training_Shop_2 != None and member.Last_Monitor_Training_Shop_2 != ''):
+        dataArray[21] = member.Last_Monitor_Training_Shop_2.strftime("%m-%d-%Y")
+        delta = member.Last_Monitor_Training_Shop_2 - lastAcceptableTrainingDate
+        if delta.days < 0:
+            dataArray[22] = 'Y'
+        else:
+            dataArray[22]= 'N'
+    else:
+        dataArray[21] = ''
+        dataArray[22]
+
     return jsonify(dataArray)
 
 
@@ -1053,8 +1071,11 @@ def updateMemberModalData():
         return "ERROR - Missing member number."
     parameters = request.get_json()
    
-    lastTraining = parameters['lastTraining']
-    if lastTraining == None:
+    lastTrainingRA = parameters['lastTrainingRA']
+    if lastTrainingRA == None:
+        return "ERROR - Missing lastTraining."
+    lastTrainingBW = parameters['lastTrainingBW']
+    if lastTrainingBW == None:
         return "ERROR - Missing lastTraining."
 
     memberID = parameters['memberID']
@@ -1118,11 +1139,16 @@ def updateMemberModalData():
     fieldsChanged = 0
 
     # UPDATE MEMBER RECORD
-    if lastTraining != member.Last_Monitor_Training:
-        logChange('Last Monitor Training',memberID,lastTraining,member.Last_Monitor_Training)
-        member.Last_Monitor_Training = lastTraining
+    if lastTrainingRA != member.Last_Monitor_Training:
+        logChange('Last Monitor Training (RA)',memberID,lastTrainingRA,member.Last_Monitor_Training)
+        member.Last_Monitor_Training = lastTrainingRA
         fieldsChanged += 1
-   
+
+    if lastTrainingBW != member.Last_Monitor_Training_Shop_2:
+        logChange('Last Monitor Training (BW)',memberID,lastTrainingBW,member.Last_Monitor_Training_Shop_2)
+        member.Last_Monitor_Training = lastTrainingBW
+        fieldsChanged += 1
+
     if member.Requires_Tool_Crib_Duty != needsToolCrib:
         logChange('Requires TC Duty',memberID,needsToolCrib,member.Requires_Tool_Crib_Duty)
         member.Requires_Tool_Crib_Duty = needsToolCrib
@@ -1713,3 +1739,13 @@ def getShopID():
         #shopID = ''
         shopID = 'BW'
     return shopID
+
+# def TrainingNeeded(lastTrainingDate):
+#     lastAcceptableTrainingDate = session['lastAcceptableTrainingDate'] 
+#     if lastTrainingDate == None:
+#         return True
+#     if lastTrainingDate <= lastAcceptableTrainingDate:
+#         return True
+#     else:
+#         return False
+   
