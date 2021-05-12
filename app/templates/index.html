@@ -14,7 +14,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>ver. May 11, 2021</h4> 
+                <h4>ver. May 12, 2021</h4> 
                 <input id='shopID' type="text" style=display:none value={{shopID}}>
             </div> 
             
@@ -151,9 +151,9 @@
             <!-- SWAP BUTTONS -->
             <div id="swapBtns" class="box">
                 <button id='initiateSwap' style="width:115px;" class="btn btn-secondary btn-sm" onclick='initiateSwap()'>Initiate Swap</button>
-                <button id='cancelSwap' style="margin-left:30px;width:115px;display:none" class="btn btn-secondary btn-sm" onclick='cancelSwap()'>Cancel Swap</button>
-                <button id='makeSwap' style="margin-left:30px; width:115px;display:none" class="btn btn-secondary btn-sm" onclick='makeSwapOrMove()'>Make Swap</button>
-                <button id='clearAll' style="margin-left:30px; width:135px;display:none" class="btn btn-secondary btn-sm" onclick='clearAll()'>Clear both days</button>
+                <button id='cancelSwap' style="margin-left:30px;width:115px;" disabled class="btn btn-secondary btn-sm" onclick='cancelSwap()'>Cancel Swap</button>
+                <button id='makeSwap' style="margin-left:30px; width:115px;" disabled class="btn btn-secondary btn-sm" onclick='makeSwapOrMove()'>Make Swap</button>
+                <button id='clearAll' style="margin-left:30px; width:135px;" disabled class="btn btn-secondary btn-sm" onclick='clearAll()'>Clear both days</button>
                 <input type="hidden" id="canViewNotes" value={{canViewNotes}}>
             </div>
 
@@ -409,7 +409,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button id="closeMemberModalID" type='button' class='btn btn-secondary' style=display:none>Close</button>
+                    <button id="closeMemberModalID" type='button' class='btn btn-secondary'>Close</button>
                     <button id='saveMemberModalID' type="button" class="btn btn-primary">Save changes</button>
                 </div>
                 

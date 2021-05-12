@@ -91,6 +91,7 @@ else {
 }
 
 // CHECK FOR A CURRENT MEMBER ID; IF FOUND DISPLAY NAME AND SCHEDULE
+console.log('1. currentMemberID - ',currentMemberID)
 currentMemberID = document.getElementById('memberID').innerHTML 
 if (currentMemberID == ''){
     currentMemberID = localStorage.getItem('currentMemberID')
@@ -98,6 +99,7 @@ if (currentMemberID == ''){
 else {
     localStorage.setItem('currentMemberID',currentMemberID)
 }
+console.log('2. currentMemberID - ',currentMemberID)
 
 currentMemberName = document.getElementById('memberName').innerHTML
 if (currentMemberName == '') {
@@ -264,8 +266,10 @@ function dayClicked(dayClickedID) {
     }
     
     // SHOW THE INITIATE SWAP BUTTON AND CLEAR ALL BUTTONS
-    document.getElementById('initiateSwap').style.display='block'
-    document.getElementById('clearAll').style.display='block'
+    // document.getElementById('initiateSwap').style.display='block'
+    // document.getElementById('makeSwap').style.display='block'
+    // document.getElementById('cancelSwap').style.display='block'
+    // document.getElementById('clearAll').style.display='block'
 
     if (document.getElementById('day1-container').classList.contains('tableSelected')){
         upperTableOpen = false
@@ -1554,9 +1558,9 @@ function cancelSwap() {
 }
 
 function resetSwapBtns() {
-    document.getElementById('makeSwap').style.display='none'
+    //document.getElementById('makeSwap').style.display='none'
     document.getElementById('makeSwap').disabled = true
-    document.getElementById('cancelSwap').style.display='none'
+    //document.getElementById('cancelSwap').style.display='none'
     document.getElementById('cancelSwap').disabled = true
     document.getElementById('clearAll').disabled = false
     document.getElementById('initiateSwap').disabled = false
@@ -1637,9 +1641,9 @@ function makeSwap(recordID1,recordID2,asgmntID1,asgmntID2) {
         
                 openReasonModal(msg,asgmntID1,asgmntID2)
                
-                document.getElementById('cancelSwap').style.display='none'
+                //document.getElementById('cancelSwap').style.display='none'
                 document.getElementById('cancelSwap').disabled=true
-                document.getElementById('makeSwap').style.display='none'
+                //document.getElementById('makeSwap').style.display='none'
                 document.getElementById('makeSwap').disabled=true 
                 swapInProgress = false
                 return
@@ -1698,9 +1702,9 @@ function makeMove(recordID,idPrefix1,idPrefix2) {
                 
                 document.getElementById('clearAll').disabled = false
                 openReasonModal(msg,asgmntID1,asgmntID2)
-                document.getElementById('cancelSwap').style.display='none'
+                //document.getElementById('cancelSwap').style.display='none'
                 document.getElementById('cancelSwap').disabled=true
-                document.getElementById('makeSwap').style.display='none'
+                //document.getElementById('makeSwap').style.display='none'
                 document.getElementById('makeSwap').disabled=true 
                 swapInProgress = false
 
@@ -2003,7 +2007,7 @@ xhttp.send(JSON.stringify(data));
 function memberModalClose() {
     $('#memberModalID').modal('hide')
     document.getElementById('saveMemberModalID').style.display='Block'
-    document.getElementById('closeMemberModalID').style.display='None'
+    //document.getElementById('closeMemberModalID').style.display='None'
     refreshMemberSchedule()
 }
 
