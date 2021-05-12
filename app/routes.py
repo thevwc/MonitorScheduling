@@ -331,7 +331,6 @@ def getMemberSchedule():
     
     # RETRIEVE MEMBER NAME AND LAST TRAINING DATE
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
-    #est = timezone('EST')
     Today = date.today()
     
     # DECLARE ARRAY AND SET TO ZERO 
@@ -766,7 +765,7 @@ def conflicts(memberID,recordID,dateScheduled,shift,duty1,duty2):
     
 def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,duty,shopNumber):
     # VALID TRANSACTION TYPES ARE ADD, ADD-MV, ADD-SWP, DELETE, DELETE NS, RMV-MV, RMV-SWP
-    est = timezone('EST')
+    est = timezone('America/NewYork')
     transactionDate = datetime.now(est)
     strTransactionDate = transactionDate.strftime('%Y-%m-%d %I:%M %p')
     
@@ -852,8 +851,8 @@ def logMonitorScheduleNote():
         weekOf1 = deleteAsgmntDtDAT - timedelta(dayOfWeek1 + 1)
         weekOf1STR = weekOf1.strftime('%m-%d-%Y')
       
-    #est = timezone('EST')
-    today=date.today()
+    est = timezone('America/NewYork')
+    today=date.today(est)
     todaySTR = today.strftime('%m-%d-%Y')
     
     #  ALL TRANSACTIONS GET ONE NOTE (DELETE, SWAP, MOVE)
@@ -1025,7 +1024,7 @@ def getMemberModalData():
     dataArray[18] = member.Member_Notes
     
     if (member.Last_Monitor_Training != None and member.Last_Monitor_Training != ''):
-        dataArray[19] = member.Last_Monitor_Training.strftime("%m-%d=%Y")
+        dataArray[19] = member.Last_Monitor_Training.strftime("%m-%d-%Y")
         delta = member.Last_Monitor_Training - lastAcceptableTrainingDate
         if delta.days < 0:
             dataArray[20] = 'Y'
@@ -1264,8 +1263,8 @@ def printMemberSchedule(memberID):
             needsTrainingBW = 'N'
 
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
-    #est = timezone('EST')
-    todays_date = date.today()
+    est = timezone('America/NewYork')
+    todays_date = date.today(est)
     currentYear = todays_date.year
     beginDateDAT = datetime(todays_date.year,1,1)
     todays_dateSTR = todays_date.strftime('%m-%d-%Y')
@@ -1328,8 +1327,8 @@ def emailMemberSchedule():
             needsTraining = ''
 
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
-    #est = timezone('EST')
-    todays_date = date.today()
+    est = timezone('America/NewYork')
+    todays_date = date.today(est)
     currentYear = todays_date.year
     #beginDateDAT = datetime(todays_date.year,1,1)
     beginDateDAT = datetime(int(monitorYear),1,1)
@@ -1438,7 +1437,6 @@ def printMonitorScheduleWeek():
     weekOfHdg = beginDateDAT.strftime('%b %-d, %Y')
     
     # RETRIEVE SCHEDULE FOR SPECIFIC WEEK
-    #est = timezone('EST')
     todays_date = date.today()
     todays_dateSTR = todays_date.strftime('%-m-%-d-%Y')
 
@@ -1696,7 +1694,7 @@ def logChange(colName,memberID,newData,origData):
         staffID = '111111'
 
     #  GET UTC TIME
-    est = timezone('EST')
+    est = timezone('America/NewYork')
     # Write data changes to tblMember_Data_Transactions
     try:
         newTransaction = MemberTransactions(
