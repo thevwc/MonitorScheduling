@@ -766,7 +766,7 @@ def conflicts(memberID,recordID,dateScheduled,shift,duty1,duty2):
 def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,duty,shopNumber):
     # VALID TRANSACTION TYPES ARE ADD, ADD-MV, ADD-SWP, DELETE, DELETE NS, RMV-MV, RMV-SWP
     est = timezone('America/New_York')
-    transactionDate = datetime.now(est)
+    transactionDate = datetime.now()
     strTransactionDate = transactionDate.strftime('%Y-%m-%d %I:%M %p')
     
     # CREATE A DATE VAR AND A STR VAR OF THE dateScheduled PASSED IN
@@ -852,7 +852,7 @@ def logMonitorScheduleNote():
         weekOf1STR = weekOf1.strftime('%m-%d-%Y')
       
     est = timezone('America/New_York')
-    today=date.today(est)
+    today=date.today()
     todaySTR = today.strftime('%m-%d-%Y')
     
     #  ALL TRANSACTIONS GET ONE NOTE (DELETE, SWAP, MOVE)
@@ -1264,7 +1264,7 @@ def printMemberSchedule(memberID):
 
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
     est = timezone('America/New_York')
-    todays_date = date.today(est)
+    todays_date = date.today()
     currentYear = todays_date.year
     beginDateDAT = datetime(todays_date.year,1,1)
     todays_dateSTR = todays_date.strftime('%m-%d-%Y')
@@ -1328,7 +1328,7 @@ def emailMemberSchedule():
 
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
     est = timezone('America/New_York')
-    todays_date = date.today(est)
+    todays_date = date.today()
     currentYear = todays_date.year
     #beginDateDAT = datetime(todays_date.year,1,1)
     beginDateDAT = datetime(int(monitorYear),1,1)
@@ -1698,7 +1698,7 @@ def logChange(colName,memberID,newData,origData):
     # Write data changes to tblMember_Data_Transactions
     try:
         newTransaction = MemberTransactions(
-            Transaction_Date = datetime.now(est),
+            Transaction_Date = datetime.now(),
             Member_ID = memberID,
             Staff_ID = staffID,
             Original_Data = origData,
