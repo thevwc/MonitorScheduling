@@ -616,10 +616,10 @@ def swapMonitorAssignments():
     response=LogMonitorScheduleTransaction('RMV-SWP',memberID2,schedDate2,shift2,duty2,asgmnt2ShopNumber)
     if response == '0':
         return "ERROR - Could NOT log transaction."
-    response=LogMonitorScheduleTransaction('ADD-SWP',memberID1,schedDate1,shift1,duty1,asgmnt1ShopNumber)
+    response=LogMonitorScheduleTransaction('ADD-SWP',memberID1,schedDate2,shift2,duty2,asgmnt2ShopNumber)
     if response == '0':
         return "ERROR - Could NOT log transaction."
-    response=LogMonitorScheduleTransaction('ADD-SWP',memberID2,schedDate2,shift2,duty2,asgmnt2ShopNumber)
+    response=LogMonitorScheduleTransaction('ADD-SWP',memberID2,schedDate1,shift1,duty1,asgmnt1ShopNumber)
     if response == '0':
             return "ERROR - Could NOT log transaction."
                 
@@ -766,7 +766,7 @@ def conflicts(memberID,recordID,dateScheduled,shift,duty1,duty2):
 def LogMonitorScheduleTransaction(transactionType,memberID,dateScheduled,shift,duty,shopNumber):
     # VALID TRANSACTION TYPES ARE ADD, ADD-MV, ADD-SWP, DELETE, DELETE NS, RMV-MV, RMV-SWP
     est = timezone('America/New_York')
-    transactionDate = datetime.now()
+    transactionDate = datetime.now(est)
     strTransactionDate = transactionDate.strftime('%Y-%m-%d %I:%M %p')
     
     # CREATE A DATE VAR AND A STR VAR OF THE dateScheduled PASSED IN
@@ -1145,7 +1145,7 @@ def updateMemberModalData():
 
     if lastTrainingBW != member.Last_Monitor_Training_Shop_2:
         logChange('Last Monitor Training (BW)',memberID,lastTrainingBW,member.Last_Monitor_Training_Shop_2)
-        member.Last_Monitor_Training = lastTrainingBW
+        member.Last_Monitor_Training_Shop_2 = lastTrainingBW
         fieldsChanged += 1
 
     if member.Requires_Tool_Crib_Duty != needsToolCrib:
