@@ -1363,24 +1363,12 @@ def emailMemberSchedule():
         msg = 'ERROR - Nothing has been scheduled.'
         return make_response (f"{msg}")    
     
-    # ..... add code to email schedule in body of email
-    #To - insert member's email address, if available
-    #Subject - Monitor schedule for ...
-    #Body -
-    #  Date   Shift   Duty   Location
-    # 3/1/21    AM      Shop Monitor    Brownwood
-    # 3/15/21   AM      Tool Crib       Rolling Acres
-
     # PREPARE AN EMAIL
-    sender = ("frontdesk@thevwc.net")
-    password = 'Dove1234'
-    recipient = emailAddress
-    #recipient = ("Richard Hartley", "hartl1r@gmail.com")
+    sender = app.config['MAIL_USERNAME']
+    password = app.config['MAIL_PASSWORD']
     
-    #bcc=("Woodshop","villagesWoodShop@embarqmail.com")
-    #recipientList = []
-    #recipientList.append(recipient)
-   
+    recipient = emailAddress
+    
     message = msg
     subject = "Monitor schedule for " + displayName
     msg = MIMEMultipart()
