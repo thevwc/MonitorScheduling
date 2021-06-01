@@ -1315,6 +1315,7 @@ def emailMemberSchedule():
     
     displayName = member.First_Name + ' ' + member.Last_Name
     lastTraining = member.Last_Monitor_Training
+    emailAddress = member.eMail
 
     # RETRIEVE LAST_ACCEPTABLE_TRAINING_DATE FROM tblControl_Variables
     lastAcceptableTrainingDate = db.session.query(ControlVariables.Last_Acceptable_Monitor_Training_Date).filter(ControlVariables.Shop_Number == '1').scalar()
@@ -1346,29 +1347,45 @@ def emailMemberSchedule():
     sqlSelect += "LEFT JOIN tblShop_Names ON tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' and Date_Scheduled >= '"
     sqlSelect += beginDateSTR + "' ORDER BY Date_Scheduled, AM_PM, Duty"
-   
+
     try:
         schedule = db.engine.execute(sqlSelect)
+        if (schedule == None):
+            msg = "Nothing scheduled."
+            return make_response (f"{msg}") 
+        
     # check for OperationalError ??
     except (SQLAlchemyError, DBAPIError) as e:
         print("ERROR -",e)
         flash("ERROR - Can't access database.",'danger')
+        msg = "ERROR - Can't access database."
+        return make_response (f"{msg}") 
+
     msg = ''
+
     if (schedule):
         for s in schedule:
-            emailAddress = s.emailAddress
-            displayName = s.displayName 
+            # print('name - ',s.displayName)
+            # emailAddress = s.emailAddress
+            # displayName = s.displayName 
             msg += s.DateScheduled + '  ' + s.AM_PM + '  ' + s.Duty + '  ' + s.Shop_Name + '\n'
     else:
         msg = 'ERROR - Nothing has been scheduled.'
-        return make_response (f"{msg}")    
+        return make_response (f"{msg}")
+
+    # THERE IS A MEMBER BUT NO DATES SCHEDULED
+    if (msg == ''):
+        msg = 'No monitor duty has been scheduled.'   
     
+
     # PREPARE AN EMAIL
     sender = app.config['MAIL_USERNAME']
     password = app.config['MAIL_PASSWORD']
-    
+    if (emailAddress == '' or emailAddress == None):
+        msg = "Missing email address"
+        return make_response (f"{msg}") 
+        
     recipient = emailAddress
-    
     message = msg
     subject = "Monitor schedule for " + displayName
     msg = MIMEMultipart()
@@ -1388,7 +1405,7 @@ def emailMemberSchedule():
     # flash('Schedule has been sent to member.','success')
     # return redirect(url_for('index',villageID=memberID))
     msg = "Schedule has been sent."
-    return msg
+    return make_response (f"{msg}") 
 
 # PRINT WEEKLY MONITOR DUTY SCHEDULE FOR COORDINATOR
 @app.route("/printWeeklyMonitorSchedule", methods=['GET'])

@@ -91,7 +91,6 @@ else {
 }
 
 // CHECK FOR A CURRENT MEMBER ID; IF FOUND DISPLAY NAME AND SCHEDULE
-console.log('1. currentMemberID - ',currentMemberID)
 currentMemberID = document.getElementById('memberID').innerHTML 
 if (currentMemberID == ''){
     currentMemberID = localStorage.getItem('currentMemberID')
@@ -99,7 +98,6 @@ if (currentMemberID == ''){
 else {
     localStorage.setItem('currentMemberID',currentMemberID)
 }
-console.log('2. currentMemberID - ',currentMemberID)
 
 currentMemberName = document.getElementById('memberName').innerHTML
 if (currentMemberName == '') {
@@ -2120,11 +2118,12 @@ function eMailSchedule(){
         },
         success: function(data, textStatus, jqXHR)
         {
-        alert('Message has been sent.')
+           
+            alert(data)
         },
         error: function (jqXHR, textStatus, errorThrown)
         {
-        alert(textStatus,data.msg)
+            alert(textStatus,data.msg)
         }
     }); 
 }
