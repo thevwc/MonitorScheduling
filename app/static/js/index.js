@@ -1266,7 +1266,6 @@ function unAssignedShiftClicked(nameID) {
         dateScheduled=document.getElementById(dayXyyyymmdd).value
         Duty = document.getElementById(idPrefix + 'duty').innerHTML
         Shift = document.getElementById(idPrefix + 'shift').innerHTML
-       
         memberName = document.getElementById(dayXyyyymmdd).value
         addAssignment(currentMemberID,dateScheduled,Shift,shopNumber,Duty,nameID)
         return
@@ -1410,7 +1409,6 @@ function delAssignment(id) {
     }  // END OF ONREADYSTATECHANGE
     
     // SEND WEEK#, STAFF ID, MEMBER ID, DATE SCHEDULED, AMPM, DUTY, AND RECORD ID
-    
     recordID = document.getElementById(idPrefix+"recordID").value
     //deleteAsgmntDt = document.getElementById(idPrefix+"schedDateID").value
     var data = {recordID:recordID};
@@ -1830,6 +1828,67 @@ function openReasonModal(actionDesc,asgmntID1,asgmntID2) {
 }
 
 function saveReasonModal() {
+    reasonDesc = document.getElementById('reasonDescID').value
+    if (reasonDesc == '') {
+        alert('Please enter a reason.')
+        $('#reasonModalID').modal('show')
+        return
+    }
+    if (reasonDesc.length == 0) {
+        alert('Please enter a reason.')
+        $('#reasonModalID').modal('show')
+        return
+    }
+
+    actionDesc = document.getElementById('actionDescID').value
+    transactionType = actionDesc.slice(0,4)
+    if (transactionType == 'DELE') {
+        saveReasonModalDELETE()
+    }
+    else {
+        saveReasonModalSWAPMOVE()
+    }
+}
+
+function saveReasonModalDELETE() {
+    asgmnt1ID = document.getElementById('asgmnt1ID').value
+    shopInitials = document.getElementById('shopToDisplay').value
+    // GET SHOP NUMBER
+    dayX = asgmnt1ID.slice(3,4)
+    if (dayX == '1'){
+        asgmntDate = document.getElementById('day1yyyymmdd').value
+        asgmntShopNumber = document.getElementById('day1ShopNumber').value
+    }
+    else {
+        asgmntDate = document.getElementById('day2yyyymmdd').value
+        asgmntShopNumber = document.getElementById('day2ShopNumber').value
+    }
+    
+    $('#reasonModalID').modal('hide')
+    actionDesc = document.getElementById('actionDescID').value
+    reasonDesc = document.getElementById('reasonDescID').value
+   
+    // SEND ACTION AND REASON TO SERVER WITH DATES, AND SHOPNUMBER
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "/logMonitorScheduleNoteDELETE"); 
+    xhttp.setRequestHeader("Content-Type", "application/json");
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            msg = this.response
+            if (msg.slice(0,5) == 'ERROR') {
+                alert(msg)
+                return
+            }
+            alert(msg)
+        }  // END OF READY STATE RESPONSE
+    }  // END OF ONREADYSTATECHANGE
+
+    var data = {actionDesc:actionDesc,reasonDesc:reasonDesc,asgmntDate:asgmntDate,asgmntShopNumber:asgmntShopNumber};
+    xhttp.send(JSON.stringify(data));
+}  // END OF CLOSE NOTES ROUTINE                 
+
+
+function saveReasonModalSWAPMOVE() {
     asgmnt1ID = document.getElementById('asgmnt1ID').value
     asgmnt2ID = document.getElementById('asgmnt2ID').value
 
@@ -1859,21 +1918,10 @@ function saveReasonModal() {
     $('#reasonModalID').modal('hide')
     actionDesc = document.getElementById('actionDescID').value
     reasonDesc = document.getElementById('reasonDescID').value
-    
-    if (reasonDesc == '') {
-        alert('Please enter a reason.')
-        $('#reasonModalID').modal('show')
-        return
-    }
-    if (reasonDesc.length == 0) {
-        alert('Please enter a reason.')
-        $('#reasonModalID').modal('show')
-        return
-    }
    
     // SEND ACTION AND REASON TO SERVER WITH DATES, AND SHOPNUMBER
     var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "/logMonitorScheduleNote"); 
+    xhttp.open("POST", "/logMonitorScheduleNoteSWAPMOVE"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
     xhttp.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
@@ -1886,7 +1934,6 @@ function saveReasonModal() {
         }  // END OF READY STATE RESPONSE
     }  // END OF ONREADYSTATECHANGE
 
-    
     var data = {actionDesc:actionDesc,reasonDesc:reasonDesc,asgmnt1Date:asgmnt1Date,asgmnt2Date:asgmnt2Date,asgmnt1ShopNumber:asgmnt1ShopNumber,asgmnt2ShopNumber:asgmnt2ShopNumber};
     xhttp.send(JSON.stringify(data));
 }  // END OF CLOSE NOTES ROUTINE                 
