@@ -1260,7 +1260,10 @@ function populateMemberSchedule(memberID) {
 // USER CLICKED ON A BLANK, IE, UNASSIGNED SHIFT SLOT
 // ADD A RECORD TO THE TABLE tblMonitor_Schedule
 function unAssignedShiftClicked(nameID) {
+    console.log('unAssignedShiftClicked - '+nameID)
+
     idPrefix = nameID.slice(0,9)
+    dayNumber = nameID.slice(3,4)
     if (currentMemberID.length == 6 &  !swapInProgress) {
         // ADD NEW ASSIGNMENT TO CURRENT MEMBER'S SCHEDULE
         dayXyyyymmdd = 'day' + nameID.slice(3,4) + 'yyyymmdd'
@@ -1268,6 +1271,10 @@ function unAssignedShiftClicked(nameID) {
         Duty = document.getElementById(idPrefix + 'duty').innerHTML
         Shift = document.getElementById(idPrefix + 'shift').innerHTML
         memberName = document.getElementById(dayXyyyymmdd).value
+        dayShopNumberID = 'day' + dayNumber+'ShopNumber'
+        shopNumber = document.getElementById(dayShopNumberID).value
+        console.log('shopNumber - '+shopNumber)
+
         addAssignment(currentMemberID,dateScheduled,Shift,shopNumber,Duty,nameID)
         return
     }
@@ -1419,6 +1426,10 @@ function delAssignment(id) {
 
 // ADD A NEW ASSIGNMENT 
 function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
+    // console.log(memberID,DateScheduled,Shift,shopNumber,Duty,id)
+    // alert('shopNumber - '+shopNumber+typeof(shopNumber))
+    // console.log('shopNumber - '+shopNumber+typeof(shopNumber))
+
     var xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/addMonitorAssignment"); 
     xhttp.setRequestHeader("Content-Type", "application/json");
@@ -1804,15 +1815,16 @@ function openReasonModal(actionDesc,asgmntID1,asgmntID2) {
     document.getElementById('reasonDescID').value = ""
     document.getElementById('asgmnt1ID').value = asgmntID1
     document.getElementById('asgmnt2ID').value = asgmntID2
-
-    if (document.getElementById('day1Location').value = 'Rolling Acres') {
-        shopNumber = 1
-        shopID = 'RA'
-    }
-    else {
-        shopNumber = 2
-        shopID = 'BW'
-    }
+    shopNumber = document.getElementById('day1ShopNumber').value
+    shopID = document.getElementById('day1ShopInitials')
+    // if (document.getElementById('day1Location').value = 'Rolling Acres') {
+    //     shopNumber = 1
+    //     shopID = 'RA'
+    // }
+    // else {
+    //     shopNumber = 2
+    //     shopID = 'BW'
+    //}
     document.getElementById('shopNumber').value = shopNumber
     document.getElementById('shopID').value = shopID
     $('#reasonModalID').modal('show')
