@@ -437,7 +437,6 @@ def deleteMonitorAssignment():
             shopInitials = 'BW'
         else:
             shopInitials = ''
-    print('recordID - ',str(recordID))
 
     # DELETE THE ASSIGNMENT VIA RAW SQL
     sqlDelete = "DELETE FROM tblMonitor_Schedule WHERE ID = " + recordID

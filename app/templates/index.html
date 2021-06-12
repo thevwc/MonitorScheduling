@@ -109,30 +109,14 @@
                 <div>
                     <input id='needsToolCribDuty' type='text' readonly style=display:none value='No restrictions'>
                 </div>
-                <!-- <div id='schedulePeriod' >
-                    <button 
-                        id='thisYearBtn' 
-                        type='button' 
-                        onclick="changeScheduleYear('{{thisYear}}')" 
-                        style='margin-left:30px;color:red' 
-                        class="btn periodBtn active">{{thisYear}}</button>
-                    <button 
-                        id='lastYearBtn' 
-                        type='button' 
-                        onclick="changeScheduleYear('{{lastYear}}')"
-                        style='color:green' 
-                        class="btn periodBtn ">{{lastYear}}</button>
-                </div> -->
+               
                 <div class="scheduleYear" style='margin-left:30px;padding-top:.2em'>
                     <select id=scheduleYearID disabled>
                         <option id=thisYearsScheduleID value={{thisYear}}>{{thisYear}}</option>
                         <option id=lastYearsScheduleID value={{lastYear}}>{{lastYear}}</option>
                     </select>
                 </div>
-                <!-- <div id='test' class='btn-group' data-toggle='buttons-radio'>
-                    <button class="btn active">2021</button>
-                    <button class="btn">2020</button>
-                </div> -->
+                
                 <span id = "memberID" style = "color:red;display:block;">{{memberID}}</span>  
             </div>
 

@@ -258,6 +258,7 @@ function dayClicked(dayClickedID) {
     
     // IS THE SHOP OPEN?
     curDay = document.getElementById(dayClickedID)
+    
     if (curDay.classList.contains('closed')){
         modalAlert("VWC","The shop is closed.\nYou may not schedule a member on this date.")
         return
@@ -1434,22 +1435,16 @@ function addAssignment(memberID,DateScheduled,Shift,shopNumber,Duty,id) {
             mbrName  = document.getElementById('memberName').innerHTML
             document.getElementById(id).value = mbrName
 
-            // CONSTRUCT dayID FOR EXECUTING THE dayClicked FUNCTION
-            // tableArea=id.slice(3,4)
-            // if (tableArea = 'upper') {
-            //     dayYearMoDa = document.getElementById('day1yyyymmdd').value
-            // }
-            // else
-            // {
-            //     dayYearMoDa = document.getElementById('day2yyyymmdd').value
-            // }
-
             // REFRESH CALENDAR DISPLAY TO REFLECT NEW ASSIGNMENT
             refreshCalendarRtn()
 
             // REFRESH MEMBERS SCHEDULE
             populateMemberSchedule(memberID)
             
+            // REFRESH THE DAY USING dayClicked(....)
+            dayClickedID = "x" + DateScheduled
+            dayClicked(dayClickedID)
+
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
 
@@ -1646,8 +1641,6 @@ function makeSwap(recordID1,recordID2,asgmntID1,asgmntID2) {
             }
             else {
                 modalAlert('SWAP',msg)
-                //alert(msg)
-                
             } 
         }  // END OF READY STATE TEST
     }  // END OF ONREADYSTATECHANGE
