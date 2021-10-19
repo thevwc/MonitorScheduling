@@ -374,7 +374,11 @@ def getMemberSchedule():
             schedArray[0][11]='NEEDS TOOL CRIB DUTY'
         else:
             schedArray[0][11]='No restrictions'
-        
+
+    
+    todays_date = date.today()
+    todays_DateSTR = todays_date.strftime('%m-%d-%Y')
+
     # ADD SCHEDULE TO ARRAY IF IT EXISTS
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
     sqlSelect += "Last_Name + ', ' + First_Name + '  (' + tblMember_Data.Member_ID + ')' as displayName, "
@@ -384,7 +388,7 @@ def getMemberSchedule():
     sqlSelect += "FROM tblMember_Data "
     sqlSelect += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' "
-    sqlSelect += "and DatePart(year,[Date_Scheduled]) = '" + str(scheduleYear) + "' "
+    sqlSelect += "and Date_Scheduled >= '" + todays_DateSTR + "' "
     sqlSelect += "ORDER BY Date_Scheduled"
     memberSchedule = db.engine.execute(sqlSelect)
 
@@ -1376,11 +1380,7 @@ def emailMemberSchedule():
     # RETRIEVE MEMBER SCHEDULE FOR CURRENT YEAR AND FORWARD
     est = timezone('America/New_York')
     todays_date = date.today()
-    #currentYear = todays_date.year
-    #beginDateDAT = datetime(todays_date.year,1,1)
-    #beginDateDAT = datetime(int(monitorYear),1,1)
     todays_DateSTR = todays_date.strftime('%m-%d-%Y')
-    #beginDateSTR = beginDateDAT.strftime('%m-%d-%Y')
     
     # BUILD SELECT STATEMENT TO RETRIEVE MEMBERS SCHEDULE FOR CURRENT YEAR FORWARD
     sqlSelect = "SELECT tblMember_Data.Member_ID as memberID, "
@@ -1393,6 +1393,7 @@ def emailMemberSchedule():
     sqlSelect += "LEFT JOIN tblShop_Names ON tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number "
     sqlSelect += "WHERE tblMember_Data.Member_ID = '" + memberID + "' and Date_Scheduled >= '"
     sqlSelect += todays_DateSTR + "' ORDER BY Date_Scheduled, AM_PM, Duty"
+
 
     try:
         schedule = db.engine.execute(sqlSelect)
