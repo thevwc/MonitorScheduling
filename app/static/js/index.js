@@ -775,17 +775,17 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                 else {
                     document.getElementById('day1Notes').style.display='none' 
                 }
-                document.getElementById('day1Print').style.display='block'
+                //document.getElementById('day1Print').style.display='block'
                 document.getElementById('day1Clear').style.display='block'
             
                 document.getElementById('day1Date').innerHTML = sched[0][1]
                 day1Title = shopName
                 document.getElementById('day1Location').innerHTML = day1Title
                 
-                prt = document.getElementById("day1Print")
-                address = "/printWeeklyMonitorSchedule?dateScheduled="+ yyyymmdd + "&shopNumber=" + shopNumber + "&memberID=" + memberID
-                lnk = "window.location.href='" + address +"'"
-                prt.setAttribute("onclick",lnk)
+                // prt = document.getElementById("day1Print")
+                // address = "/printWeeklyMonitorSchedule?dateScheduled="+ yyyymmdd + "&shopNumber=" + shopNumber + "&memberID=" + memberID
+                // lnk = "window.location.href='" + address +"'"
+                // prt.setAttribute("onclick",lnk)
 
                 // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
                 document.getElementById('day1yyyymmdd').value = yyyymmdd
@@ -816,17 +816,17 @@ function buildDayTable(tableArea, shopLocation, dayClickedID) {
                 else {
                     document.getElementById('day2Notes').style.display='none' 
                 }
-                document.getElementById('day2Print').style.display='block'
+                //document.getElementById('day2Print').style.display='block'
                 document.getElementById('day2Clear').style.display='block'
 
                 document.getElementById('day2Date').innerHTML = sched[0][1] 
                 day2Title = shopName
                 document.getElementById('day2Location').innerHTML = day2Title
                 
-                prt = document.getElementById("day2Print")
-                address = "/printWeeklyMonitorSchedule?dateScheduled="+ yyyymmdd + "&shopNumber=" + shopNumber + "&memberID=" + memberID
-                lnk = "window.location.href='" + address +"'"
-                prt.setAttribute("onclick",lnk)
+                //prt = document.getElementById("day2Print")
+                //address = "/printWeeklyMonitorSchedule?dateScheduled="+ yyyymmdd + "&shopNumber=" + shopNumber + "&memberID=" + memberID
+                //lnk = "window.location.href='" + address +"'"
+                //prt.setAttribute("onclick",lnk)
 
                 // STORE DATE SCHEDULED IN yyyymmdd FORMAT IN A HIDDEN INPUT ELEMENT
                 document.getElementById('day2yyyymmdd').value = yyyymmdd
@@ -1485,7 +1485,7 @@ function clearDay1() {
     document.getElementById('day1Location').innerHTML=''
     // HIDE BUTTONS
     document.getElementById('day1Notes').style.display='none'
-    document.getElementById('day1Print').style.display='none'
+    //document.getElementById('day1Print').style.display='none'
     document.getElementById('day1Clear').style.display='none'
 
     // REMOVE STORED VALUE
@@ -1506,7 +1506,7 @@ function clearDay2() {
     document.getElementById('day2Location').innerHTML=''
     // HIDE BUTTONS
     document.getElementById('day2Notes').style.display='none'
-    document.getElementById('day2Print').style.display='none'
+    //document.getElementById('day2Print').style.display='none'
     document.getElementById('day2Clear').style.display='none'
 
     // REMOVE STORED VALUE
