@@ -79,7 +79,7 @@ def index():
         flash (msg,'danger')
         return msg               
     
-    if (isDBA == 'True' or isManager == 'True' or isCoordinator == 'True'):
+    if (isDBA == 'True' or isManager == 'True' or isCoordinator == 'True' or isStaff == 'True'):
         canViewNotes = 'True'
     else:
         canViewNotes = 'False'
