@@ -1607,8 +1607,9 @@ def printMonitorScheduleWeek():
     sqlSelectSM += "LEFT JOIN tblMonitor_Schedule ON tblMonitor_Schedule.Member_ID = tblMember_Data.Member_ID "
     sqlSelectSM += "LEFT JOIN tblShop_Names ON tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number "
     sqlSelectSM += "WHERE Date_Scheduled between '" + beginDateSTR + "' and '" + endDateSTR + "' "
+    sqlSelectSM += " AND tblMonitor_Schedule.Shop_Number = '" + shopNumber + "'"
     #sqlSelectSM += " and tblMonitor_Schedule.Duty = 'Shop Monitor' "
-    sqlSelectSM += "ORDER BY dayOfWeek, AM_PM,Last_Name"
+    sqlSelectSM += " ORDER BY dayOfWeek, AM_PM,Last_Name"
     SMschedule = db.engine.execute(sqlSelectSM)
     
     # BUILD SELECT STATEMENT TO RETRIEVE SM MEMBERS SCHEDULE FOR CURRENT YEAR FORWARD
@@ -1623,6 +1624,7 @@ def printMonitorScheduleWeek():
     sqlSelectTC += "LEFT JOIN tblShop_Names ON tblMonitor_Schedule.Shop_Number = tblShop_Names.Shop_Number "
     sqlSelectTC += "WHERE Date_Scheduled between '" + beginDateSTR + "' and '" + endDateSTR + "' "
     sqlSelectTC += " and tblMonitor_Schedule.Duty = 'Tool Crib' "
+    sqlSelectTC += " AND tblMonitor_Schedule.Shop_Number = '" + shopNumber + "'"
     sqlSelectTC += "ORDER BY dayOfWeek, AM_PM, Last_Name"
     TCschedule = db.engine.execute(sqlSelectTC)
 
