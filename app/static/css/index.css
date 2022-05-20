@@ -11,6 +11,7 @@
 @media (min-width: 1280px) {
 
     .parent {
+        width:80%;
         display: grid;
         grid-template-columns:1.10fr 1fr;
         grid-template-areas: "hdgArea      hdgArea"
@@ -141,7 +142,7 @@
         grid-area: parent2Area;
         grid-template-columns:1fr;
         grid-template-rows:50px auto fit-content(200px) auto minmax(200px, auto) auto auto 1fr;
-        grid-area: 0.5em;
+        grid-area: 0.1em;
         grid-template-areas: "nameArea"
                             "memberOptionsArea"
                             "scheduleArea"
@@ -151,8 +152,8 @@
                             /* "memberNoteArea"
                             "monitorNoteArea";  */
         background-color:lightgray;
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 5px;
+        padding-right: 5px;
     }
 
     #memberNameSection {
@@ -170,16 +171,17 @@
 
     .memberName {
         margin-top:.2em;
-        padding-top:0em;
+        margin-left:5em;
+        padding-top:.5em;
         border: 1px solid white;
-        text-align:center;
-        font-size: 1.5rem;
+        text-align:left;
+        font-size: 1rem;
         background-color:navy;
         color:white;
     }
     #clearMemberBtn {
-        margin-left:5px;
-        width: 90px;
+        margin-left:0px;
+        width: 70px;
         height:25px;
         font-size:1rem;
         display:none;
@@ -214,6 +216,8 @@
 
     #memberList {
         text-align:left;
+        margin-right:0px;
+
     }
     /* #memberName {
         background-color: navy;
@@ -670,16 +674,18 @@
         height: 35px;
     }
 }
-@media (min-width: 1440px) {
-    
-}
 .rowSelected { 
     background-color: yellow;
 }
-/* .selected {
-    background-color:yellow;
-} */
 
-#test .active {
-    color:fuchsia;
+@media (min-width: 1440px) {
+    .parent{
+        width:100%;
+    }
+}
+
+@media (min-width: 1920px) {
+    .parent{
+        width:100%;
+    }
 }

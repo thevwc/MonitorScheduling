@@ -25,7 +25,10 @@ mail = Mail(app)
 @app.route('/', methods=['GET','POST'])
 @app.route('/index/',methods=['GET','POST'])
 def index():
-       
+    #args = request.args
+    #print(type(args))
+    #print(args)
+    
     # STORE LAST_ACCEPTABLE_TRAINING_YEAR IN SESSION VARIABLE
     #lastAcceptableTrainingDate = db.session.query(ControlVariables.Last_Acceptable_Monitor_Training_Date).filter(ControlVariables.Shop_Number == 1).scalar()
     #session['lastAcceptableTrainingDate'] = lastAcceptableTrainingDate

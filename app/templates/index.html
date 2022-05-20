@@ -14,7 +14,7 @@
                 <h2>MONITOR SCHEDULING</h2>
             </div>
             <div class="version">
-                <h4>ver. Oct 25, 2021</h4> 
+                <h4>ver. May 20, 2022</h4> 
                 <input id='shopID' type="text" style=display:none value={{shopID}}>
             </div> 
             
@@ -69,7 +69,7 @@
 
             <!-- MEMBER NAME SECTION -->
             <div id="memberNameSection" class=row>
-                <div id="memberList" class=col-sm-5>
+                <div id="memberList" class=col-sm-4>
                     <select id="selectpicker" class='selectpicker' style='margin-bottom:0px' 
                         title='Find a member ...' data-live-search=true data-live-search-style="contains" data-width='auto'>
                             {% for nme in nameList %}
@@ -81,7 +81,7 @@
                     <span id="memberName">{{displayName}}</span>
                 </div>
                 <div class="col-sm-1">
-                    <button id='clearMemberBtn' type="button"   class="btn-primary btn btn-sm" onclick="clearMemberRtn()">Clear</button>
+                    <button id='clearMemberBtn' type="button" class="btn-primary btn btn-sm" onclick="clearMemberRtn()">Clear</button>
                 </div>
             </div>
             <div id="memberOptions" class=row>
@@ -101,7 +101,7 @@
                     style="height:20px;width:75px;font-size: small;color:green;border:2px solid green" 
                     value="">
                 </div>
-                <div id="memberBtnsID">
+                <div>
                     <button id='memberDataBtn'  disabled class="btn-primary btn btn-sm memberBtn" onclick="openMemberModal()">Member Data</button>
                     <button id="printMemberScheduleBtn"  disabled class="btn btn-primary btn-sm memberBtn" >Print Schedule</button>   
                     <button id="emailMemberScheduleBtn" disabled class="btn btn-primary btn-sm memberBtn">Email Schedule</button>
