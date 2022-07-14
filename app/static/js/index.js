@@ -110,7 +110,6 @@ else {
 
 if (currentMemberID.length == 6) {
     document.getElementById('memberName').innerHTML = localStorage.getItem('currentMemberName')
-    document.getElementsByClassName('memberBtn').style.display='block'
     document.getElementById('scheduleYearID').style.display='block'
     showMemberButtons()
     populateMemberSchedule(currentMemberID,'')
@@ -351,7 +350,7 @@ function refreshCalendarRtn() {
     currentMemberID = document.getElementById('memberID').innerHTML 
     if (currentMemberID.length == 6) { 
         populateMemberSchedule(currentMemberID,'')
-        document.getElementsByClassName('memberBtn').style.display='block'
+        showMemberButtons()
     }   
 }
 
